@@ -1,0 +1,12 @@
+{
+    "model": "RP",
+    "type_ml":"classification",
+    "train_grid":"NONE",
+    "n_jobs":8,
+    "params": {
+    },
+    "params_grid":
+    {
+
+    }
+}

@@ -1,0 +1,13 @@
+#
+#Image Build
+#
+## sudo singularity build --sandbox sibila.simg sibila.def (not used)
+sudo singularity build --writable sibila.simg sibila.def
+#
+#mount (not used)
+#
+##export SINGULARITY_BINDPATH="/home/jpg/Workspace/REVERT/singularity/sibila/:/tmp"
+#
+#	Exec (from sibila folder)
+#
+singularity exec --bind ./:/tmp/ Tools/Singularity/sibila.simg  python3 /tmp/sibila.py

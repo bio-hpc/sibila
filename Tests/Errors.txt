@@ -1,0 +1,22 @@
+[SECTION_ERROR]
+E0001 = Load File
+E0002 = Read Model
+E0003 = Wrong number of models in
+E0004 = Wrong number of folders in
+E0005 = Error with the dataset
+E0006 = Error with interpretability
+E0007 = File is empty
+E0100 = Saved model (joblib | hdf5) not found
+E0102 = Confusion matrix error
+E0103 = Probability classes ROC
+E0104 = Data exported to JSON
+E0105 = Data exported to TXT
+E0106 = ROC curve (probability)
+E0107 = ROC curve
+E0108 = Resume exported to CSV
+E0109 = File(s) not found
+E0110 = Normalization method failed
+E0111 = Balancing method failed
+E0112 = Predicted output is not binary
+E0113 = True and predicted values have different size
+E0114 = Correlation plot missing

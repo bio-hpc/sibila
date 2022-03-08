@@ -1,0 +1,22 @@
+{
+    "model": "DT",
+    "type_ml":"classification",
+    "train_grid":"train_random",
+    "n_jobs":8,
+    "params": {
+      "max_leaf_nodes": 100
+    },
+    "params_grid":
+    {
+        "criterion": ["gini", "entropy"],
+        "splitter": ["best", "random"],
+        "max_depth": [2,4,6,8,10,12],
+        "min_samples_split" :[0.1,0.2,0.4, 0.8, 0.9],
+        "min_samples_leaf" : [1,2,3,4],
+        "min_weight_fraction_leaf": [0],
+        "max_features": ["auto", "sqrt", "log2"],
+        "max_leaf_nodes":[50, 100, 150, 200, 300],
+        "min_impurity_decrease": [0, 0.1, 0.2, 0.3, 0.4, 0.5],
+        "ccp_alpha": [0,0.1,0.2,0.3,0.4,0.5]
+    }
+}

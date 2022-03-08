@@ -1,0 +1,22 @@
+Bootstrap: docker
+From:ubuntu:latest
+MirrorURL: http://us.archive.ubuntu.com/ubuntu/
+
+%help
+    This is a container for running SIBILA.
+
+%files
+    ../../requirements.txt /opt/requirements.txt
+    
+%post
+    apt-get update
+    DEBIAN_FRONTEND=noninteractive apt-get -y install git python3.7 python3-pip python3-dev vim graphviz libreoffice
+    apt-get clean
+    pip3 install -r /opt/requirements.txt
+
+%environment
+    export LC_ALL=C
+
+%labels
+    Maintainer BIO-HPC
+    Version    v0.1

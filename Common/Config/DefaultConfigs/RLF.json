@@ -1,0 +1,20 @@
+{
+    "model": "RLF",
+    "type_ml":"classification",
+    "train_grid":"NONE",
+    "n_jobs":8,
+    "params": {
+        "tree_size": 4,
+        "sample_fract": "default",
+        "max_rules":2000,
+        "memory_par":0.01,
+        "rfmode":"classify",
+        "lin_trim_quantile":0.025,
+        "lin_standardise":true,
+        "exp_rand_tree_size":true
+    },
+    "params_grid":
+    {
+
+    }
+}
