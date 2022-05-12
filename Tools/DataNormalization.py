@@ -9,7 +9,7 @@ from Tools.IOData import IOData
 __author__ = "Jorge de la Peña García"
 __version__ = "1.0"
 __maintainer__ = "Jorge"
-__email__ = "jorge.dlpg@gmail.com"
+__email__ = "jpena@ucam.edu"
 __status__ = "Production"
 
 
