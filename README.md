@@ -12,13 +12,9 @@ Needed to secure compatibility with all cluster.
 
 cd sibila/Tools/Singularity
 
-wget --no-check-certificate -r "https://bio-hpc.ucam.edu/owncloud/index.php/s/zgxfq8ao5Z4nlUV" -O sibila.simg
+wget "https://drive.google.com/uc?export=download&id=1ekI08_n1zioEw511bxZYak2T5Jk5RB3Y&confirm=t" -O sibila.simg
 
 chmod u+x sibila.simg
-
-#unzip singularity/singularity.zip -d singularity/
-
-#rm singularity/singularity.zip
 
 ### Available ML/DL Models and Algorithms
 1. **DT (Decision Tree)**
