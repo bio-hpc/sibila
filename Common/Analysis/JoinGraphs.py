@@ -100,7 +100,6 @@ class JoinGraphs:
                 'Model': data['Config']['Model_params']['model'],
                 'Pearson': [float(x) for x in analysis['Pearson Correlation Coefficient'].split('/')],
                 'R2': analysis['Coefficient of Determination'],
-                'Mean average precision': analysis['Mean average precision'],
                 'MAE': analysis['Mean Absolute Error'],
                 'MSE': analysis['Mean Squared Error']
             }

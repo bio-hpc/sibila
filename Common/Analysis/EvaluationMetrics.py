@@ -18,7 +18,7 @@ import pkg_resources
 import subprocess
 import json
 
-MODULES_REQUIRED = {'numpy', 'matplotlib', 'scipy', 'scikit-plot', 'metrics-eval'}
+MODULES_REQUIRED = {'numpy', 'matplotlib', 'scipy', 'scikit-plot'}
 installed = {pkg.key for pkg in pkg_resources.working_set}
 missing = MODULES_REQUIRED - installed
 if missing:
@@ -36,7 +36,6 @@ import tensorflow as tf
 from sklearn.metrics import f1_score, precision_score, recall_score, mean_absolute_error, \
     mean_squared_error, confusion_matrix, accuracy_score, roc_curve, roc_auc_score, \
     r2_score
-from metrics_eval import mrr, precision_at_k, dcg, ndcg, map
 from Tools.Graphics import Graphics
 from Tools.ToolsModels import is_regression_by_config
 from Tools.TypeML import TypeML
@@ -159,34 +158,6 @@ class EvaluationMetrics:
         """
         return mean_absolute_error(self.yts, self.ypr)
 
-    def mean_reciprocal_rank(self):
-        """
-            https://pypi.org/project/metrics-eval/
-        """
-        return mrr(self.yts, self.ypr)
-
-    def p_at_k(self):
-        """
-            https://pypi.org/project/metrics-eval/
-        """
-        return precision_at_k(self.yts, self.ypr, self.K)
-
-    def discounted_cumulative_gain(self):
-        """
-
-        """
-        return dcg(self.yts, self.ypr, self.K)
-
-    def mean_average_precision(self):
-        """
-            https://pypi.org/project/metrics-eval/
-            https://stackoverrun.com/es/q/10000565
-        """
-        return map(self.yts, self.ypr, self.K)
-
-    def normalized_discounted_cumulative_gain(self):
-        return ndcg(self.yts, self.ypr, self.K)
-
     def pearson_correlation_coefficient(self):
         """
         https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.pearsonr.html
@@ -248,11 +219,6 @@ class EvaluationMetrics:
                 'Recall Score': round(self.recall() * 100, self.DECIMALS_ROUND),
                 'Specificity': round(self.specificity() * 100, self.DECIMALS_ROUND),
                 'Auc': round(self.auc_value(), self.DECIMALS_ROUND),
-                #'Mean reciprocal rank': round(self.mean_reciprocal_rank() * 100, self.DECIMALS_ROUND),
-                #'Precision at k': round(self.p_at_k() * 100, self.DECIMALS_ROUND),
-                # Not work
-                # self.print_m("Discounted Cumulative Gain {}% ".format(round(self.discounted_cumulative_gain() * 100, self.DECIMALS_ROUND)))
-                # self.print_m("Normalized discounted cumulative gain {}% ".format(round(self.normalized_discounted_cumulative_gain() * 100, self.DECIMALS_ROUND)))
             }
             self.g_roc_curve()
         else:
@@ -261,7 +227,6 @@ class EvaluationMetrics:
             self.data['Analysis'] = {
                 'Pearson Correlation Coefficient': paux,
                 'Coefficient of Determination': round(self.coefficient_of_determination(), self.DECIMALS_ROUND),
-                'Mean average precision': round(self.mean_average_precision(), self.DECIMALS_ROUND),
                 'Mean Absolute Error': round(self.m_absolute_error(), self.DECIMALS_ROUND),
                 'Mean Squared Error': round(self.m_squared_error(), self.DECIMALS_ROUND)
             }
