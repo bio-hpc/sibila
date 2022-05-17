@@ -38,27 +38,33 @@ def is_rulefit_model(model):
 
 
 def make_model(cfg, id_list, input_shape=None):
-    if input_shape == None:
-        input_shape = (1, len(id_list))
+    #if input_shape == None:
+    #    input_shape = (1, len(id_list))
 
-    layers = [tf.keras.layers.InputLayer(input_shape=input_shape)]
-    for k in cfg.get_params()['params']['layers'].keys():
-        layer_conf = cfg.get_params()['params']['layers'][k]
-        if not 'properties' in layer_conf.keys():
-            layer_conf['properties'] = {}
+    #layers = [tf.keras.layers.InputLayer(input_shape=input_shape)]
+    #for k in cfg.get_params()['params']['layers'].keys():
+    #    layer_conf = cfg.get_params()['params']['layers'][k]
+    #    if not 'properties' in layer_conf.keys():
+    #        layer_conf['properties'] = {}
 
-        # https://keras.io/api/layers/initializers/
-        layer = ClassFactory(layer_conf['type'], **layer_conf['properties']).get()
-        try:
-            if 'kernel_initializer' in dir(layer):
-                layer.kernel_initializer = tf.keras.initializers.GlorotUniform(seed=cfg.get_args()['seed'])
-        except:
-            layer._kernel_initializer = tf.keras.initializers.GlorotUniform(seed=cfg.get_args()['seed'])
+    #    # https://keras.io/api/layers/initializers/
+    #    layer = ClassFactory(layer_conf['type'], **layer_conf['properties']).get()
+    #    try:
+    #        if 'kernel_initializer' in dir(layer):
+    #            layer.kernel_initializer = tf.keras.initializers.GlorotUniform(seed=cfg.get_args()['seed'])
+    #    except:
+    #        layer._kernel_initializer = tf.keras.initializers.GlorotUniform(seed=cfg.get_args()['seed'])
 
-        layers.append(layer)
+    #    layers.append(layer)
 
-    return tf.keras.Sequential(layers)
-
+    #return tf.keras.Sequential(layers)
+ 
+    return tf.keras.Sequential([
+        #tf.keras.layers.InputLayer(input_shape=input_shape),
+        tf.keras.layers.Dense(16, activation='relu'),
+        tf.keras.layers.Dense(16, activation='relu'),
+        tf.keras.layers.Dense(2, activation='softmax')
+    ])
 
 def get_explainer_model(model, estimator, yts, cfg):
     if is_tf_model(model):

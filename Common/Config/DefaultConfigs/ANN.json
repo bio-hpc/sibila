@@ -3,51 +3,32 @@
     "type_ml": "classification",
     "n_job": 1,
     "params": {
-        "draw_model": false,
+        "draw_model": true,
         "random_state": 500,
-        "batch_size": 1024,
-        "epochs": 500,
-        "loss_function": "sparse_categorical_crossentropy",
-        "cv_splits": 5,
-        "optimizer": {
-            "type": "tensorflow.keras.optimizers.Adam",
-            "properties": {
-                "learning_rate": 0.01
-            }
-        },
-        "layers": {
-            "dense_0": {
-                "type": "tensorflow.keras.layers.Dense",
-                "properties": {
-                    "units": 16,
-                    "activation": "relu",
-                    "name": "dense_0",
-                    "kernel_regularizer": "l2"
-                }
-            },
-            "dense_2": {
-                "type": "tensorflow.keras.layers.Dense",
-                "properties": {
-                    "units": 16,
-                    "activation": "relu",
-                    "name": "dense_2",
-                    "kernel_regularizer": "l2"
-                }
-            },
-            "dense_1": {
-                "type": "tensorflow.keras.layers.Dense",
-                "properties": {
-                    "units": 2,
-                    "activation": "softmax",
-                    "name": "dense_1"
-                }
-            }
-        },
-        "metrics": [
-            "tensorflow.keras.metrics.MeanAbsoluteError",
-            "tensorflow.keras.metrics.MeanSquaredError",
+        "cv_splits": 10,
+        "cv_metrics": [
             "tensorflow.keras.metrics.MeanSquaredLogarithmicError",
             "tensorflow.keras.metrics.RootMeanSquaredError"
-        ]
+        ],
+        "batch_size": 1024
+    },
+    "params_grid": {
+        "objective": ["accuracy"],
+        "max_layers": 3,
+        "min_units": 4,
+        "max_units": 512,
+        "step_units": 4,
+        "output_units": 2,
+        "activation": ["relu","elu","tanh","sigmoid","softmax","linear","exponential"],
+        "dropout": true,
+        "dropout_rate": 0.25,
+        "min_lr": 1e-4,
+        "max_lr": 1e-2,
+        "sampling_lr": "log",
+        "metrics": ["accuracy"],
+        "loss_function": "sparse_categorical_crossentropy",
+        "epochs": 100,
+        "executions_per_trial": 5,
+        "early_stopping_patience": 3
     }
 }

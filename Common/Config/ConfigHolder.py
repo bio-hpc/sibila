@@ -7,7 +7,7 @@
 __author__ = "Jorge de la Peña García"
 __version__ = "1.0"
 __maintainer__ = "Jorge"
-__email__ = "jpena@ucam.edu"
+__email__ = "jorge.dlpg@gmail.com"
 __status__ = "Production"
 
 import sys
@@ -106,6 +106,9 @@ class ConfigHolder:
 
     def set_model_params(self, params):
         self.config["Model_params"]["params"] = params
+
+    def set_grid_params(self, params):
+        self.config["Model_params"]["params_grid"] = params
 
     def get_prefix(self):
         return self.config['Prefix']
