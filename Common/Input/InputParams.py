@@ -45,7 +45,7 @@ class InputParams:
         """
         print("")
         options = self.iodata.read_all_options()
-        options_reg = [value for value in options if value in self.REGRESSION_MODELS]
+        options_reg = [value for value in options if value in self.REGRESSION_MODELS and value != 'ANN']
         parser = argparse.ArgumentParser(description='SIBILA', add_help=True)
         parser.add_argument('-d',
                             '--dataset',
