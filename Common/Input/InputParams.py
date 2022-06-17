@@ -12,6 +12,8 @@ from Tools.DatasetBalanced import DatasetBalanced
 
 class InputParams:
     ALLOW_EXTENSIONS_DATASET = ['csv', 'pkl']
+    REGRESSION_MODELS = ['ANN', 'KNN', 'RF', 'DT', 'SVM', 'XGBOOST']
+
 
     def __init__(self):
         self.iodata = IOData()
@@ -28,7 +30,14 @@ class InputParams:
     def check_params(self, args):
         if args.model is not None and any(v is not None
                                           for v in [args.option, args.parameters, args.balanced, args.crossvalidation]):
-            self.iodata.print_e('ERROR: -m argument is not compatible with -o, -t, -p, -b and -cv')
+            self.iodata.print_e('-m argument is not compatible with -o, -t, -p, -b and -cv')
+        
+        opt_aux = [value for value in args.option if value in self.REGRESSION_MODELS]
+        if args.regression == True:
+            if len(args.option) == 1 and (args.option[0] != 'ALL' and args.option[0] not in self.REGRESSION_MODELS):
+                self.iodata.print_e('-r argument is only valid with -r [ALL, {}] parameter'.format(', '.join(self.REGRESSION_MODELS)))
+            elif len(args.option) > 1 and len(args.option) != len(opt_aux):
+                self.iodata.print_e('-r argument is only valid with -r [ALL, {}] parameter'.format(', '.join(self.REGRESSION_MODELS)))
 
     def read_params(self):
         """
@@ -36,6 +45,7 @@ class InputParams:
         """
         print("")
         options = self.iodata.read_all_options()
+        options_reg = [value for value in options if value in self.REGRESSION_MODELS]
         parser = argparse.ArgumentParser(description='SIBILA', add_help=True)
         parser.add_argument('-d',
                             '--dataset',
@@ -90,7 +100,10 @@ class InputParams:
             args.option = None
             args.trainsize = None
         else:
-            args.option = options if (args.option[0] == "ALL") else args.option
+            if not args.regression:
+                args.option = options if (args.option[0] == "ALL") else args.option
+            else:
+                args.option = options_reg if (args.option[0] == "ALL") else args.option
         if args.parameters:
             [
                 self.iodata.print_e("Parameter files must be json") for i in args.parameters
