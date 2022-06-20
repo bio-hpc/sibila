@@ -58,11 +58,11 @@ METHODS = {
         'n_files': [DATASET_LEN_IDLIST],
         'deny_methods': []
     },
-    'FeatureImportance': {
-        'folder': "",
-        'n_files': [DATASET_LEN_IDLIST],
-        'deny_methods': ['ANN', 'RP', 'RLF', 'XGBOOST']
-    },
+    #'FeatureImportance': {
+    #    'folder': "",
+    #    'n_files': [DATASET_LEN_IDLIST],
+    #    'deny_methods': ['ANN', 'RP', 'RLF', 'XGBOOST']
+    #},
     'Dice': {
         'folder': "DICE/png/",
         'n_files': [5],
