@@ -1,7 +1,7 @@
 numpy==1.18
 scikit-learn>=0.24.2
 pydot
-pandas
+pandas==1.3.5
 numba
 tensorflow==2.2.0
 tensorflow-gpu==2.2.0
@@ -12,6 +12,7 @@ scipy==1.4.1
 scikit-plot
 python-benedict
 eli5==0.11.0
+jinja2==3.0.3
 pdfkit
 imgkit
 keras
@@ -30,3 +31,4 @@ wittgenstein
 dice-ml
 RuleFit @ git+https://github.com/christophM/rulefit.git@8a48b632ce3a98ad5463ac72113cf832385d265e
 python-docx
+keras-tuner==1.1.0

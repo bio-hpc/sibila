@@ -1,16 +1,16 @@
 Bootstrap: docker
-From:ubuntu:latest
+From:ubuntu:20.04
 MirrorURL: http://us.archive.ubuntu.com/ubuntu/
 
 %help
-    This is a container for running SIBILA.
+    This is a container for SIBILA engine.
 
 %files
     ../../requirements.txt /opt/requirements.txt
     
 %post
     apt-get update
-    DEBIAN_FRONTEND=noninteractive apt-get -y install git python3.7 python3-pip python3-dev vim graphviz libreoffice
+    DEBIAN_FRONTEND=noninteractive apt-get -y install git python3.8 python3-pip python3-dev vim graphviz libreoffice
     apt-get clean
     pip3 install -r /opt/requirements.txt
 
@@ -19,4 +19,4 @@ MirrorURL: http://us.archive.ubuntu.com/ubuntu/
 
 %labels
     Maintainer BIO-HPC
-    Version    v0.1
+    Version    v1.0

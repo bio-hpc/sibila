@@ -16,8 +16,15 @@ class TestCrossValidation(BaseTest):
 
         args = Args(model_name)
         params = get_default_config(model_name, io_data)
+
         params['params']['cv_splits'] = 2
-        params['params']['epochs'] = 50
+        params['params_grid']['epochs'] = 5
+        params['params_grid']['min_units'] = 4
+        params['params_grid']['max_units'] = 8
+        params['params_grid']['max_layers'] = 2
+        params['params_grid']['executions_per_trial'] = 2
+        params['params_grid']['min_lr'] = 0.01
+        params['params_grid']['max_lr'] = 0.01
         p = FOLDER_TEST + model_name
         cfg = self.get_config_holder(args, params, p)
 

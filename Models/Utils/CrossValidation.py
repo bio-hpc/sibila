@@ -160,7 +160,8 @@ class CrossValidation:
         @param y: numpy.ndarray
         @n_splits: int
         @n_groups: int
-        """        
+        """
+        n_splits = min(n_splits, n_groups)        
         groups = np.floor(np.linspace(0, n_groups, len(y)))
         gkf = model_selection.GroupKFold(n_splits=n_splits)
         return gkf.split(x, y, groups)
