@@ -8,4 +8,3 @@ echo "#SBATCH --mem=${5}"
 #SBATCH -p standard
 
 
-

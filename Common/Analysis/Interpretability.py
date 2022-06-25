@@ -16,19 +16,20 @@ import pandas as pd
 import time
 from Common.Config.ConfigHolder import MAX_IMPORTANCES
 from Tools.PostProcessing.Serialize import Serialize
-from Tools.IOData import serilize_class
-from Tools.IOData import get_serializa_params
+from Tools.IOData import get_serialized_params, serilize_class
 from Common.Analysis.Explainers import *
 from Tools.Timer import Timer
 from Tools.Graphics import Graphics
 from os.path import basename, dirname, normpath
 from glob import glob
+from Tools.Bash.Queue_manager.JobManager import JobManager
 
 
 class Interpretability:
     # FeatureImportance only works with DT, RF, SVM and KNN
     TEST_METHODS = []
-    PARALLEL_METHODS = ['Lime', "Shapley", "IntegratedGradients", 'Dice', 'PDP']
+    #PARALLEL_METHODS = ['Lime', "Shapley", "IntegratedGradients", 'Dice', 'PDP']
+    PARALLEL_METHODS = ['Lime']
     COMMON_METHODS = ['PermutationImportance', 'ALE']
     METHODS = {
         "DT": [],
@@ -57,11 +58,10 @@ class Interpretability:
         self.plot_times(params['cfg'].get_folder(), params['cfg'].get_prefix(), name_model)
 
     def execute(self, params):
-
         if len(self.TEST_METHODS) > 0:
             self.execute_methods(params, self.TEST_METHODS)
         else:
-            self.execute_methods_parellel(params, self.PARALLEL_METHODS)
+            self.execute_methods_parallel(params, self.PARALLEL_METHODS)
             self.execute_methods(params, self.COMMON_METHODS)
             name_model = params['cfg'].get_params()['model'].upper()
             self.execute_methods(params, self.METHODS[name_model])
@@ -70,14 +70,15 @@ class Interpretability:
         for method in lst_methods:
             self.execute_method(params, method)
 
-    def execute_methods_parellel(self, params, lst_method):
+    def execute_methods_parallel(self, params, lst_method):
         for method in lst_method:
             if not params['cfg'].get_args()['queue']:
                 self.execute_method(params, method)
             else:  # if parallelism is required, the test data is serialised
-                self.serialize_params(params)
-                #print("python3 -m Common.Analysis.Interpretability {} {}".format(params['cfg'].get_prefix() + '.pkl',
-                #                                                                 method))
+                #self.serialize_params(params) # comprobar si esta linea sigue haciendo falta
+                #print("python3 -m Common.Analysis.Interpretability {} {}".format(params['cfg'].get_prefix() + '.pkl', method))
+                jm = JobManager(params, method)
+                jm.parallelize()
 
     def execute_method(self, params, method):
         t = Timer(method)
@@ -128,6 +129,6 @@ class Interpretability:
 if __name__ == "__main__":
     serialize_file = sys.argv[1]
     method = sys.argv[2]
-    cl_serialize = get_serializa_params(serialize_file)
+    cl_serialize = get_serialized_params(serialize_file)
     cl_serialize.set_run_method(method)
     Interpretability(cl_serialize)

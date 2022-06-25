@@ -194,7 +194,7 @@ def serilize_class(c, serializa_file):
     pickle.dump(c, open(serializa_file, 'wb'))
 
 
-def get_serializa_params(file_name):
+def get_serialized_params(file_name):
     if isfile(file_name):
         return pickle.load(open(file_name, "rb"))
     else:
