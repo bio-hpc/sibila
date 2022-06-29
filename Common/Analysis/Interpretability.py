@@ -15,8 +15,7 @@ import sys
 import pandas as pd
 import time
 from Common.Config.ConfigHolder import MAX_IMPORTANCES
-from Tools.PostProcessing.Serialize import Serialize
-from Tools.IOData import get_serialized_params, serilize_class
+from Tools.IOData import get_serialized_params
 from Common.Analysis.Explainers import *
 from Tools.Timer import Timer
 from Tools.Graphics import Graphics
@@ -29,7 +28,7 @@ class Interpretability:
     # FeatureImportance only works with DT, RF, SVM and KNN
     TEST_METHODS = []
     #PARALLEL_METHODS = ['Lime', "Shapley", "IntegratedGradients", 'Dice', 'PDP']
-    PARALLEL_METHODS = ['Lime']
+    PARALLEL_METHODS = ['Lime', 'Shapley']
     COMMON_METHODS = ['PermutationImportance', 'ALE']
     METHODS = {
         "DT": [],
@@ -42,10 +41,11 @@ class Interpretability:
         "RLF": []
     }
 
-    def __init__(self, serialize_params):
+    def __init__(self, serialize_params, index=None):
         """
 
         """
+        self.index = index
         params = serialize_params.get_params()
         run_method = params['run_method']
         del params['run_method']
@@ -71,14 +71,12 @@ class Interpretability:
             self.execute_method(params, method)
 
     def execute_methods_parallel(self, params, lst_method):
-        for method in lst_method:
-            if not params['cfg'].get_args()['queue']:
+        if params['cfg'].get_args()['queue']:
+            jm = JobManager()
+            jm.parallelize(params, lst_method)
+        else:
+            for method in lst_method:
                 self.execute_method(params, method)
-            else:  # if parallelism is required, the test data is serialised
-                #self.serialize_params(params) # comprobar si esta linea sigue haciendo falta
-                #print("python3 -m Common.Analysis.Interpretability {} {}".format(params['cfg'].get_prefix() + '.pkl', method))
-                jm = JobManager(params, method)
-                jm.parallelize()
 
     def execute_method(self, params, method):
         t = Timer(method)
@@ -99,11 +97,6 @@ class Interpretability:
         file_time = '{}_{}_time.txt'.format(params['cfg'].get_prefix(), method)
         t.save(file_time, params['io_data'])
         self.print_data(t.total(), method, params['io_data'])
-
-    def serialize_params(self, params):
-        class_serializer = Serialize(**params)
-        if not os.path.isfile(params['cfg'].get_prefix() + '_params.pkl'):
-            serilize_class(class_serializer, params['cfg'].get_prefix() + '_params.pkl')
 
     def print_data(self, total_time, method, io_data):
         io_data.print_m("{}: Total time: {} s".format(method, round(total_time, 3)))
@@ -129,6 +122,8 @@ class Interpretability:
 if __name__ == "__main__":
     serialize_file = sys.argv[1]
     method = sys.argv[2]
+    idx = sys.argv[3]
+
     cl_serialize = get_serialized_params(serialize_file)
     cl_serialize.set_run_method(method)
-    Interpretability(cl_serialize)
+    Interpretability(cl_serialize, idx)

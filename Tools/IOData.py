@@ -80,6 +80,12 @@ class IOData:
     def set_ale_folder(self, ale_folder):
         self.ale_folder = ale_folder
 
+    def get_job_folder(self):
+        return self.job_folder
+
+    def set_job_folder(self, job_folder):
+        self.job_folder = job_folder
+
     def create_dirs(self, folder):
         folder = '{}/'.format(folder) if folder[:-1] != "/" else folder
         self.set_file_resume(folder + "Experiment_out.txt")
@@ -112,6 +118,9 @@ class IOData:
         self.set_ale_folder(folder + "ALE/")
         self.create_dir(self.get_ale_folder())
 
+        self.set_job_folder(folder + "out/")
+        self.create_dir(self.get_job_folder())
+
     def create_dirs_no_remove(self, folder):
         folder = '{}/'.format(folder) if folder[:-1] != "/" else folder
         self.set_file_resume(folder + "Experiment_out.txt")
@@ -143,6 +152,9 @@ class IOData:
 
         self.set_ale_folder(folder + "ALE/")
         self.create_dir_no_remove(self.get_ale_folder())
+
+        self.set_job_folder(folder + "out/")
+        self.create_dir_no_remove(self.get_job_folder())
 
     def create_dir_no_remove(self, folder):
         if not os.path.isdir(folder):
@@ -190,7 +202,7 @@ def make_tarfile(source_dir, output_filename):
         tar.add(source_dir, arcname=os.path.basename(source_dir))
 
 
-def serilize_class(c, serializa_file):
+def serialize_class(c, serializa_file):
     pickle.dump(c, open(serializa_file, 'wb'))
 
 
