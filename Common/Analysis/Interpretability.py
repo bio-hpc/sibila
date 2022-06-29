@@ -22,14 +22,15 @@ from Tools.Graphics import Graphics
 from os.path import basename, dirname, normpath
 from glob import glob
 from Tools.Bash.Queue_manager.JobManager import JobManager
+from copy import deepcopy
 
 
 class Interpretability:
     # FeatureImportance only works with DT, RF, SVM and KNN
     TEST_METHODS = []
     #PARALLEL_METHODS = ['Lime', "Shapley", "IntegratedGradients", 'Dice', 'PDP']
-    PARALLEL_METHODS = ['Lime', 'Shapley']
-    COMMON_METHODS = ['PermutationImportance', 'ALE']
+    PARALLEL_METHODS = ['PermutationImportance', 'Lime', 'Shapley', 'IntegratedGradients', 'Dice', 'PDP', 'ALE']
+    COMMON_METHODS = []
     METHODS = {
         "DT": [],
         "RF": [],
@@ -41,11 +42,11 @@ class Interpretability:
         "RLF": []
     }
 
-    def __init__(self, serialize_params, index=None):
+    def __init__(self, serialize_params, block_nr=None):
         """
 
         """
-        self.index = index
+        self.block_nr = block_nr
         params = serialize_params.get_params()
         run_method = params['run_method']
         del params['run_method']
@@ -79,13 +80,23 @@ class Interpretability:
                 self.execute_method(params, method)
 
     def execute_method(self, params, method):
+        # when a block number is given, only that part of the data is taken
+        if not self.block_nr is None:
+            xts_ith, yts_ith, idx_ith = self.take_data(params['xts'], params['yts'], params['idx_xts'], int(self.block_nr))
+            new_params = deepcopy(params)
+            new_params['xts'] = xts_ith
+            new_params['yts'] = yts_ith
+            new_params['idx_xts'] = idx_ith
+        else:
+            new_params = deepcopy(params)
+
         t = Timer(method)
-        obj = globals()[method + 'Explainer'](**params)
+        obj = globals()[method + 'Explainer'](**new_params)
         df = obj.explain()
         if df is not None and 'PDP' not in method:
             df = df.reindex(df['weight'].abs().sort_values(ascending=False).index)
-            if len(params['id_list']) > MAX_IMPORTANCES:
-                n_others = len(params['id_list']) - MAX_IMPORTANCES
+            if len(new_params['id_list']) > MAX_IMPORTANCES:
+                n_others = len(new_params['id_list']) - MAX_IMPORTANCES
                 title = 'Sum other {} features'.format(str(n_others))
                 df_others = pd.DataFrame(data=[[title, df[MAX_IMPORTANCES:]['weight'].sum()]],
                                          columns=['feature', 'weight'])
@@ -94,9 +105,9 @@ class Interpretability:
         if df is not None:
             obj.plot(df, method=method)
 
-        file_time = '{}_{}_time.txt'.format(params['cfg'].get_prefix(), method)
-        t.save(file_time, params['io_data'])
-        self.print_data(t.total(), method, params['io_data'])
+        file_time = '{}_{}_time.txt'.format(new_params['cfg'].get_prefix(), method)
+        t.save(file_time, new_params['io_data'])
+        self.print_data(t.total(), method, new_params['io_data'])
 
     def print_data(self, total_time, method, io_data):
         io_data.print_m("{}: Total time: {} s".format(method, round(total_time, 3)))
@@ -117,6 +128,13 @@ class Interpretability:
         dct_times = dict(sorted(dct_times.items(), key=lambda x: x[1][1]))
 
         Graphics().plot_interpretability_times(dct_times, prefix + "_times.png", name_model)
+
+    def take_data(self, xts, yts, idx, block_id):
+        N = JobManager.BATCH_SIZE
+        xts_splited = [xts[x:x+N] for x in range(0, len(xts), N)]
+        yts_splited = [yts[x:x+N] for x in range(0, len(yts), N)]
+        idx_splited = [idx[x:x+N] for x in range(0, len(idx), N)]
+        return xts_splited[block_id], yts_splited[block_id], idx_splited[block_id]
 
 
 if __name__ == "__main__":
