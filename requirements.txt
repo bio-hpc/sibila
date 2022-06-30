@@ -32,5 +32,4 @@ dice-ml
 RuleFit @ git+https://github.com/christophM/rulefit.git@8a48b632ce3a98ad5463ac72113cf832385d265e
 python-docx
 keras-tuner==1.1.0
-copy
 simple-slurm==0.1.7

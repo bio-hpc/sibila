@@ -92,8 +92,8 @@ class TestInterpretability(BaseTest):
             for file_model in lst_models:
                 model = BaseModel.load(file_model)
                 name_model = basename(file_model).split("_")[0]
-                if not name_model in par['deny_methods']:
 
+                if not name_model in par['deny_methods']:
                     params = {'type_ml': TypeML.CLASSIFICATION.value, 'model': name_model}
                     p = FOLDER_TEST + name_model
                     args = Args(name_model)

@@ -22,7 +22,6 @@ from Tools.Graphics import Graphics
 from os.path import basename, dirname, normpath
 from glob import glob
 from Tools.Bash.Queue_manager.JobManager import JobManager
-from copy import deepcopy
 
 
 class Interpretability:
@@ -82,12 +81,12 @@ class Interpretability:
         # when a block number is given, only that part of the data is taken
         if not self.block_nr is None:
             xts_ith, yts_ith, idx_ith = self.take_data(params['xts'], params['yts'], params['idx_xts'], int(self.block_nr))
-            new_params = deepcopy(params)
+            new_params = params.copy()
             new_params['xts'] = xts_ith
             new_params['yts'] = yts_ith
             new_params['idx_xts'] = idx_ith
         else:
-            new_params = deepcopy(params)
+            new_params = params.copy()
 
         t = Timer(method)
         obj = globals()[method + 'Explainer'](**new_params)
