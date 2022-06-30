@@ -364,6 +364,7 @@ class Graphics:
         ax.tick_params(axis='x', labelsize=8, rotation=45)
         ax.set_xlabel('Execution time (seconds)')
         ax.set_title('Partial running times {}'.format(name_model))
+        ax.set_xscale('log')
         self.save_fig(out_graph)
 
     def plot_lime_html(self, html, file_out):
