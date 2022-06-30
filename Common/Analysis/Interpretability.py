@@ -28,7 +28,6 @@ from copy import deepcopy
 class Interpretability:
     # FeatureImportance only works with DT, RF, SVM and KNN
     TEST_METHODS = []
-    #PARALLEL_METHODS = ['Lime', "Shapley", "IntegratedGradients", 'Dice', 'PDP']
     PARALLEL_METHODS = ['PermutationImportance', 'Lime', 'Shapley', 'IntegratedGradients', 'Dice', 'PDP', 'ALE']
     COMMON_METHODS = []
     METHODS = {

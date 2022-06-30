@@ -33,3 +33,4 @@ RuleFit @ git+https://github.com/christophM/rulefit.git@8a48b632ce3a98ad5463ac72
 python-docx
 keras-tuner==1.1.0
 copy
+simple-slurm==0.1.7

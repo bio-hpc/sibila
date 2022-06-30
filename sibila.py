@@ -17,6 +17,7 @@ from Tools.ToolsModels import is_regression_by_config, is_tf_model
 from os.path import join, basename, splitext
 from Tools.PostProcessing.Serialize import Serialize
 from Tools.DatasetBalanced import DatasetBalanced
+from Tools.Bash.Queue_manager.JobManager import JobManager
 import numpy as np
 import pandas as pd
 from Models import *
@@ -73,10 +74,12 @@ def main():
             execute(x, y, id_list, idx_samples, io_data, args.folder, file_dataset, type_model, args)
             for type_model in options
         ]
-        MergeResults(args.folder)
 
     if not args.queue:
+        MergeResults(args.folder)
         EndProcess(args.folder)
+    else:
+        JobManager.end_process(args.folder)
 
 
 def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset, type_model, args):

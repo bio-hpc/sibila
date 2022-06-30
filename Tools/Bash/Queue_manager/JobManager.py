@@ -18,9 +18,13 @@ from simple_slurm import Slurm
 
 class JobManager:
 
-    BATCH_SIZE = 3 # 100
+    BATCH_SIZE = 100
+    job_list = ''
+    params_ = None
 
     def parallelize(self, params, methods):
+        JobManager.params_ = params
+
         # serialize params for upcoming jobs
         serialized_params = self.serialize_params(params)
 
@@ -40,7 +44,6 @@ class JobManager:
         cfg = params['cfg']
         name_model = cfg.get_params()['model']
         job_folder = params['io_data'].get_job_folder()
-        job_list = ''
         
         # send an independent job for every interpretability method
         for method in methods:
@@ -53,16 +56,32 @@ class JobManager:
                 time = '72:00:00'
             )
             job_id = slurm.sbatch('python3 -m Common.Analysis.Interpretability {} {} {}'.format(foo, method, str(Slurm.SLURM_ARRAY_TASK_ID)))
-            job_list += '{},'.format(job_id)
+            JobManager.job_list += '{},'.format(job_id)
 
-        # send a final job to finish the process once all the previous ones are done
-        slurm2 = Slurm(
+    @staticmethod
+    def end_process(folder):
+        job_folder = JobManager.params_['io_data'].get_job_folder()
+        directory = os.getcwd() + '/' + folder
+
+        # summarize the obtained results
+        slurm = Slurm(
+            cpus_per_task = 1,
+            job_name = 'SIBILA-MR',
+            output = '{}end.out'.format(job_folder),
+            error = '{}end.err'.format(job_folder),
+            time = '2:00:00',
+            dependency = dict(afterany = JobManager.job_list[:-1])
+        )
+        job_id = slurm.sbatch('python3 -m Common.Analysis.MergeResults {}'.format(directory))
+
+        # build documents and compress files
+        slurm = Slurm(
             cpus_per_task = 1,
             job_name = 'SIBILA-END',
             output = '{}end.out'.format(job_folder),
             error = '{}end.err'.format(job_folder),
-            time = '4:00:00',
-            dependency = dict(afterany = job_list[:-1])
+            time = '2:00:00',
+            dependency = dict(afterany = job_id)
         )
-        slurm2.sbatch('python3 -m Common.Analysis.EndProcess {}/{}'.format(os.getcwd(), cfg.get_folder()))
+        slurm.sbatch('python3 -m Common.Analysis.EndProcess {}'.format(directory))
 
