@@ -3,9 +3,9 @@
 # Parameters job
 #
 CPUS=1
-TIME=24:00:00
+TIME=72:00:00
 NAME_JOB="SIBILA"
-#MEM=200M
+MEM=200M
 PROJECT="" #at the moment it is not used
 #
 #  Constans
@@ -19,7 +19,7 @@ IMG_SINGULARITY="Tools/Singularity/sibila.simg"
 TEST_CMD="singularity exec ${IMG_SINGULARITY} python3 -m unittest discover"
 CMD_SING="singularity exec ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
 CMD_SING_HELP="singularity exec ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
-SINGULARITY=false
+SINGULARITY=true
 PARAM_MULTIJOB_JOB="-nj" #optional parameter to add to the folder name and job
 parallel=false
 multi_job=""
