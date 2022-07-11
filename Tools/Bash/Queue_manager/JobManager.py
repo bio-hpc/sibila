@@ -50,7 +50,7 @@ class JobManager:
             slurm = Slurm(
                 array = range(0, n_jobs),
                 cpus_per_task = 2,
-                job_name = 'SIBILA-{}-{}'.format(method, name_model),
+                job_name = 'SI-{}-{}'.format(name_model, method),
                 output = '{}{}-{}-{}.out'.format(job_folder, method, name_model, Slurm.JOB_ARRAY_ID),
                 error = '{}{}-{}-{}.err'.format(job_folder, method, name_model, Slurm.JOB_ARRAY_ID),
                 time = '72:00:00'
