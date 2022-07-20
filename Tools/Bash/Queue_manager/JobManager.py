@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """JobManager.py:
 
+Splits data into blocks of fixed size and launch a job for computing the interpretability
+of each block. Afterwards, another job is submitted to collect all the results.
 """
 __author__ = "Antonio Jesús Banegas-Luna"
 __version__ = "1.0"
@@ -11,20 +13,19 @@ __status__ = "Production"
 
 import math
 import os
+import subprocess
 from Tools.PostProcessing.Serialize import Serialize
 from Tools.IOData import serialize_class
-from simple_slurm import Slurm
 
 
 class JobManager:
 
-    BATCH_SIZE = 100
-    job_list = ''
-    params_ = None
+    BATCH_SIZE = 3
+    JOBS = []
+    SCRIPT_PATH = 'Tools/Bash/Queue_manager/SLURM.sh'
+    INTERP_PATH = 'singularity exec Tools/Singularity/sibila.simg python3 -m Common.Analysis.Interpretability' # TODO check if singularity is being used
 
     def parallelize(self, params, methods):
-        JobManager.params_ = params
-
         # serialize params for upcoming jobs
         serialized_params = self.serialize_params(params)
 
@@ -40,48 +41,33 @@ class JobManager:
             serialize_class(class_serializer, params['cfg'].get_prefix() + '_params.pkl')
         return foo
 
+    def interpretation_job(self, method, name_model, index, folder, foo):
+        # create the script
+        base_name = f"{method}-{name_model}-{index}"
+        name_script = f"{folder}/{base_name}.sh"
+        name_job = f"{base_name}-SIBILA"
+        os.system('sh {}/{} {} {} {} {} > {}'.format(os.getcwd(), JobManager.SCRIPT_PATH, folder, name_job, '4:00:00', '1', name_script))
+        os.system(f'echo "{JobManager.INTERP_PATH} {foo} {method} {index}" >> {name_script}')
+
+        # run the script on the queue
+        out = subprocess.check_output(f"sbatch {name_script}", shell=True)
+        job_id = (str(out).split(' ')[-1])[:-3]
+        return job_id
+
     def send_jobs(self, params, methods, foo, n_jobs):
         cfg = params['cfg']
         name_model = cfg.get_params()['model']
         job_folder = params['io_data'].get_job_folder()
-        
+        block_ids = [i for i in range(n_jobs)]
+
         # send an independent job for every interpretability method
         for method in methods:
-            slurm = Slurm(
-                array = range(0, n_jobs),
-                cpus_per_task = 2,
-                job_name = 'SI-{}-{}'.format(name_model, method),
-                output = '{}{}-{}-{}.out'.format(job_folder, method, name_model, Slurm.JOB_ARRAY_ID),
-                error = '{}{}-{}-{}.err'.format(job_folder, method, name_model, Slurm.JOB_ARRAY_ID),
-                time = '72:00:00'
-            )
-            job_id = slurm.sbatch('python3 -m Common.Analysis.Interpretability {} {} {}'.format(foo, method, str(Slurm.SLURM_ARRAY_TASK_ID)))
-            JobManager.job_list += '{},'.format(job_id)
+             for index in block_ids:
+                 job_id = self.interpretation_job(method, name_model, index, job_folder, foo)
+                 JobManager.JOBS.append(job_id)
 
     @staticmethod
     def end_process(folder):
-        job_folder = JobManager.params_['io_data'].get_job_folder()
         directory = os.getcwd() + '/' + folder
-
-        # summarize the obtained results
-        slurm = Slurm(
-            cpus_per_task = 1,
-            job_name = 'SIBILA-MR',
-            output = '{}end.out'.format(job_folder),
-            error = '{}end.err'.format(job_folder),
-            time = '2:00:00',
-            dependency = dict(afterany = JobManager.job_list[:-1])
-        )
-        job_id = slurm.sbatch('python3 -m Common.Analysis.MergeResults {}'.format(directory))
-
-        # build documents and compress files
-        slurm = Slurm(
-            cpus_per_task = 1,
-            job_name = 'SIBILA-END',
-            output = '{}end.out'.format(job_folder),
-            error = '{}end.err'.format(job_folder),
-            time = '2:00:00',
-            dependency = dict(afterany = job_id)
-        )
-        slurm.sbatch('python3 -m Common.Analysis.EndProcess {}'.format(directory))
+        os.system("sbatch --dependency=afterany:{} {}/end_job.sh".format(','.join(JobManager.JOBS), directory))
 

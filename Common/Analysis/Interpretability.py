@@ -41,9 +41,6 @@ class Interpretability:
     }
 
     def __init__(self, serialize_params, block_nr=None):
-        """
-
-        """
         self.block_nr = block_nr
         params = serialize_params.get_params()
         run_method = params['run_method']
@@ -143,3 +140,4 @@ if __name__ == "__main__":
     cl_serialize = get_serialized_params(serialize_file)
     cl_serialize.set_run_method(method)
     Interpretability(cl_serialize, idx)
+

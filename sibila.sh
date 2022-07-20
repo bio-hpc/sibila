@@ -5,7 +5,7 @@
 CPUS=1
 TIME=72:00:00
 NAME_JOB="SIBILA"
-MEM=200M
+#MEM=200M
 PROJECT="" #at the moment it is not used
 #
 #  Constans
@@ -15,11 +15,12 @@ PYTHON_RUN="python3"
 SIBILA="sibila.py"
 SCRIPT_QUEUE="Tools/Bash/Queue_manager/${QUEUE_MANAGER}.sh"
 CMD_QUEUE="sbatch"
+CMD_EXEC="singularity exec"
 IMG_SINGULARITY="Tools/Singularity/sibila.simg"
-TEST_CMD="singularity exec ${IMG_SINGULARITY} python3 -m unittest discover"
-CMD_SING="singularity exec ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
-CMD_SING_HELP="singularity exec ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
-SINGULARITY=true
+TEST_CMD="${CMD_EXEC} ${IMG_SINGULARITY} python3 -m unittest discover"
+CMD_SING="${CMD_EXEC} ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
+CMD_SING_HELP="${CMD_EXEC} ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
+SINGULARITY=false
 PARAM_MULTIJOB_JOB="-nj" #optional parameter to add to the folder name and job
 parallel=false
 multi_job=""
@@ -43,7 +44,7 @@ while [ ${#} -gt 0 ];do
   if [ "${1}" = "${PARAM_MULTIJOB_JOB}" ]; then
     shift
     if [ "${1}" != "" ];then
-      params=`echo ${params}| sed "s/-nj ${1}//g"  ` #| sed  "s/-nj  $1//g"`
+      params=`echo ${params}| sed "s/-nj ${1}//g"  `
       multi_job=_"${1}"
     fi
   elif [ "${1}" = "-f" ];then
@@ -74,7 +75,6 @@ if [ "${folder}" = "" ];then
 fi
 folder="${folder}_$(date +'%F')"
 
-
 if [ "${folder}" != "" ]; then
     folder=${folder}${multi_job}
     mljob=${PWD}/${folder}/job.sh
@@ -86,4 +86,11 @@ if [ "${folder}" != "" ]; then
     echo "${cmd_run} ${params} -f ${folder}" >> $mljob
 fi
 
+if [ ${parallel} == true ]; then
+    endjob=${PWD}/${folder}/end_job.sh
+    sh ${SCRIPT_QUEUE} "${PWD}/${folder}/out/" "end_job" "4:00:00" "1" "${MEM}" > ${endjob}
+    echo "${CMD_EXEC} ${IMG_SINGULARITY} ${PYTHON_RUN} -m Common.Analysis.EndProcess ${folder}" >> ${endjob}
+fi
+
 $CMD_QUEUE ${mljob}
+
