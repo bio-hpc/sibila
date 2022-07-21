@@ -197,9 +197,17 @@ class IOData:
         f.close()
 
 
+def filter_function(tarinfo):
+   EXCLUDE_DIRS = ['jobs', 'keras_tuner_dir']
+
+   if os.path.isdir(tarinfo.name) and os.path.basename(os.path.normpath(tarinfo.name)) in EXCLUDE_DIRS:
+        return None
+   return tarinfo
+
+
 def make_tarfile(source_dir, output_filename):
     with tarfile.open(output_filename, "w:gz") as tar:
-        tar.add(source_dir, arcname=os.path.basename(source_dir))
+        tar.add(source_dir, arcname=os.path.basename(source_dir), filter=filter_function)
 
 
 def serialize_class(c, serializa_file):
