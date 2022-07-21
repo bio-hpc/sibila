@@ -20,6 +20,8 @@ IMG_SINGULARITY="Tools/Singularity/sibila.simg"
 TEST_CMD="${CMD_EXEC} ${IMG_SINGULARITY} python3 -m unittest discover"
 CMD_SING="${CMD_EXEC} ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
 CMD_SING_HELP="${CMD_EXEC} ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
+CMD_END_PROC="${PYTHON_RUN} -m Common.Analysis.EndProcess"
+CMD_END_PROC_SING="${CMD_EXEC} ${IMG_SINGULARITY} ${PYTHON_RUN} -m Common.Analysis.EndProcess"
 SINGULARITY=false
 PARAM_MULTIJOB_JOB="-nj" #optional parameter to add to the folder name and job
 parallel=false
@@ -82,15 +84,22 @@ if [ "${folder}" != "" ]; then
     if [ ! -d "${folder}" ]; then
       mkdir ${folder}
     fi
-    sh $SCRIPT_QUEUE "${PWD}/${folder}/" ${NAME_JOB} ${TIME} ${CPUS} ${MEM} > $mljob
-    echo "${cmd_run} ${params} -f ${folder}" >> $mljob
+    sh $SCRIPT_QUEUE "${PWD}/${folder}/" ${NAME_JOB} ${TIME} ${CPUS} ${MEM} > ${mljob}
+    echo "${cmd_run} ${params} -f ${folder}" >> ${mljob}
 fi
 
+# send sibila.py job and grab job id
+main_job_id=$(${CMD_QUEUE} ${mljob} | cut -d ' ' -f 4)
+
+# make a separate script for each interpretability calculation which will be run once the models are trained
 if [ ${parallel} == true ]; then
     endjob=${PWD}/${folder}/end_job.sh
-    sh ${SCRIPT_QUEUE} "${PWD}/${folder}/out/" "end_job" "4:00:00" "1" "${MEM}" > ${endjob}
-    echo "${CMD_EXEC} ${IMG_SINGULARITY} ${PYTHON_RUN} -m Common.Analysis.EndProcess ${folder}" >> ${endjob}
+    sh ${SCRIPT_QUEUE} "${PWD}/${folder}/jobs/" "end_job" "4:00:00" "1" "${MEM}" > ${endjob}
+    if [ ${SINGULARITY} == true ]; then
+        echo "${CMD_END_PROC_SING} ${folder}" >> ${endjob}
+    else
+        echo "${CMD_END_PROC} ${folder}" >> ${endjob}
+    fi
+
+    ${CMD_QUEUE} --dependency=afterany:${main_job_id} ${PWD}/interpretability.sh "${folder}" "${endjob}"
 fi
-
-$CMD_QUEUE ${mljob}
-

@@ -20,8 +20,7 @@ from Tools.IOData import serialize_class
 
 class JobManager:
 
-    BATCH_SIZE = 3
-    JOBS = []
+    BATCH_SIZE = 10
     SCRIPT_PATH = 'Tools/Bash/Queue_manager/SLURM.sh'
     INTERP_PATH = 'singularity exec Tools/Singularity/sibila.simg python3 -m Common.Analysis.Interpretability' # TODO check if singularity is being used
 
@@ -41,19 +40,6 @@ class JobManager:
             serialize_class(class_serializer, params['cfg'].get_prefix() + '_params.pkl')
         return foo
 
-    def interpretation_job(self, method, name_model, index, folder, foo):
-        # create the script
-        base_name = f"{method}-{name_model}-{index}"
-        name_script = f"{folder}/{base_name}.sh"
-        name_job = f"{base_name}-SIBILA"
-        os.system('sh {}/{} {} {} {} {} > {}'.format(os.getcwd(), JobManager.SCRIPT_PATH, folder, name_job, '4:00:00', '1', name_script))
-        os.system(f'echo "{JobManager.INTERP_PATH} {foo} {method} {index}" >> {name_script}')
-
-        # run the script on the queue
-        out = subprocess.check_output(f"sbatch {name_script}", shell=True)
-        job_id = (str(out).split(' ')[-1])[:-3]
-        return job_id
-
     def send_jobs(self, params, methods, foo, n_jobs):
         cfg = params['cfg']
         name_model = cfg.get_params()['model']
@@ -63,11 +49,9 @@ class JobManager:
         # send an independent job for every interpretability method
         for method in methods:
              for index in block_ids:
-                 job_id = self.interpretation_job(method, name_model, index, job_folder, foo)
-                 JobManager.JOBS.append(job_id)
-
-    @staticmethod
-    def end_process(folder):
-        directory = os.getcwd() + '/' + folder
-        os.system("sbatch --dependency=afterany:{} {}/end_job.sh".format(','.join(JobManager.JOBS), directory))
+                 base_name = f"{method}-{name_model}-{index}"
+                 name_script = f"{job_folder}/{base_name}.sh"
+                 name_job = f"{base_name}-SIBILA"
+                 os.system('sh {}/{} {} {} {} {} > {}'.format(os.getcwd(), JobManager.SCRIPT_PATH, job_folder, name_job, '4:00:00', '2', name_script)) # TODO configure this externally
+                 os.system(f'echo "{JobManager.INTERP_PATH} {foo} {method} {index}" >> {name_script}')
 

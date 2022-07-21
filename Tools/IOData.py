@@ -118,7 +118,7 @@ class IOData:
         self.set_ale_folder(folder + "ALE/")
         self.create_dir(self.get_ale_folder())
 
-        self.set_job_folder(folder + "out/")
+        self.set_job_folder(folder + "jobs/")
         self.create_dir(self.get_job_folder())
 
     def create_dirs_no_remove(self, folder):
@@ -153,7 +153,7 @@ class IOData:
         self.set_ale_folder(folder + "ALE/")
         self.create_dir_no_remove(self.get_ale_folder())
 
-        self.set_job_folder(folder + "out/")
+        self.set_job_folder(folder + "jobs/")
         self.create_dir_no_remove(self.get_job_folder())
 
     def create_dir_no_remove(self, folder):
