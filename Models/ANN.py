@@ -57,10 +57,6 @@ class ANN(BaseModel):
             model = tf.keras.Sequential()
             model.add(tf.keras.layers.Input(shape=xtr.shape))
             for i in range(hp.Int("num_layers", 1, params['max_layers'])):
-
-                #_ = hp.Choice("activation", params['activation']) if ('activation' in params and len(params['activation']) > 0) else None
-                #print("*************** act:", _)
-
                 model.add(
                     tf.keras.layers.Dense(
                         # Tune number of units separately
@@ -128,7 +124,7 @@ class ANN(BaseModel):
         # append the grid search hyperparams to the output
         #params = { **self.cfg.get_params()['params_grid'], **bestHP.values }
         #self.cfg.set_grid_params(params)
-        print('train', xtr.shape, ytr.shape)
+        #print('train', xtr.shape, ytr.shape)
         
     def cv_step_fn(self, xtr, ytr, xts=None, yts=None):
         for i in range(self.cfg.get_params()['params_grid']['epochs']):
@@ -152,5 +148,4 @@ class ANN(BaseModel):
         training_data = [h.history['loss'] for h in self.history]
         file_out = self.get_prefix() + "_lc_tf.png"
         self.graphics.plot_learning_curves(training_data, file_out, metric='Loss')
-
 

@@ -14,7 +14,7 @@ import datetime
 from datetime import datetime
 from Tools.DataNormalization import DataNormalization
 from Tools.ToolsModels import is_regression_by_config, is_tf_model
-from os.path import join, basename, splitext
+from os.path import join, basename, splitext, dirname
 from Tools.PostProcessing.Serialize import Serialize
 from Tools.DatasetBalanced import DatasetBalanced
 import numpy as np
@@ -43,19 +43,21 @@ def main():
 
     io_data = IOData()
 
-    if not args.introduced_folder:
-
+    if args.model is not None:
+        args.folder = dirname(args.model[0])
+        io_data.create_dirs_no_remove(args.folder)
+    elif not args.introduced_folder:
         args.folder = '{}_{}'.format(args.folder, datetime.now().strftime("%Y-%m-%d"))
         io_data.create_dirs(args.folder)
     else:
-        io_data.create_dirs_no_remove(args.folder)
+        io_data.create_dirs_no_remove(args.folder) 
 
     t = Timer('Load data')
     x, y, id_list, idx_samples = get_dataset(file_dataset, io_data)
 
     x = DataNormalization().choice_method_normalize(x, args)
-
-    Graphics().graph_dataset(x, y, id_list, FIELD_TARGET, join(args.folder, 'Dataset/'))
+    if not args.model:
+        Graphics().graph_dataset(x, y, id_list, FIELD_TARGET, join(args.folder, 'Dataset/'))
     t.save('{}/load_time.txt'.format(args.folder), io_data)
 
     if args.model:
@@ -124,10 +126,10 @@ def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_da
     cfg.set_time_end()
 
     # export predictions to csv
-    outfile = str(int(datetime.now().timestamp()))
+    outfile = 'prediction_{}__{}.csv'.format(splitext(basename(type_model))[0], splitext(basename(args.dataset))[0])
     df = pd.DataFrame({'Sample ID': idx_samples, 'Predicted class': ypr_class, 'Probability': ypr_prob})
-    df.to_csv('prediction_{}.csv'.format(outfile), index=False)
-    print('Results saved in prediction_{}.csv'.format(outfile))
+    df.to_csv(outfile, index=False)
+    print('Results saved in {}'.format(outfile))
 
     exit()
 

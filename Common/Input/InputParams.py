@@ -32,12 +32,13 @@ class InputParams:
                                           for v in [args.option, args.parameters, args.balanced, args.crossvalidation]):
             self.iodata.print_e('-m argument is not compatible with -o, -t, -p, -b and -cv')
         
-        opt_aux = [value for value in args.option if value in self.REGRESSION_MODELS]
-        if args.regression == True:
-            if len(args.option) == 1 and (args.option[0] != 'ALL' and args.option[0] not in self.REGRESSION_MODELS):
-                self.iodata.print_e('-r argument is only valid with -r [ALL, {}] parameter'.format(', '.join(self.REGRESSION_MODELS)))
-            elif len(args.option) > 1 and len(args.option) != len(opt_aux):
-                self.iodata.print_e('-r argument is only valid with -r [ALL, {}] parameter'.format(', '.join(self.REGRESSION_MODELS)))
+        if args.model is None:
+            opt_aux = [value for value in args.option if value in self.REGRESSION_MODELS]
+            if args.regression == True:
+                if len(args.option) == 1 and (args.option[0] != 'ALL' and args.option[0] not in self.REGRESSION_MODELS):
+                    self.iodata.print_e('-r argument is only valid with -r [ALL, {}] parameter'.format(', '.join(self.REGRESSION_MODELS)))
+                elif len(args.option) > 1 and len(args.option) != len(opt_aux):
+                    self.iodata.print_e('-r argument is only valid with -r [ALL, {}] parameter'.format(', '.join(self.REGRESSION_MODELS)))
 
     def read_params(self):
         """
