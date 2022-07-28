@@ -1,4 +1,5 @@
 from Models.Utils.TrainGrid import TrainGrid
+from Models.Utils.LearningHistoryCallback import LearningHistoryCallback
 import abc
 from Tools.DatasetBalanced import DatasetBalanced
 from Tools.ToolsModels import is_tf_model, is_regression_by_config, is_xgboost_model
@@ -37,12 +38,20 @@ class BaseModel(abc.ABC):
             self.cfg.get_params()['params'] = func(self.model, self.cfg.get_params()['params_grid'], xtr, ytr)
             self.model.set_params(**self.cfg.get_params()['params'])
 
-        history = None
-        if 'batch_size' in self.cfg.get_params()['params'].keys():
-            history = self.model.fit(xtr,
-                                     ytr,
-                                     batch_size=self.cfg.get_params()['params']['batch_size'],
-                                     class_weight=class_weights)
+        #if 'batch_size' in self.cfg.get_params()['params'].keys():
+        if is_tf_model(self.model):
+            self.model.fit(xtr,
+                           ytr,
+                           verbose = 1,
+                           batch_size = self.cfg.get_params()['params']['batch_size'],
+                           epochs = self.cfg.get_params()['params_grid']['epochs'],
+                           class_weight = class_weights,
+                           callbacks = [ 
+                               tf.keras.callbacks.TerminateOnNaN(),
+                               tf.keras.callbacks.ReduceLROnPlateau(),
+                               LearningHistoryCallback(self.cfg) 
+                           ]
+            )
         else:
             params_model = self.model.get_params()
             if 'SVR' not in str(self.model) and 'KNeighbors' not in str(
@@ -55,7 +64,6 @@ class BaseModel(abc.ABC):
             self.model.fit(xtr, ytr)
 
         self.io_data.print_m('End Train {}'.format(self.cfg.get_params()['model']))
-        return history
 
     def model_predict(self, xts):
         self.io_data.print_m('\n\tStart Predict {}'.format(self.cfg.get_params()['model']))

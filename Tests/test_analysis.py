@@ -9,7 +9,7 @@ from Tests.errors import get_error, get_error_txt
 
 MODEL_ASSERTS = {
     'ANN':[
-        { '*lc_tf.png': 'E0111' }
+        { '*loss_acc.png': 'E0111' }
     ],
     'DT':[
         { '*file.dot': 'E0109' },
