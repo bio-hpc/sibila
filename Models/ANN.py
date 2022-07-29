@@ -61,7 +61,8 @@ class ANN(BaseModel):
                     tf.keras.layers.Dense(
                         # Tune number of units separately
                         units = hp.Int(f"units_{i}", min_value=params['min_units'], max_value=params['max_units'], step=params['step_units']),
-                        activation = hp.Choice("activation", params['activation']) if ('activation' in params and len(params['activation']) > 0) else None,
+                        #activation = hp.Choice("activation", params['activation']) if ('activation' in params and len(params['activation']) > 0) else None,
+                        activation = hp.Choice('activation', values=params['activation']),
                         kernel_initializer = tf.keras.initializers.GlorotUniform(seed=seed),
 			kernel_regularizer = hp.Choice('kernel_regularizer', params['kernel_regularizer']) if ('kernel_regularizer' in params and len(params['kernel_regularizer']) > 0) else None
                     )
