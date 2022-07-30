@@ -52,10 +52,23 @@ class ANN(BaseModel):
     def grid_search(self, xtr, ytr):
         params = self.cfg.get_params()['params_grid']
         seed = self.cfg.get_params()['params']['random_state']
+ 
+        def get_optimizer(opt_name, lr):
+            if opt_name == 'Adam':
+                return tf.keras.optimizers.Adam(learning_rate = lr)
+            elif opt_name == 'SGD':
+                return tf.keras.optimizers.SGD(learning_rate = lr)
+            elif opt_name == 'RMSprop':
+                return tf.keras.optimizers.RMSprop(learning_rate = lr)
+            elif opt_name == 'Adagrad':
+                return tf.keras.optimizers.Adagrad(learning_rate = lr)
+            
+            return tf.keras.optimizers.Adam(learning_rate = lr)
 
         def build_model(hp):
             model = tf.keras.Sequential()
             model.add(tf.keras.layers.Input(shape=xtr.shape))
+
             for i in range(hp.Int("num_layers", 1, params['max_layers'])):
                 model.add(
                     tf.keras.layers.Dense(
@@ -77,16 +90,8 @@ class ANN(BaseModel):
                     model.add(tf.keras.layers.Dense(params['output_units'], kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
 
                 learning_rate = hp.Float("lr", min_value=params['min_lr'], max_value=params['max_lr'], sampling=params['sampling_lr'])
-                optimizer = hp.Choice("optimizer", values=params['optimizer'])
-
-                if optimizer == 'Adam':
-                    tf.keras.optimizers.Adam(learning_rate = learning_rate)
-                elif optimizer == 'SGD':
-                    tf.keras.optimizers.SGD(learning_rate = learning_rate)
-                elif optimizer == 'RMSprop':
-                    tf.keras.optimizers.RMSprop(learning_rate = learning_rate)
-                elif optimizer == 'Adagrad':
-                    tf.keras.optimizers.Adagrad(learning_rate = learning_rate)
+                opt_name = hp.Choice("optimizer", values=params['optimizer'])
+                optimizer = get_optimizer(opt_name, learning_rate)
 
                 model.compile(
                     optimizer = optimizer,
@@ -125,6 +130,8 @@ class ANN(BaseModel):
         return tuner.get_best_hyperparameters(num_trials=1)[0], tuner.get_best_models()[0]
     
     def train(self, xtr, ytr):
+        tf.random.set_seed(self.cfg.get_args()['seed'])
+
         # find the optimal hyperparameters
         bestHP, self.model = self.grid_search(xtr, ytr)
 
