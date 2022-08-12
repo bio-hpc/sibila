@@ -151,7 +151,7 @@ class ANN(BaseModel):
             cv = CrossValidation(self.io_data)
             method = cv.choice_method(self.cfg.get_args()['crossvalidation'])
             cv.run_method(method, xtr, ytr, self.cv_step_fn, **cv_params)
-
+        
         # append the grid search hyperparams to the output
         params = { **self.cfg.get_params()['params_grid'], **bestHP.values }
         self.cfg.set_grid_params(params)
