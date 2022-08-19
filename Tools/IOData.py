@@ -80,6 +80,12 @@ class IOData:
     def set_ale_folder(self, ale_folder):
         self.ale_folder = ale_folder
 
+    def get_job_folder(self):
+        return self.job_folder
+
+    def set_job_folder(self, job_folder):
+        self.job_folder = job_folder
+
     def create_dirs(self, folder):
         folder = '{}/'.format(folder) if folder[:-1] != "/" else folder
         self.set_file_resume(folder + "Experiment_out.txt")
@@ -112,6 +118,9 @@ class IOData:
         self.set_ale_folder(folder + "ALE/")
         self.create_dir(self.get_ale_folder())
 
+        self.set_job_folder(folder + "jobs/")
+        self.create_dir(self.get_job_folder())
+
     def create_dirs_no_remove(self, folder):
         folder = '{}/'.format(folder) if folder[:-1] != "/" else folder
         self.set_file_resume(folder + "Experiment_out.txt")
@@ -143,6 +152,9 @@ class IOData:
 
         self.set_ale_folder(folder + "ALE/")
         self.create_dir_no_remove(self.get_ale_folder())
+
+        self.set_job_folder(folder + "jobs/")
+        self.create_dir_no_remove(self.get_job_folder())
 
     def create_dir_no_remove(self, folder):
         if not os.path.isdir(folder):
@@ -185,16 +197,24 @@ class IOData:
         f.close()
 
 
+def filter_function(tarinfo):
+   EXCLUDE_DIRS = ['jobs', 'keras_tuner_dir']
+
+   if os.path.isdir(tarinfo.name) and os.path.basename(os.path.normpath(tarinfo.name)) in EXCLUDE_DIRS:
+        return None
+   return tarinfo
+
+
 def make_tarfile(source_dir, output_filename):
     with tarfile.open(output_filename, "w:gz") as tar:
-        tar.add(source_dir, arcname=os.path.basename(source_dir))
+        tar.add(source_dir, arcname=os.path.basename(source_dir), filter=filter_function)
 
 
-def serilize_class(c, serializa_file):
+def serialize_class(c, serializa_file):
     pickle.dump(c, open(serializa_file, 'wb'))
 
 
-def get_serializa_params(file_name):
+def get_serialized_params(file_name):
     if isfile(file_name):
         return pickle.load(open(file_name, "rb"))
     else:

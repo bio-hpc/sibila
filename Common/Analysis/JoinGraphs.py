@@ -28,8 +28,8 @@ class JoinGraphs:
         if dir_name[:-1] != "/":
             dir_name += "/"
         self.dir_name = dir_name
-        self.file_out = dir_name + "/" + dirname(dir_name) + ".docx"
-        self.file_pdf = dir_name + "/" + dirname(dir_name) + ".pdf"
+        self.file_out = dir_name + basename(dirname(dir_name)) + '.docx'
+        self.file_pdf = dir_name + basename(dirname(dir_name)) + '.pdf'
 
     def get_number_rows(self, lst_files):
         number_rows = 0
@@ -41,7 +41,6 @@ class JoinGraphs:
         paragraph = cell.add_paragraph()
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
         run = paragraph.add_run()
-
         return run
 
     def create_document(self):
@@ -140,7 +139,7 @@ class JoinGraphs:
             for m in self.get_methods(expr):
                 f1 = self.dir_name + "/" + pre + "/" + m + "*.png"
                 self.create_table(m, f1)
-            out_doc = self.dir_name + "/" + dirname(self.dir_name) + "_" + pre + ".docx"
+            out_doc = self.dir_name + basename(dirname(self.dir_name)) + '_' + pre + '.docx'
             self.save(out_doc)
 
     def create_first_row(self, method, table):
@@ -157,7 +156,6 @@ class JoinGraphs:
         cnt_row = 1
         for file in lst_files:
             cell_r = self.paragraph_format_run(table.cell(cnt_row, 0))
-            #print(file)
             cell_r.add_picture(file, width=Inches(5.0))
             cnt_row += 1
 

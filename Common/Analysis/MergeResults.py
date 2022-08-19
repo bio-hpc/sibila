@@ -11,6 +11,7 @@ __status__ = "Production"
 
 import glob
 import json
+import sys
 from os.path import splitext, basename, join
 
 
@@ -33,8 +34,6 @@ class MergeResults:
                 if key_name+"_"+str(i) not in self.results:
                     key_name = key_name+"_"+str(i)
                     break;
-            #print('Error: ya existe un modelo con ese nombre')
-            #exit()
         return key_name
 
     def read_data(self):
@@ -87,6 +86,10 @@ class MergeResults:
                 line = key
                 for header in csv_header:
                     line += self.SEPARATOR_CSV + ' ' + str(self.results[header]['Analysis'][key]).replace('.',',')
-                # print(line)
                 lst_lines.append(line)
         return lst_lines
+
+
+if __name__ == '__main__':
+    folder = sys.argv[1]
+    MergeResults(folder)

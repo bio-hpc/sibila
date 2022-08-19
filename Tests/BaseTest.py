@@ -77,6 +77,7 @@ class BaseTest(unittest.TestCase):
         io_data = IOData()
         io_data.create_dirs(FOLDER_TEST)
         aux = glob(FOLDER_TEST + "*")
+        aux = [ x for x in aux if "out" not in x ] # exclude "out" folder
         self.assertTrue(len(aux) == FOLDER_TEST_NUMBER, get_error_txt(ERROR_N_CREATE_FOLDER, aux))
         return io_data
 

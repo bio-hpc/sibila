@@ -18,7 +18,6 @@ class EndProcess:
     def compress(self, dir_name):
         make_tarfile(dir_name, dir_name + ".tar.gz")
 
-
 if __name__ == "__main__":
     dir_name = sys.argv[1]
     EndProcess(dir_name)

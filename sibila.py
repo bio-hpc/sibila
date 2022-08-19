@@ -75,11 +75,10 @@ def main():
             execute(x, y, id_list, idx_samples, io_data, args.folder, file_dataset, type_model, args)
             for type_model in options
         ]
-        MergeResults(args.folder)
 
     if not args.queue:
+        MergeResults(args.folder)
         EndProcess(args.folder)
-
 
 def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset, type_model, args):
     cfg = get_cfg(folder_experiment, file_dataset, type_model, args)

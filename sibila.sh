@@ -3,9 +3,9 @@
 # Parameters job
 #
 CPUS=1
-TIME=24:00:00
-NAME_JOB="ML"
-MEM=2000M
+TIME=72:00:00
+NAME_JOB="SIBILA"
+#MEM=200M
 PROJECT="" #at the moment it is not used
 #
 #  Constans
@@ -15,17 +15,15 @@ PYTHON_RUN="python3"
 SIBILA="sibila.py"
 SCRIPT_QUEUE="Tools/Bash/Queue_manager/${QUEUE_MANAGER}.sh"
 CMD_QUEUE="sbatch"
+CMD_EXEC="singularity exec"
 IMG_SINGULARITY="Tools/Singularity/sibila.simg"
-TEST_CMD="singularity exec ${IMG_SINGULARITY} python3 -m unittest discover"
-CMD_SING="singularity exec ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
-CMD_SING_HELP="singularity exec ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
+TEST_CMD="${CMD_EXEC} ${IMG_SINGULARITY} python3 -m unittest discover"
+CMD_SING="${CMD_EXEC} ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
+CMD_SING_HELP="${CMD_EXEC} ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
+CMD_END_PROC="${PYTHON_RUN} -m Common.Analysis.EndProcess"
+CMD_END_PROC_SING="${CMD_EXEC} ${IMG_SINGULARITY} ${PYTHON_RUN} -m Common.Analysis.EndProcess"
 SINGULARITY=true
 PARAM_MULTIJOB_JOB="-nj" #optional parameter to add to the folder name and job
-CMD_INTERPRETABILITY="${PYTHON_RUN} -m Common.Analysis.Interpretability "
-CMD_INTERPRETABILITY_SING="singularity exec ${IMG_SINGULARITY} ${CMD_INTERPRETABILITY} "
-CLASS_INTERPRETABILITY="Common/Analysis/Interpretability.py"
-CMD_ENDPROCESS="${PYTHON_RUN} -m Common.Analysis.EndProcess "
-CMD_ENDPROCESS_SIMG="singularity exec ${IMG_SINGULARITY} ${CMD_ENDPROCESS}"
 parallel=false
 multi_job=""
 params=${@}
@@ -36,8 +34,6 @@ fi
 if [ $SINGULARITY = true ];then
   cmd_run=${CMD_SING}
   cmd_help=${CMD_SING_HELP}
-  CMD_INTERPRETABILITY=${CMD_INTERPRETABILITY_SING}
-  CMD_ENDPROCESS=${CMD_ENDPROCESS_SIMG}
   test_cmd=${TEST_CMD}
 else
   cmd_run="${PYTHON_RUN} ${SIBILA}"
@@ -50,7 +46,7 @@ while [ ${#} -gt 0 ];do
   if [ "${1}" = "${PARAM_MULTIJOB_JOB}" ]; then
     shift
     if [ "${1}" != "" ];then
-      params=`echo ${params}| sed "s/-nj ${1}//g"  ` #| sed  "s/-nj  $1//g"`
+      params=`echo ${params}| sed "s/-nj ${1}//g"  `
       multi_job=_"${1}"
     fi
   elif [ "${1}" = "-f" ];then
@@ -81,7 +77,6 @@ if [ "${folder}" = "" ];then
 fi
 folder="${folder}_$(date +'%F')"
 
-
 if [ "${folder}" != "" ]; then
     folder=${folder}${multi_job}
     mljob=${PWD}/${folder}/job.sh
@@ -89,47 +84,22 @@ if [ "${folder}" != "" ]; then
     if [ ! -d "${folder}" ]; then
       mkdir ${folder}
     fi
-    sh $SCRIPT_QUEUE "${PWD}/${folder}/" ${NAME_JOB} ${TIME} ${CPUS} ${MEM} > $mljob
-    echo "${cmd_run} ${params} -f ${folder}" >> $mljob
+    sh $SCRIPT_QUEUE "${PWD}/${folder}/" ${NAME_JOB} ${TIME} ${CPUS} ${MEM} > ${mljob}
+    echo "${cmd_run} ${params} -f ${folder}" >> ${mljob}
 fi
 
+# send sibila.py job and grab job id
+main_job_id=$(${CMD_QUEUE} ${mljob} | cut -d ' ' -f 4)
+
+# make a separate script for each interpretability calculation which will be run once the models are trained
 if [ ${parallel} == true ]; then
-    methods=$(cat ${CLASS_INTERPRETABILITY} |grep "PARALLEL_METHODS =" |awk -F\= '{print $2}' | tr -d '[],"'  | sed -e "s/'//g" )
-    echo -e "#\n#\t Interpretability \n#"                                           >> ${mljob}
-    echo -e 'nresults=`ls '${PWD}/${folder}/*_params.pkl' 2> /dev/null |wc -l`'     >> ${mljob}
-    echo -e 'if [ ${nresults} -eq 0 ];then exit;fi'                                 >> ${mljob}
-    echo -e 'res=`find '${PWD}/${folder}' -empty -name *_params.pkl`'               >> ${mljob}
-    echo -e 'if [ "${res}" != "" ];then exit;fi'                                    >> ${mljob}
-    echo -e "dependences=afterany"                                                  >> ${mljob}
-    echo -e "methods=\"$methods\""                                                  >> ${mljob}
-    echo "IFS=' '"                                                                  >> ${mljob}
-    echo 'read -ra arr <<< ${methods}'                                              >> ${mljob}
-    echo 'for m in ${arr[@]}; do'                                                   >> ${mljob}
-    echo -e   "\t for i in  ${folder}/*_params.pkl ; do"                            >> ${mljob}
-    echo -e     '\t\t ba=$(basename -- $i})'                                        >> ${mljob}
-    echo -e     '\t\t method_ml=`echo ${ba} | cut -d "_" -f 1`'                     >> ${mljob}
-    echo -e     "\t\t job=${PWD}/${folder}/"'${method_ml}_${m}_job.sh'              >> ${mljob}
-    echo -e     '\t\t name_job=${method_ml}_${m}'                                   >> ${mljob}
-    echo -e     "\t\t sh $SCRIPT_QUEUE ${PWD}/${folder}/"'${method_ml}_${m}_ ${name_job}' "${TIME} ${CPUS} ${MEM}"' > $job'  >> ${mljob}
-    echo -e     '\t\t echo "'$CMD_INTERPRETABILITY' ${i} ${m}" >> ${job}'           >> ${mljob}
-    echo -e     "\t\t j_d=\`$CMD_QUEUE " '${job}`'                                  >> ${mljob}
-    echo -e     '\t\t j_d=`echo ${j_d##* }`'                                        >> ${mljob}
-    echo -e     '\t\t dependences=${dependences}:${j_d}'                            >> ${mljob}
-    # echo -e     '\t\t echo ${dependences}'                                        >> ${mljob}
-    # echo -e    '\t\t echo "$CMD_INTERPRETABILITY ${i} ${m} >> $job"'              >> ${mljob}
-    echo -e   "\t done"                                                             >> ${mljob}
-    echo  "done"                                                                    >> ${mljob}
-    echo -e "#\n#\t End Job \n#"                                                    >> ${mljob}
-    echo -e     "job=${PWD}/${folder}/end_job.sh"                                   >> ${mljob}
-    echo -e     "sh $SCRIPT_QUEUE ${PWD}/${folder}/"'end_job_ end_job' "4:00:00 ${CPUS} ${MEM}"' > $job'  >> ${mljob}
-    echo -e    "echo ${CMD_ENDPROCESS_SIMG} ${folder} >> "'${job}'                  >> ${mljob}
-    if [ ${CMD_QUEUE} == "bash" ]; then
-      echo -e    "${CMD_QUEUE}"' ${job}'                  >> ${mljob}
+    endjob=${PWD}/${folder}/end_job.sh
+    sh ${SCRIPT_QUEUE} "${PWD}/${folder}/jobs/" "end_job" "4:00:00" "1" "${MEM}" > ${endjob}
+    if [ ${SINGULARITY} == true ]; then
+        echo "${CMD_END_PROC_SING} ${folder}" >> ${endjob}
     else
-      echo -e    "${CMD_QUEUE}"' --dependency=${dependences} ${job}'                  >> ${mljob}
+        echo "${CMD_END_PROC} ${folder}" >> ${endjob}
     fi
+
+    ${CMD_QUEUE} --dependency=afterany:${main_job_id} ${PWD}/interpretability.sh "${folder}" "${endjob}"
 fi
-
-
-$CMD_QUEUE ${mljob}
-
