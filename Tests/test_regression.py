@@ -11,7 +11,7 @@ FILE_DATASET = 'Datasets/Tests/regresion-lineal_v1.csv'
 
 MODEL_ASSERTS = {
     'ANN':[
-        { '*lc_tf.png': 'E0111' }
+        { '*loss_acc.png': 'E0111' }
     ],
     'DT':[
         { '*file.dot': 'E0109' },

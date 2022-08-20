@@ -37,10 +37,6 @@ class CrossValidation:
         self.io_data = io_data
 
     def choice_method(self, method):
-        #if isinstance(self.METHODS[method], list):
-        #    for m in self.METHODS[method]:
-        #        return getattr(self, self.METHODS[m])
-        #else:
         if method in self.METHODS.keys():
             return getattr(self, self.METHODS[method])
         else:
@@ -161,7 +157,7 @@ class CrossValidation:
         @n_splits: int
         @n_groups: int
         """
-        n_splits = min(n_splits, n_groups)        
+        n_splits = min(n_splits, n_groups)
         groups = np.floor(np.linspace(0, n_groups, len(y)))
         gkf = model_selection.GroupKFold(n_splits=n_splits)
         return gkf.split(x, y, groups)

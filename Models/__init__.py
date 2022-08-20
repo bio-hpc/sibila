@@ -3,7 +3,6 @@ from Models.SVM import SVM
 from Models.RF import RF
 from Models.ANN import ANN
 from Models.XGBOOST import XGBOOST
-from Models.RNN import RNN
 from Models.KNN import KNN
 from Models.RP import RP
 from Models.RLF import RLF

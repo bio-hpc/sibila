@@ -22,6 +22,7 @@
         "activation": ["relu","elu","tanh","sigmoid","softmax","linear","exponential"],
         "dropout": true,
         "dropout_rate": 0.25,
+        "optimizer": ["Adam", "RMSprop", "SGD", "Adagrad"],
         "min_lr": 1e-4,
         "max_lr": 1e-2,
         "sampling_lr": "log",

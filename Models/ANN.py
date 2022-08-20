@@ -22,6 +22,8 @@ import pandas as pd
 from alibi.explainers import IntegratedGradients
 from Tools.ToolsModels import is_regression_by_config, make_model
 import keras_tuner as kt
+from Models.Utils.LearningHistoryCallback import LearningHistoryCallback
+from Tools.DatasetBalanced import DatasetBalanced
 
 
 PREFIX_OUT_ANN = '{}_{}_{}_{}'  # Model, Dataset, Epochs, Learning rate
@@ -33,7 +35,6 @@ class ANN(BaseModel):
         tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
         self.model = make_model(cfg, id_list)
         self.graphics = Graphics()
-        self.history = []
 
     def get_prefix(self):
         if self.cfg.get_args()['parameters'] is not None:
@@ -49,19 +50,32 @@ class ANN(BaseModel):
                                   self.cfg.get_params()['params_grid']['min_lr']))
 
     def grid_search(self, xtr, ytr):
-
         params = self.cfg.get_params()['params_grid']
         seed = self.cfg.get_params()['params']['random_state']
+ 
+        def get_optimizer(opt_name, lr):
+            if opt_name == 'Adam':
+                return tf.keras.optimizers.Adam(learning_rate = lr)
+            elif opt_name == 'SGD':
+                return tf.keras.optimizers.SGD(learning_rate = lr)
+            elif opt_name == 'RMSprop':
+                return tf.keras.optimizers.RMSprop(learning_rate = lr)
+            elif opt_name == 'Adagrad':
+                return tf.keras.optimizers.Adagrad(learning_rate = lr)
+            
+            return tf.keras.optimizers.Adam(learning_rate = lr)
 
         def build_model(hp):
             model = tf.keras.Sequential()
             model.add(tf.keras.layers.Input(shape=xtr.shape))
+
             for i in range(hp.Int("num_layers", 1, params['max_layers'])):
                 model.add(
                     tf.keras.layers.Dense(
                         # Tune number of units separately
                         units = hp.Int(f"units_{i}", min_value=params['min_units'], max_value=params['max_units'], step=params['step_units']),
-                        activation = hp.Choice("activation", params['activation']) if ('activation' in params and len(params['activation']) > 0) else None,
+                        #activation = hp.Choice("activation", params['activation']) if ('activation' in params and len(params['activation']) > 0) else None,
+                        activation = hp.Choice('activation', values=params['activation']),
                         kernel_initializer = tf.keras.initializers.GlorotUniform(seed=seed),
 			kernel_regularizer = hp.Choice('kernel_regularizer', params['kernel_regularizer']) if ('kernel_regularizer' in params and len(params['kernel_regularizer']) > 0) else None
                     )
@@ -76,8 +90,11 @@ class ANN(BaseModel):
                     model.add(tf.keras.layers.Dense(params['output_units'], kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
 
                 learning_rate = hp.Float("lr", min_value=params['min_lr'], max_value=params['max_lr'], sampling=params['sampling_lr'])
+                opt_name = hp.Choice("optimizer", values=params['optimizer'])
+                optimizer = get_optimizer(opt_name, learning_rate)
+
                 model.compile(
-                    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate),
+                    optimizer = optimizer,
                     loss = params["loss_function"],
                     metrics = params['metrics']
                 )
@@ -95,20 +112,37 @@ class ANN(BaseModel):
             project_name = "sibila"
         )
 
-        tuner.search(xtr, ytr, verbose=2, epochs=params['epochs'], callbacks=[tf.keras.callbacks.EarlyStopping('val_loss', patience=params['early_stopping_patience'])])
+        # handling unbalanced data if requested
+        class_weights = DatasetBalanced.get_class_weights(self.model, ytr, self.cfg)
+        if is_regression_by_config(self.cfg):
+            class_weights = None
+
+        tuner.search(xtr, ytr, 
+                     verbose = 0, 
+                     epochs = params['epochs'],
+                     batch_size = self.cfg.get_params()['params']['batch_size'],
+                     class_weight = class_weights,
+                     callbacks = [ 
+                         tf.keras.callbacks.EarlyStopping('val_loss', patience=params['early_stopping_patience']),
+                         tf.keras.callbacks.TerminateOnNaN()
+                     ]
+        )
         return tuner.get_best_hyperparameters(num_trials=1)[0], tuner.get_best_models()[0]
+    
+    def train(self, xtr, ytr):
+        tf.random.set_seed(self.cfg.get_args()['seed'])
 
-    def cross_validation(self, xtr, ytr):
-        params = self.cfg.get_params()['params']
-        params_grid = self.cfg.get_params()['params_grid']
-        metrics = [ ClassFactory(m).get() for m in params['cv_metrics'] ]
-        self.model.compile(loss=params_grid['loss_function'], metrics=metrics)
+        # find the optimal hyperparameters
+        bestHP, self.model = self.grid_search(xtr, ytr)
 
-        if self.cfg.get_args()['crossvalidation'] == None: #or 'cv_splits' not in params:
-            for i in range(params_grid['epochs']):
-                self.history.append(self.model_fit(xtr, ytr))
+        # For best performance, it is recommended to retrain your Model on the full dataset
+        # (https://keras.io/api/keras_tuner/tuners/base_tuner/#get_best_hyperparameters-method)
+        if self.cfg.get_args()['crossvalidation'] is None:
+            self.model_fit(xtr, ytr)
         else:
+            # handling cross-validation
             # cope with different parameters in each method
+            params = self.cfg.get_params()['params']
             cv_params = {
                 'n_splits': params.get('cv_splits', CrossValidation.N_SPLITS),
                 'random_state': params.get('random_state', CrossValidation.RANDOM_STATE)
@@ -117,25 +151,19 @@ class ANN(BaseModel):
             cv = CrossValidation(self.io_data)
             method = cv.choice_method(self.cfg.get_args()['crossvalidation'])
             cv.run_method(method, xtr, ytr, self.cv_step_fn, **cv_params)
-
-    def train(self, xtr, ytr):
-        bestHP, self.model = self.grid_search(xtr, ytr)
-        #self.cross_validation(xtr, ytr)
+        
         # append the grid search hyperparams to the output
-        #params = { **self.cfg.get_params()['params_grid'], **bestHP.values }
-        #self.cfg.set_grid_params(params)
-        #print('train', xtr.shape, ytr.shape)
+        params = { **self.cfg.get_params()['params_grid'], **bestHP.values }
+        self.cfg.set_grid_params(params)
         
     def cv_step_fn(self, xtr, ytr, xts=None, yts=None):
-        for i in range(self.cfg.get_params()['params_grid']['epochs']):
-            self.history.append(self.model_fit(xtr, ytr))
+        self.model_fit(xtr, ytr)
 
     def predict(self, xts):  # Make a prediction
         ypr = self.model_predict(xts)
 
         # draw model and print it on the screen
         self.model.summary()
-        self.plot_history()
         if self.cfg.get_params()['params']['draw_model']:
             self.graphics.draw_model(self.model, self.cfg.get_prefix())
 
@@ -143,9 +171,3 @@ class ANN(BaseModel):
             return np.squeeze(ypr)
 
         return ypr.argmax(axis=1)
-
-    def plot_history(self):
-        training_data = [h.history['loss'] for h in self.history]
-        file_out = self.get_prefix() + "_lc_tf.png"
-        self.graphics.plot_learning_curves(training_data, file_out, metric='Loss')
-

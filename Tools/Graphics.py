@@ -45,21 +45,18 @@ class Graphics:
         plt.close(fig)
 
     """
-	Plots the learning curves of the training and test datasets. 
-	@metric is the name of the metric being displayed (loss, MAE, MSE, MSLE, RMSE...)
+	Plots the evolution of loss and accuracy while training. 
 	"""
-
-    def plot_learning_curves(self, tr, file_out, val=None, metric=''):
-        steps = [i + 1 for i in range(len(tr))]
+    def plot_metrics_evolution(self, loss, acc, epochs, file_out):
+        steps = [i + 1 for i in range(epochs)]
 
         fig, ax = plt.subplots()
-        ax.plot(steps, tr, '-', label='training set')
-        if val != None and len(val) > 0:
-            ax.plot(steps, val, '-', label='test set')
-        ax.set(xlabel='Epochs', ylabel=metric, title='Learning curves (TF)')
+        ax.plot(steps, loss, '-', label='training loss')
+        ax.plot(steps, acc, '-', label='training accuracy')
+        ax.set(xlabel='Epochs', title='Training Loss vs Accuracy')
         plt.legend()
         plt.tight_layout()
-        self.save_fig(file_out)
+        plt.savefig(file_out)
         plt.close()
 
     def _generate_graph_roc(self, x, y, auc_value, file_out, title):
