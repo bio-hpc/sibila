@@ -105,10 +105,10 @@ class JoinGraphs:
         else:
             return {
                 'Model': data['Config']['Model_params']['model'],
-                'Accuracy': analysis['Accuracy score'],
-                'Precision': analysis['Precision score'],
-                'F1 score': analysis['F1_score'],
-                'Recall': analysis['Recall Score'],
+                'Accuracy': analysis['Accuracy'],
+                'Precision': analysis['Precision'],
+                'F1': analysis['F1'],
+                'Recall': analysis['Recall'],
                 'Specificity': analysis['Specificity'],
                 'AUC': analysis['Auc']
             }

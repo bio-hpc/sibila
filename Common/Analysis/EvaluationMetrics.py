@@ -213,10 +213,10 @@ class EvaluationMetrics:
         if not is_regression_by_config(self.cfg):
             self.data['Analysis'] = {
                 'Confusion matrix': self.confusion_matrix().tolist(),
-                'Accuracy score': round(self.classification_accuracy() * 100, self.DECIMALS_ROUND),
-                'Precision score': round(self.precision() * 100, self.DECIMALS_ROUND),
-                'F1_score': round(self.f1_score() * 100, self.DECIMALS_ROUND),
-                'Recall Score': round(self.recall() * 100, self.DECIMALS_ROUND),
+                'Accuracy': round(self.classification_accuracy() * 100, self.DECIMALS_ROUND),
+                'Precision': round(self.precision() * 100, self.DECIMALS_ROUND),
+                'F1': round(self.f1_score() * 100, self.DECIMALS_ROUND),
+                'Recall': round(self.recall() * 100, self.DECIMALS_ROUND),
                 'Specificity': round(self.specificity() * 100, self.DECIMALS_ROUND),
                 'Auc': round(self.auc_value(), self.DECIMALS_ROUND),
             }

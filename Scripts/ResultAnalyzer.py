@@ -86,10 +86,10 @@ class ResultAnalyzer():
 			mse = analysis['Mean Squared Error']
 			return pearson, r2, avg_precision, mae, mse
 		else:
-			accuracy = analysis['Accuracy score']
-			precision = analysis['Precision score']
-			f1 = analysis['F1_score']
-			recall = analysis['Recall Score']
+			accuracy = analysis['Accuracy']
+			precision = analysis['Precision']
+			f1 = analysis['F1']
+			recall = analysis['Recall']
 			specificity = analysis['Specificity']
 			auc = analysis['Auc']
 			return accuracy, precision, f1, recall, specificity, auc

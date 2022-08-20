@@ -31,10 +31,10 @@ INTERPRETABILITY = {
 }
 METRICS = {
     "AUC": "Auc",
-    "F1": "F1_score",
-    "ACC": "Accuracy score",
-    "PRE": "Precision score",
-    "REC": "Recall Score",
+    "F1": "F1",
+    "ACC": "Accuracy",
+    "PRE": "Precision",
+    "REC": "Recall",
     "SPE": "Specificity",
     "PCC": "Pearson Correlation Coefficient",
     "R2": "Coefficient of Determination",
