@@ -87,7 +87,7 @@ class ANN(BaseModel):
                 if not is_regression_by_config(self.cfg):
                     model.add(tf.keras.layers.Dense(params['output_units'], activation="softmax", kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
                 else:
-                    model.add(tf.keras.layers.Dense(params['output_units'], kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
+                    model.add(tf.keras.layers.Dense(1, kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
 
                 learning_rate = hp.Float("lr", min_value=params['min_lr'], max_value=params['max_lr'], sampling=params['sampling_lr'])
                 opt_name = hp.Choice("optimizer", values=params['optimizer'])
