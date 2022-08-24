@@ -123,7 +123,7 @@ class ANN(BaseModel):
                      batch_size = self.cfg.get_params()['params']['batch_size'],
                      class_weight = class_weights,
                      callbacks = [ 
-                         tf.keras.callbacks.EarlyStopping('val_loss', patience=params['early_stopping_patience']),
+                         tf.keras.callbacks.EarlyStopping('loss', patience=params['early_stopping_patience']),
                          tf.keras.callbacks.TerminateOnNaN()
                      ]
         )

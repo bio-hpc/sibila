@@ -51,8 +51,8 @@ class Graphics:
         steps = [i + 1 for i in range(epochs)]
 
         fig, ax = plt.subplots()
-        ax.plot(steps, loss, '-', label='training loss')
-        ax.plot(steps, acc, '-', label='training accuracy')
+        ax.plot(steps, loss, '-', label='Loss')
+        ax.plot(steps, acc, '-', label='Accuracy')
         ax.set(xlabel='Epochs', title='Training Loss vs Accuracy')
         plt.legend()
         plt.tight_layout()
@@ -129,7 +129,7 @@ class Graphics:
 
         x = np.arange(5)
         plt.xlabel('Range')
-        plt.ylabel('Number of Cases')
+        plt.ylabel('Number of Samples')
         plt.title('Class Probability')
         proba_out = splitext(file_out)[0] + "_proba_class.png"
         lst.insert(0, 0)

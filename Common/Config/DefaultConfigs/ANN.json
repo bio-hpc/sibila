@@ -17,7 +17,7 @@
         "max_layers": 3,
         "min_units": 4,
         "max_units": 512,
-        "step_units": 4,
+        "step_units": 1,
         "output_units": 2,
         "activation": ["relu","elu","tanh","sigmoid","softmax","linear","exponential"],
         "dropout": true,
@@ -28,7 +28,7 @@
         "sampling_lr": "log",
         "metrics": ["accuracy"],
         "loss_function": "sparse_categorical_crossentropy",
-        "epochs": 100,
+        "epochs": 500,
         "executions_per_trial": 5,
         "early_stopping_patience": 3
     }
