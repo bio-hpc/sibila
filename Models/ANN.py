@@ -69,35 +69,37 @@ class ANN(BaseModel):
             model = tf.keras.Sequential()
             model.add(tf.keras.layers.Input(shape=xtr.shape))
 
-            for i in range(hp.Int("num_layers", 1, params['max_layers'])):
+            min_layers = params['min_layers'] if 'min_layers' in params.keys() else 1
+
+            for i in range(hp.Int("num_layers", min_layers, params['max_layers'])):
                 model.add(
                     tf.keras.layers.Dense(
                         # Tune number of units separately
+                        name = f"hidden_{i}",
                         units = hp.Int(f"units_{i}", min_value=params['min_units'], max_value=params['max_units'], step=params['step_units']),
-                        #activation = hp.Choice("activation", params['activation']) if ('activation' in params and len(params['activation']) > 0) else None,
                         activation = hp.Choice('activation', values=params['activation']),
                         kernel_initializer = tf.keras.initializers.GlorotUniform(seed=seed),
 			kernel_regularizer = hp.Choice('kernel_regularizer', params['kernel_regularizer']) if ('kernel_regularizer' in params and len(params['kernel_regularizer']) > 0) else None
                     )
                 )
 
-                if hp.Boolean("dropout", params['dropout']):
-                    model.add(tf.keras.layers.Dropout(rate=params['dropout_rate']))
+            if hp.Boolean("dropout", params['dropout']):
+                model.add(tf.keras.layers.Dropout(rate=params['dropout_rate']))
 
-                if not is_regression_by_config(self.cfg):
-                    model.add(tf.keras.layers.Dense(params['output_units'], activation="softmax", kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
-                else:
-                    model.add(tf.keras.layers.Dense(1, kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
+            if not is_regression_by_config(self.cfg):
+                model.add(tf.keras.layers.Dense(params['output_units'], activation="softmax", kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
+            else:
+                model.add(tf.keras.layers.Dense(1, kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
 
-                learning_rate = hp.Float("lr", min_value=params['min_lr'], max_value=params['max_lr'], sampling=params['sampling_lr'])
-                opt_name = hp.Choice("optimizer", values=params['optimizer'])
-                optimizer = get_optimizer(opt_name, learning_rate)
+            learning_rate = hp.Float("lr", min_value=params['min_lr'], max_value=params['max_lr'], sampling=params['sampling_lr'])
+            opt_name = hp.Choice("optimizer", values=params['optimizer'])
+            optimizer = get_optimizer(opt_name, learning_rate)
 
-                model.compile(
-                    optimizer = optimizer,
-                    loss = params["loss_function"],
-                    metrics = params['metrics']
-                )
+            model.compile(
+                optimizer = optimizer,
+                loss = params["loss_function"],
+                metrics = params['metrics']
+            )
             return model
 
         build_model(kt.HyperParameters())
@@ -118,7 +120,7 @@ class ANN(BaseModel):
             class_weights = None
 
         tuner.search(xtr, ytr, 
-                     verbose = 0, 
+                     verbose = 0,
                      epochs = params['epochs'],
                      batch_size = self.cfg.get_params()['params']['batch_size'],
                      class_weight = class_weights,
