@@ -75,6 +75,8 @@ class DiceExplainer(ExplainerModel):
 
         self.df_global = None
         if len(self.df_local) > 0:
+            tmp = pd.DataFrame({'feature':[], 'weight':[]})
+            self.df_local = [tmp if x is None else x for x in self.df_local]
             self.df_global = pd.concat(self.df_local, ignore_index=True)
             self.df_std = self.df_global.groupby('feature').std().reset_index()
             self.df_global = self.df_global.groupby('feature').mean().reset_index()
