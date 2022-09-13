@@ -56,7 +56,8 @@ def main():
     x, y, id_list, idx_samples = get_dataset(file_dataset, io_data)
 
     x = DataNormalization().choice_method_normalize(x, args)
-    if not args.model:
+
+    if not args.model and not args.skip_dataset_analysis:
         Graphics().graph_dataset(x, y, id_list, FIELD_TARGET, join(args.folder, 'Dataset/'))
     t.save('{}/load_time.txt'.format(args.folder), io_data)
 
