@@ -108,7 +108,9 @@ class ANN(BaseModel):
             hypermodel = build_model,
             objective = kt.HyperParameters().Choice('objective',params["objective"]),
             max_trials = 10, #params['executions_per_trial'],
-            seed = seed
+            seed = seed,
+            directory = self.cfg.get_folder() + "/keras_tuner_dir",
+            project_name = "sibila"
         )
 
         # handling unbalanced data if requested
