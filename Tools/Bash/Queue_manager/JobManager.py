@@ -16,12 +16,12 @@ import os
 import subprocess
 from Tools.PostProcessing.Serialize import Serialize
 from Tools.IOData import serialize_class
-from .jobs import env, build_blocks
+from .jobs import interpretability_cmd, build_blocks
 
 class JobManager:
 
     SCRIPT_PATH = 'Tools/Bash/Queue_manager/SLURM.sh'
-    INTERP_PATH = ('singularity exec Tools/Singularity/sibila.simg ' if env("SINGULARITY") else '') + 'python3 -m Common.Analysis.Interpretability'
+    INTERP_PATH = interpretability_cmd() #('singularity exec Tools/Singularity/sibila.simg ' if env("SINGULARITY") else '') + 'python3 -m Common.Analysis.Interpretability'
 
     def parallelize(self, params, methods):
         # serialize params for upcoming jobs

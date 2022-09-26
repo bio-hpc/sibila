@@ -15,8 +15,26 @@ JOBS_SAMPLES = 10
 JOBS_FEATURES = 2
 
 """ Gets the value of an environment variable """
-def env(varname):
-    return os.getenv(varname, 'False').lower() in ('true', '1', 't')
+def env(varname, default=None):
+    value = os.getenv(varname, default)
+    if value.lower() in ['true', 'false']:
+        return value.lower() in ['true']
+    else:
+        return value
+
+""" Builds the command con call interpretability """
+def interpretability_cmd():
+    python_run = env("PYTHON_RUN", "python")
+    cmd_exec = env("CMD_EXEC", "singularity exec")
+    img_singularity = env("IMG_SINGULARITY", "Tools/Singularity/sibila.simg")
+
+    if env("SINGULARITY", "False"):
+        cmd = f"{cmd_exec} {img_singularity}"
+    else:
+        cmd = ''
+
+    cmd = f"{cmd} {python_run} -m Common.Analysis.Interpretability"
+    return cmd
 
 """ Check if an interpretability method is related to samples or features """
 def is_feature_method(method):
