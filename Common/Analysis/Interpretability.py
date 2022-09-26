@@ -22,6 +22,7 @@ from Tools.Graphics import Graphics
 from os.path import basename, dirname, normpath
 from glob import glob
 from Tools.Bash.Queue_manager.JobManager import JobManager
+from Tools.Bash.Queue_manager.jobs import get_nitems_per_block
 
 
 class Interpretability:
@@ -77,7 +78,9 @@ class Interpretability:
     def execute_method(self, params, method):
         # when a block number is given, only that part of the data is taken
         if not self.block_nr is None:
-            xts_ith, yts_ith, idx_ith = self.take_data(params['xts'], params['yts'], params['idx_xts'], int(self.block_nr))
+            N = get_nitems_per_block(method, params['xts'].shape)
+            xts_ith, yts_ith, idx_ith = self.take_data(params['xts'], params['yts'], params['idx_xts'], int(self.block_nr), N)
+
             new_params = params.copy()
             new_params['xts'] = xts_ith
             new_params['yts'] = yts_ith
@@ -124,8 +127,7 @@ class Interpretability:
 
         Graphics().plot_interpretability_times(dct_times, prefix + "_times.png", name_model)
 
-    def take_data(self, xts, yts, idx, block_id):
-        N = JobManager.BATCH_SIZE
+    def take_data(self, xts, yts, idx, block_id, N):
         xts_splited = [xts[x:x+N] for x in range(0, len(xts), N)]
         yts_splited = [yts[x:x+N] for x in range(0, len(yts), N)]
         idx_splited = [idx[x:x+N] for x in range(0, len(idx), N)]
