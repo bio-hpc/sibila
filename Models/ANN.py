@@ -52,6 +52,7 @@ class ANN(BaseModel):
     def grid_search(self, xtr, ytr):
         params = self.cfg.get_params()['params_grid']
         seed = self.cfg.get_params()['params']['random_state']
+        search_type = self.cfg.get_params()['params']['search_type']
  
         def get_optimizer(opt_name, lr):
             if opt_name == 'Adam':
@@ -104,14 +105,28 @@ class ANN(BaseModel):
 
         build_model(kt.HyperParameters())
 
-        tuner = kt.RandomSearch(
-            hypermodel = build_model,
-            objective = kt.HyperParameters().Choice('objective',params["objective"]),
-            max_trials = 10, #params['executions_per_trial'],
-            seed = seed,
-            directory = self.cfg.get_folder() + "/keras_tuner_dir",
-            project_name = "sibila"
-        )
+        if search_type == 'grid':
+            tuner = kt.Hyperband(
+                hypermodel = build_model,
+                objective = kt.HyperParameters().Choice('objective',params["objective"]),
+                executions_per_trial = params['executions_per_trial'],
+                overwrite = True,
+                seed = seed,
+                directory = self.cfg.get_folder() + "/keras_tuner_dir",
+                project_name = "sibila"
+            )
+        elif search_type == 'random':
+            tuner = kt.RandomSearch(
+                hypermodel = build_model,
+                objective = kt.HyperParameters().Choice('objective',params["objective"]),
+                max_trials = params['executions_per_trial'],
+                overwrite = True,
+                seed = seed,
+                directory = self.cfg.get_folder() + "/keras_tuner_dir",
+                project_name = "sibila"
+            )
+        else:
+            self.io_data.print_m("ERROR {} method does not exist for hyperparameter tuning".format(search_type))
 
         # handling unbalanced data if requested
         class_weights = DatasetBalanced.get_class_weights(self.model, ytr, self.cfg)
