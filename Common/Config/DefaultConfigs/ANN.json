@@ -6,11 +6,8 @@
         "draw_model": true,
         "random_state": 500,
         "cv_splits": 10,
-        "cv_metrics": [
-            "tensorflow.keras.metrics.MeanSquaredLogarithmicError",
-            "tensorflow.keras.metrics.RootMeanSquaredError"
-        ],
-        "batch_size": 1024
+        "batch_size": 1024,
+        "search_type": "grid"
     },
     "params_grid": {
         "objective": ["accuracy"],
@@ -21,7 +18,7 @@
         "output_units": 2,
         "activation": ["relu","elu","tanh","sigmoid","softmax","linear","exponential"],
         "dropout": true,
-        "dropout_rate": 0.25,
+        "dropout_rate": 0.15,
         "optimizer": ["Adam", "RMSprop", "SGD", "Adagrad"],
         "min_lr": 1e-4,
         "max_lr": 1e-2,
