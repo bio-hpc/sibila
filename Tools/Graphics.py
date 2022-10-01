@@ -47,13 +47,13 @@ class Graphics:
     """
 	Plots the evolution of loss and accuracy while training. 
 	"""
-    def plot_metrics_evolution(self, loss, acc, epochs, file_out):
+    def plot_metrics_evolution(self, loss, acc, epochs, file_out, metric_key):
         steps = [i + 1 for i in range(epochs)]
 
         fig, ax = plt.subplots()
-        ax.plot(steps, loss, '-', label='Loss')
-        ax.plot(steps, acc, '-', label='Accuracy')
-        ax.set(xlabel='Epochs', title='Training Loss vs Accuracy')
+        ax.plot(steps, loss, '-', label='loss')
+        ax.plot(steps, acc, '-', label=metric_key)
+        ax.set(xlabel='Epochs', title=f'Training loss vs {metric_key}')
         plt.legend()
         plt.tight_layout()
         plt.savefig(file_out)

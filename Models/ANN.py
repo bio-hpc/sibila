@@ -78,7 +78,7 @@ class ANN(BaseModel):
                         # Tune number of units separately
                         name = f"hidden_{i}",
                         units = hp.Int(f"units_{i}", min_value=params['min_units'], max_value=params['max_units'], step=params['step_units']),
-                        activation = hp.Choice('activation', values=params['activation']),
+                        activation = hp.Choice('activation', values=params['activation']) if ('activation' in params and len(params['activation']) > 0) else None,
                         kernel_initializer = tf.keras.initializers.GlorotUniform(seed=seed),
 			kernel_regularizer = hp.Choice('kernel_regularizer', params['kernel_regularizer']) if ('kernel_regularizer' in params and len(params['kernel_regularizer']) > 0) else None
                     )
@@ -90,7 +90,7 @@ class ANN(BaseModel):
             if not is_regression_by_config(self.cfg):
                 model.add(tf.keras.layers.Dense(params['output_units'], activation="softmax", kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
             else:
-                model.add(tf.keras.layers.Dense(1, kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
+                model.add(tf.keras.layers.Dense(params['output_units'], kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
 
             learning_rate = hp.Float("lr", min_value=params['min_lr'], max_value=params['max_lr'], sampling=params['sampling_lr'])
             opt_name = hp.Choice("optimizer", values=params['optimizer'])
