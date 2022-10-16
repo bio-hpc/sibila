@@ -11,16 +11,16 @@ __status__ = "Production"
 import math
 import os
 
-JOBS_SAMPLES = 10
-JOBS_FEATURES = 2
+JOBS_SAMPLES = 1
+JOBS_FEATURES = 1
+
 
 """ Gets the value of an environment variable """
 def env(varname, default=None):
     value = os.getenv(varname, default)
     if value.lower() in ['true', 'false']:
         return value.lower() in ['true']
-    else:
-        return value
+    return value
 
 """ Builds the command con call interpretability """
 def interpretability_cmd():

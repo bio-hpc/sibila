@@ -5,7 +5,8 @@
 CPUS=1
 TIME=72:00:00
 NAME_JOB="SIBILA"
-#MEM=200M
+MEM=1500M
+PARTITION="slims"
 PROJECT="" #at the moment it is not used
 #
 #  Constans
@@ -84,22 +85,25 @@ if [ "${folder}" != "" ]; then
     if [ ! -d "${folder}" ]; then
       mkdir ${folder}
     fi
-    sh $SCRIPT_QUEUE "${PWD}/${folder}/" ${NAME_JOB} ${TIME} ${CPUS} ${MEM} > ${mljob}
+    sh $SCRIPT_QUEUE "${PWD}/${folder}/" ${NAME_JOB} ${TIME} ${CPUS} ${MEM} ${PARTITION} > ${mljob}
     echo "${cmd_run} ${params} -f ${folder}" >> ${mljob}
 fi
 
 # send sibila.py job and grab job id
-main_job_id=$(${CMD_QUEUE} ${mljob} | cut -d ' ' -f 4)
+export_var="PARTITION=${PARTITION},TIME=${TIME},MEM=${MEM},SINGULARITY=${SINGULARITY},PYTHON_RUN=${PYTHON_RUN},IMG_SINGULARITY=${IMG_SINGULARITY}"
+main_job_id=$(${CMD_QUEUE} --export=${export_var} ${mljob} | cut -d ' ' -f 4)
 
 # make a separate script for each interpretability calculation which will be run once the models are trained
 if [ ${parallel} == true ]; then
     endjob=${PWD}/${folder}/end_job.sh
-    sh ${SCRIPT_QUEUE} "${PWD}/${folder}/jobs/" "end_job" "4:00:00" "1" "${MEM}" > ${endjob}
+    sh ${SCRIPT_QUEUE} "${PWD}/${folder}/jobs/" "end_job" "4:00:00" "1" "${MEM}" "${PARTITION}" > ${endjob}
     if [ ${SINGULARITY} == true ]; then
         echo "${CMD_END_PROC_SING} ${folder}" >> ${endjob}
     else
         echo "${CMD_END_PROC} ${folder}" >> ${endjob}
     fi
 
-    ${CMD_QUEUE} --dependency=afterany:${main_job_id} ${PWD}/interpretability.sh "${folder}" "${endjob}"
+    sh ${SCRIPT_QUEUE} "${PWD}/${folder}/" "SIBILA_INTERPRETABILITY" "${TIME}" "1" "${MEM}" "${PARTITION}" > ${folder}/interpretability.sh
+    cat ${PWD}/interpretability.sh >> ${folder}/interpretability.sh
+    ${CMD_QUEUE} --export=${export_var} --dependency=afterany:${main_job_id} ${folder}/interpretability.sh "${folder}" "${endjob}"
 fi

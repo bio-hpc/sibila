@@ -1,7 +1,6 @@
-#!/bin/bash
-
 folder=$1
 endjob=$2
+partition=$3
 
 # send individual jobs for each interpretability method, model and data block
 jobs_ids=""
@@ -16,4 +15,5 @@ do
 done
 
 # send final job for building documents and compressing files
-sbatch --dependency=afterany:${jobs_ids} ${endjob}
+export_var="PARTITION=${PARTITION},TIME=${TIME},MEM=${MEM},SINGULARITY=${SINGULARITY},PYTHON_RUN=${PYTHON_RUN},IMG_SINGULARITY=${IMG_SINGULARITY}"
+sbatch --export=${export_var} --dependency=afterany:${jobs_ids} ${endjob}

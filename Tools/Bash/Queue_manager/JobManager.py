@@ -16,16 +16,17 @@ import os
 import subprocess
 from Tools.PostProcessing.Serialize import Serialize
 from Tools.IOData import serialize_class
-from .jobs import interpretability_cmd, build_blocks
+from .jobs import interpretability_cmd, build_blocks, env
 
 class JobManager:
 
     SCRIPT_PATH = 'Tools/Bash/Queue_manager/SLURM.sh'
-    INTERP_PATH = interpretability_cmd() #('singularity exec Tools/Singularity/sibila.simg ' if env("SINGULARITY") else '') + 'python3 -m Common.Analysis.Interpretability'
+    INTERP_PATH = interpretability_cmd()
 
     def parallelize(self, params, methods):
         # serialize params for upcoming jobs
         serialized_params = self.serialize_params(params)
+        self.io_data = params['io_data']
 
         # split test data into regular blocks
         self.send_jobs(params, methods, serialized_params)
@@ -41,6 +42,10 @@ class JobManager:
         cfg = params['cfg']
         name_model = cfg.get_params()['model']
         job_folder = params['io_data'].get_job_folder()
+        slurm = os.getcwd() + '/' + JobManager.SCRIPT_PATH
+        memory = env('MEM', '1000M')
+        partition = env('PARTITION', '')
+        time = env('TIME', '4:00:00')
 
         # send an independent job for every interpretability method
         for method in methods:
@@ -50,6 +55,8 @@ class JobManager:
                  base_name = f"{method}-{name_model}-{index}"
                  name_script = f"{job_folder}/{base_name}.sh"
                  name_job = f"{base_name}-SIBILA"
-                 os.system('sh {}/{} {} {} {} {} > {}'.format(os.getcwd(), JobManager.SCRIPT_PATH, job_folder, name_job, '4:00:00', '2', name_script)) # TODO configure this externally
+
+                 #os.system('sh {} {} {} {} "2" {} {} > {}'.format(slurm, job_folder, name_job, time, memory, partition, name_script))
+                 os.system(f'sh {slurm} {job_folder} {name_job} {time} 2 {memory} {partition} > {name_script}')
                  os.system(f'echo "{JobManager.INTERP_PATH} {foo} {method} {index}" >> {name_script}')
 

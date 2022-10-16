@@ -7,5 +7,5 @@ echo "#SBATCH --cpus-per-task=${4}"
 if [ -n "${5}" ]; then
     echo "#SBATCH --mem=${5}"
 fi
-#SBATCH -p standard
+echo "#SBATCH -p ${6}"
 
