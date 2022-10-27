@@ -48,10 +48,10 @@ class TestRegression(BaseTest):
 
             # common asserts
             n_joblib = self.count_files_by_pattern(m + '*.joblib')
-            n_hdf5 = self.count_files_by_pattern(m + '*.hdf5')
+            n_h5 = self.count_files_by_pattern(m + '*.h5')
             n_dat = self.count_files_by_pattern(m + '*.dat')
 
-            self.assertEqual(n_joblib + n_hdf5 + n_dat, 1, get_error(ERROR_SAVED_MODEL))
+            self.assertEqual(n_joblib + n_h5 + n_dat, 1, get_error(ERROR_SAVED_MODEL))
             self.assertEqual(self.count_files_by_pattern(m + '*correlation.png'), 1, get_error(ERROR_CORRELATION))
             self.assertEqual(self.count_files_by_pattern(m + '*data.json'), 1, get_error(ERROR_DATA_JSON))
             self.assertEqual(self.count_files_by_pattern(m + '*resume.txt'), 1, get_error(ERROR_DATA_TXT))

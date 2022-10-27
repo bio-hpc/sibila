@@ -12,9 +12,9 @@ Needed to secure compatibility with all cluster.
 
 cd sibila/Tools/Singularity
 
-wget "https://drive.google.com/uc?export=download&id=1ekI08_n1zioEw511bxZYak2T5Jk5RB3Y&confirm=t" -O sibila.simg
+wget "https://drive.google.com/uc?export=download&id=1ekI08_n1zioEw511bxZYak2T5Jk5RB3Y&confirm=t" -O sibila.sif
 
-chmod u+x sibila.simg
+chmod u+x sibila.sif
 
 ### Available ML/DL Models and Algorithms
 1. **DT (Decision Tree)**
@@ -38,7 +38,7 @@ chmod u+x sibila.simg
 ### Scripts
 It is a directory that contains scripts for creating random datasets, running manual grid search and joining results into a single output file. 
 
-It is recommended to use these scripts with the SIBILA singularity image "Tools / Singularity / sibila.simg". 
+It is recommended to use these scripts with the SIBILA singularity image "Tools / Singularity / sibila.sif". 
 For instance:
 
-singularity exec Tools/Singularity/sibila.simg python3 Scripts/ResultAnalyzer.py -d folder_containing_results -o myfile.xlsx
+singularity exec Tools/Singularity/sibila.sif python3 Scripts/ResultAnalyzer.py -d folder_containing_results -o myfile.xlsx

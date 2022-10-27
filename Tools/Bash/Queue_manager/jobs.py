@@ -26,7 +26,7 @@ def env(varname, default=None):
 def interpretability_cmd():
     python_run = env("PYTHON_RUN", "python")
     cmd_exec = env("CMD_EXEC", "singularity exec")
-    img_singularity = env("IMG_SINGULARITY", "Tools/Singularity/sibila.simg")
+    img_singularity = env("IMG_SINGULARITY", "Tools/Singularity/sibila.sif")
 
     if env("SINGULARITY", "False"):
         cmd = f"{cmd_exec} {img_singularity}"

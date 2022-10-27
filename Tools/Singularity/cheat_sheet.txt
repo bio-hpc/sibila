@@ -1,8 +1,8 @@
 #
 #Image Build
 #
-## sudo singularity build --sandbox sibila.simg sibila.def (not used)
-sudo singularity build --writable sibila.simg sibila.def
+## sudo singularity build --sandbox sibila.sif sibila.def (not used)
+sudo singularity build --writable sibila.sif sibila.def
 #
 #mount (not used)
 #
@@ -10,4 +10,4 @@ sudo singularity build --writable sibila.simg sibila.def
 #
 #	Exec (from sibila folder)
 #
-singularity exec --bind ./:/tmp/ Tools/Singularity/sibila.simg  python3 /tmp/sibila.py
+singularity exec --bind ./:/tmp/ Tools/Singularity/sibila.sif  python3 /tmp/sibila.py

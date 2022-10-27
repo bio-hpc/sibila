@@ -43,10 +43,10 @@ class TestTrainAnalysis(BaseTest):
 
             # common asserts
             n_joblib = self.count_files_by_pattern(m + '*.joblib')
-            n_hdf5 = self.count_files_by_pattern(m + '*.hdf5')
+            n_h5 = self.count_files_by_pattern(m + '*.h5')
             n_dat = self.count_files_by_pattern(m + '*.dat')
 
-            self.assertEqual(n_joblib + n_hdf5 + n_dat, 1, get_error(ERROR_SAVED_MODEL))
+            self.assertEqual(n_joblib + n_h5 + n_dat, 1, get_error(ERROR_SAVED_MODEL))
             self.assertEqual(self.count_files_by_pattern(m + '*confusion_matrix.png'), 1, get_error(ERROR_CONF_MATRIX))
             self.assertEqual(self.count_files_by_pattern(m + '*roc_proba_class.png'), 1, get_error(ERROR_ROC_PROBA_CLASS))
             self.assertEqual(self.count_files_by_pattern(m + '*data.json'), 1, get_error(ERROR_DATA_JSON))

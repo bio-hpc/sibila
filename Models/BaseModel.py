@@ -97,7 +97,7 @@ class BaseModel(abc.ABC):
         """load the model from a file"""
         name, extension = os.path.splitext(filename)
 
-        if extension == '.hdf5':
+        if extension == '.h5':
             return tf.keras.models.load_model(filename)
         elif extension == '.joblib':
             return load(filename)
@@ -111,7 +111,7 @@ class BaseModel(abc.ABC):
     def get_filename_save_model(cfg, model):
 
         if is_tf_model(model):
-            return cfg.get_prefix() + '.hdf5'
+            return cfg.get_prefix() + '.h5'
         elif is_xgboost_model(model):
             return cfg.get_prefix() + '.dat'
         else:
