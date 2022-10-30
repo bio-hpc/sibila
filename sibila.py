@@ -96,7 +96,8 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     ypr = model.predict(xts)
     BaseModel.save_model(cfg, model.get_model())
     EvaluationMetrics(yts, ypr, xts, cfg, model.get_model(), id_list, io_data).all_metrics()
-    Interpretability(Serialize(model.get_model(), xtr, ytr, xts, yts, id_list, cfg, io_data, idx_xts))
+    if not args.skip_interpretability:
+        Interpretability(Serialize(model.get_model(), xtr, ytr, xts, yts, id_list, cfg, io_data, idx_xts))
 
 
 def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset, type_model, args):

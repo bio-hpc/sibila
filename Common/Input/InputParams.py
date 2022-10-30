@@ -94,6 +94,7 @@ class InputParams:
                             type=str.upper,
                             choices=list(DatasetBalanced.METHODS.keys()))
         parser.add_argument('--skip-dataset-analysis', help='Skip dataset analysis plots', action='store_true', default=False)
+        parser.add_argument('--skip-interpretability', help='Do not compute interpretability on test data', action='store_true', default=False)
         
         args = parser.parse_args()
         self.check_params(args)

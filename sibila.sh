@@ -26,6 +26,7 @@ CMD_END_PROC_SING="${CMD_EXEC} ${IMG_SINGULARITY} ${PYTHON_RUN} -m Common.Analys
 SINGULARITY=true
 PARAM_MULTIJOB_JOB="-nj" #optional parameter to add to the folder name and job
 parallel=false
+interpretation=true
 multi_job=""
 params=${@}
 
@@ -60,6 +61,9 @@ while [ ${#} -gt 0 ];do
   elif [ "${1}" = "--test" ];then
       ${test_cmd}
       exit
+  elif [ "${1}" == "--skip-interpretability" ];then
+      shift
+      interpretation=false
   elif [ "${1}" = "-h" ];then
     $cmd_help $1
     echo "-nj optional parameter to add to the folder name and job"
@@ -103,7 +107,9 @@ if [ ${parallel} == true ]; then
         echo "${CMD_END_PROC} ${folder}" >> ${endjob}
     fi
 
-    sh ${SCRIPT_QUEUE} "${PWD}/${folder}/" "SIBILA_INTERPRETABILITY" "${TIME}" "1" "${MEM}" "${PARTITION}" > ${folder}/interpretability.sh
-    cat ${PWD}/interpretability.sh >> ${folder}/interpretability.sh
-    ${CMD_QUEUE} --export=${export_var} --dependency=afterany:${main_job_id} ${folder}/interpretability.sh "${folder}" "${endjob}"
+    if [ ${interpretation} == true ]; then
+        sh ${SCRIPT_QUEUE} "${PWD}/${folder}/" "SIBILA_INTERPRETABILITY" "${TIME}" "1" "${MEM}" "${PARTITION}" > ${folder}/interpretability.sh
+        cat ${PWD}/interpretability.sh >> ${folder}/interpretability.sh
+        ${CMD_QUEUE} --export=${export_var} --dependency=afterany:${main_job_id} ${folder}/interpretability.sh "${folder}" "${endjob}"
+    fi
 fi
