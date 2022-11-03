@@ -111,5 +111,8 @@ if [ ${parallel} == true ]; then
         sh ${SCRIPT_QUEUE} "${PWD}/${folder}/" "SIBILA_INTERPRETABILITY" "${TIME}" "1" "${MEM}" "${PARTITION}" > ${folder}/interpretability.sh
         cat ${PWD}/interpretability.sh >> ${folder}/interpretability.sh
         ${CMD_QUEUE} --export=${export_var} --dependency=afterany:${main_job_id} ${folder}/interpretability.sh "${folder}" "${endjob}"
+    else
+        export_var="PARTITION=${PARTITION},TIME=${TIME},MEM=${MEM},SINGULARITY=${SINGULARITY},PYTHON_RUN=${PYTHON_RUN},IMG_SINGULARITY=${IMG_SINGULARITY}"
+        sbatch --export=${export_var} --dependency=afterany:${main_job_id} ${endjob}
     fi
 fi
