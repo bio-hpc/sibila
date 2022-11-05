@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 from Models import *
 from Tools.Timer import Timer
+from Tools.Bash.Queue_manager.JobManager import JobManager
 import tensorflow as tf
 tf.get_logger().setLevel('ERROR')
 
@@ -29,11 +30,13 @@ def get_cfg(folder_experiment, file_dataset, type_model, args):
     params = get_config(type_model, args)
     return ConfigHolder(file_dataset, folder_experiment, args, params)
 
-
 def get_basic_cfg(folder_experiment, file_dataset, args):
     params = get_basic_config(args)
     return ConfigHolder(file_dataset, folder_experiment, args, params)
 
+def save_params(serialize):
+    jm = JobManager()
+    return jm.serialize_params(serialize.get_params())
 
 def main():
 
@@ -96,9 +99,13 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     ypr = model.predict(xts)
     BaseModel.save_model(cfg, model.get_model())
     EvaluationMetrics(yts, ypr, xts, cfg, model.get_model(), id_list, io_data).all_metrics()
-    if not args.skip_interpretability:
-        Interpretability(Serialize(model.get_model(), xtr, ytr, xts, yts, id_list, cfg, io_data, idx_xts))
 
+    sp = Serialize(model.get_model(), xtr, ytr, xts, yts, id_list, cfg, io_data, idx_xts)
+    pkl_file = save_params(sp)
+    io_data.print_m("Model's state saved in {}".format(pkl_file))
+
+    if not args.skip_interpretability:
+        Interpretability(sp)
 
 def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset, type_model, args):
     cfg = get_basic_cfg(folder_experiment, file_dataset, args)
