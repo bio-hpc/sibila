@@ -27,8 +27,10 @@ class InputParams:
             parser.error("\nfile doesn't exits {}\n".format(file_name))
         return file_name
 
-    def check_params(self, args):
-        if args.explanation is not None:
+    def check_params(self, args, parser):
+        if args.dataset is None and args.explanation is None:
+            parser.error("{-d, --dataset} is compulsory when {-e, --explantion} is not present")
+        elif args.explanation is not None:
             return
 
         if args.model is not None and any(v is not None
@@ -53,9 +55,9 @@ class InputParams:
         parser = argparse.ArgumentParser(description='SIBILA', add_help=True)
         parser.add_argument('-d',
                             '--dataset',
-                            help="Database file",
-                            type=lambda s: self.file_choices(parser, self.ALLOW_EXTENSIONS_DATASET, s),
-                            required=True)
+                            help="Dataset file in CSV or PKL format",
+                            type=lambda s: self.file_choices(parser, self.ALLOW_EXTENSIONS_DATASET, s)
+                            )
         parser.add_argument('-o',
                             '--option',
                             nargs='+',
@@ -101,7 +103,7 @@ class InputParams:
         parser.add_argument('-e', '--explanation', help='Explain a dataset given a .pkl file', type=str)
 
         args = parser.parse_args()
-        self.check_params(args)
+        self.check_params(args, parser)
         
         if args.model and not args.explanation:
             args.option = None
