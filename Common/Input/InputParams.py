@@ -28,6 +28,9 @@ class InputParams:
         return file_name
 
     def check_params(self, args):
+        if args.explanation is not None:
+            return
+
         if args.model is not None and any(v is not None
                                           for v in [args.option, args.parameters, args.balanced, args.crossvalidation]):
             self.iodata.print_e('-m argument is not compatible with -o, -t, -p, -b and -cv')
@@ -95,13 +98,15 @@ class InputParams:
                             choices=list(DatasetBalanced.METHODS.keys()))
         parser.add_argument('--skip-dataset-analysis', help='Skip dataset analysis plots', action='store_true', default=False)
         parser.add_argument('--skip-interpretability', help='Do not compute interpretability on test data', action='store_true', default=False)
-        
+        parser.add_argument('-e', '--explanation', help='Explain a dataset given a .pkl file', type=str)
+
         args = parser.parse_args()
         self.check_params(args)
-        if args.model:
+        
+        if args.model and not args.explanation:
             args.option = None
             args.trainsize = None
-        else:
+        elif not args.explanation:
             if not args.regression:
                 args.option = options if (args.option[0] == "ALL") else args.option
             else:

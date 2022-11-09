@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from Common.Analysis.Interpretability import Interpretability
 from Tools.datasets import get_dataset, split_samples, FIELD_TARGET
-from Tools.IOData import IOData
+from Tools.IOData import IOData, get_serialized_params
 from Common.Config.ConfigHolder import ConfigHolder
 from Common.Config.config import get_config, get_basic_config
 from Common.Analysis.EvaluationMetrics import EvaluationMetrics, TypeML
@@ -45,6 +45,10 @@ def main():
     options = args.option
 
     io_data = IOData()
+
+    if args.explanation is not None:
+        Interpretability(get_serialized_params(args.explanation))
+        exit()
 
     if args.model is not None:
         args.folder = dirname(args.model[0])
