@@ -12,7 +12,7 @@ Needed to secure compatibility with all cluster.
 
 cd sibila/Tools/Singularity
 
-wget "https://drive.google.com/uc?export=download&id=1ekI08_n1zioEw511bxZYak2T5Jk5RB3Y&confirm=t" -O sibila.sif
+wget "https://drive.google.com/uc?export=download&id=1GkGG4ygEe6aHqEAJdwpL4E0PjHj7z47v&confirm=t" -O sibila.sif
 
 chmod u+x sibila.sif
 
