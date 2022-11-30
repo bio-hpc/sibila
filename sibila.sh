@@ -5,8 +5,8 @@
 CPUS=1
 TIME=72:00:00
 NAME_JOB="SIBILA"
-MEM=1500M
-PARTITION="slims"
+MEM=8000M
+PARTITION="general"
 PROJECT="" #at the moment it is not used
 #
 #  Constans
@@ -19,7 +19,7 @@ CMD_QUEUE="sbatch"
 CMD_EXEC="singularity exec"
 IMG_SINGULARITY="Tools/Singularity/sibila.sif"
 TEST_CMD="${CMD_EXEC} ${IMG_SINGULARITY} python3 -m unittest discover"
-CMD_SING="${CMD_EXEC} ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
+CMD_SING="${CMD_EXEC} --nv ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
 CMD_SING_HELP="${CMD_EXEC} ${IMG_SINGULARITY} ${PYTHON_RUN} ${SIBILA}"
 CMD_END_PROC="${PYTHON_RUN} -m Common.Analysis.EndProcess"
 CMD_END_PROC_SING="${CMD_EXEC} ${IMG_SINGULARITY} ${PYTHON_RUN} -m Common.Analysis.EndProcess"
