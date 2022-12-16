@@ -14,10 +14,14 @@ import sys
 import time
 from os.path import splitext, basename
 import git
+
 MAX_SIZE_FEATURES = 100  # maximum features(cols) for Graphics correlation and generate permutations
 MAX_IMPORTANCES = 10
 CORR_CUTOFF = 0.9
-
+FEATURE = 'feature'
+ATTR = 'attribution'
+STD = 'std'
+COLNAMES = [FEATURE, ATTR, STD]
 
 class ConfigHolder:
     F_TEXT = '\t{:>35}:\t{:<10}'

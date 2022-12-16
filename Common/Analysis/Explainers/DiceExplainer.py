@@ -15,7 +15,7 @@ from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
 from Tools.ToolsModels import is_tf_model, is_ripper_model, is_rulefit_model, is_regression_by_config
 from Tools.Estimators.RipperEstimator import RipperEstimator
 from pathlib import Path
-
+from Common.Config.ConfigHolder import FEATURE, ATTR, STD, COLNAMES
 
 class DiceExplainer(ExplainerModel):
 
@@ -59,7 +59,7 @@ class DiceExplainer(ExplainerModel):
             for i in tqdm(range(len(self.xts))):
                 imp = exp.local_feature_importance(self.xts[i], cf_examples_list=lst)
                 self.df_local[i] = pd.DataFrame(imp.local_importance).mean(axis=0).to_frame().reset_index()
-                self.df_local[i].columns = ['feature', 'weight']
+                self.df_local[i].columns = [FEATURE, ATTR]
         except BaseException as e:
             print(str(e))
         finally:
@@ -72,8 +72,8 @@ class DiceExplainer(ExplainerModel):
 
         if len(self.df_local) > 0:
             tmp = pd.concat(self.df_local)
-            self.df_global = tmp.groupby('feature')['weight'].agg(['mean','std']).reset_index()
-            self.df_global.columns = ['feature', 'weight', 'std']
+            self.df_global = tmp.groupby(FEATURE)[ATTR].agg(['mean','std']).reset_index()
+            self.df_global.columns = COLNAMES
             return self.df_global
 
         return None
@@ -83,11 +83,11 @@ class DiceExplainer(ExplainerModel):
 
         # global interpretability
         errors = []
-        for c in df['feature'].to_numpy():
-            _ = df.loc[df['feature'] == c]['std'].to_numpy()
+        for c in df[FEATURE].to_numpy():
+            _ = df.loc[df[FEATURE] == c][STD].to_numpy()
             errors.append(_[0] if len(_) > 0 else 0.0)
 
-        Graphics().plot_attributions(df, title, self.cfg.get_prefix() + '_' + method + '.png', errors=errors)
+        Graphics().plot_attributions(df, title, self.cfg.get_prefix() + '_Dice.png', errors=errors)
 
         # local interpretability
         for i in tqdm(range(len(self.df_local))):
@@ -99,7 +99,7 @@ class DiceExplainer(ExplainerModel):
             self.io_data.save_dataframe_cols(df2, df2.columns, path_csv)
 
             # Add the real value into the label
-            df2['feature'] = df2['feature'].apply(lambda x: '{:.3f}={}'.format(self.get_value(x, i), x))
+            df2[FEATURE] = df2[FEATURE].apply(lambda x: '{:.3f}={}'.format(self.get_value(x, i), x))
 
             # Take the N most important features and sum up all the rest
             df2 = self.summarize(df2)

@@ -13,7 +13,7 @@ __status__ = "Production"
 import sys
 import pandas as pd
 import time
-from Common.Config.ConfigHolder import MAX_IMPORTANCES
+from Common.Config.ConfigHolder import ATTR, FEATURE, MAX_IMPORTANCES
 from Tools.IOData import get_serialized_params
 from Common.Analysis.Explainers import *
 from Tools.Timer import Timer
@@ -21,7 +21,6 @@ from Tools.Graphics import Graphics
 from os.path import basename, dirname, normpath
 from Tools.Bash.Queue_manager.JobManager import JobManager
 from Tools.Bash.Queue_manager.jobs import get_nitems_per_block
-
 
 class Interpretability:
     # FeatureImportance only works with DT, RF, SVM and KNN
@@ -108,12 +107,12 @@ class Interpretability:
 
     def shorten_features(self, df, method, n_features):
         if df is not None and 'PDP' not in method:
-            df = df.reindex(df['weight'].abs().sort_values(ascending=False).index)
+            df = df.reindex(df[ATTR].abs().sort_values(ascending=False).index)
             if n_features > MAX_IMPORTANCES:
                 n_others = n_features - MAX_IMPORTANCES
                 title = 'Sum other {} features'.format(str(n_others))
-                df_others = pd.DataFrame(data=[[title, df[MAX_IMPORTANCES:]['weight'].sum()]],
-                                         columns=['feature', 'weight'])
+                df_others = pd.DataFrame(data=[[title, df[MAX_IMPORTANCES:][ATTR].sum()]],
+                                         columns=[FEATURE, ATTR])
                 df = pd.concat([df[:MAX_IMPORTANCES], df_others], ignore_index=True)
 
         return df

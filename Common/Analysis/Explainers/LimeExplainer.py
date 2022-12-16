@@ -17,11 +17,9 @@ from tqdm import tqdm
 from pathlib import Path
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
 from Tools.ToolsModels import is_rulefit_model
-
+from Common.Config.ConfigHolder import ATTR, COLNAMES, FEATURE, STD
 
 class LimeExplainer(ExplainerModel):
-
-    CSV_COLUMNS = ['feature', 'weight']
 
     def explain(self):
         """
@@ -60,8 +58,8 @@ class LimeExplainer(ExplainerModel):
 
         # averaged attributions
         self.df_full = pd.concat(df_local, ignore_index=True)
-        self.df_std = self.df_full.groupby('feature').std().reset_index()
-        df_global = self.df_full.groupby('feature').mean().reset_index()
+        self.df_std = self.df_full.groupby(FEATURE).std().reset_index()
+        df_global = self.df_full.groupby(FEATURE).mean().reset_index()
 
         return df_global
 
@@ -71,15 +69,15 @@ class LimeExplainer(ExplainerModel):
 
         # global explanation
         errors = []
-        for c in df['feature'].to_numpy():
-            _ = self.df_std.loc[self.df_std['feature'] == c]['weight'].to_numpy()
+        for c in df[FEATURE].to_numpy():
+            _ = self.df_std.loc[self.df_std[FEATURE] == c][ATTR].to_numpy()
             errors.append(_[0] if len(_) > 0 else 0.0)
 
-        result = self.df_full.drop(columns=['range','class']).groupby(['feature'], as_index=False).agg(['mean', 'std'])
+        result = self.df_full.drop(columns=['range','class']).groupby([FEATURE], as_index=False).agg(['mean', 'std'])
         result = result.droplevel(level=0, axis=1).reset_index()
-        result.columns = ['feature', 'weight', 'std']
+        result.columns = COLNAMES
 
-        self.io_data.save_dataframe_cols(result, result.columns, self.cfg.get_prefix() + '_' + method + '.csv')
+        self.io_data.save_dataframe_cols(result, result.columns, self.cfg.get_prefix() + '_Lime.csv')
         Graphics().plot_attributions(df, 'LIME', self.cfg.get_prefix() + '_Lime.png', errors=errors)
 
     def lime_classification(self):
@@ -110,7 +108,7 @@ class LimeExplainer(ExplainerModel):
             return m[1] if len(m) > 2 else m[0]
 
         data = [[get_feature_name(e[0]), e[1], e[0], ypr] for e in explanation]
-        df = pd.DataFrame(data=data, columns=self.CSV_COLUMNS + ['range', 'class'])
+        df = pd.DataFrame(data=data, columns=[FEATURE, ATTR] + ['range', 'class'])
         self.io_data.save_dataframe_cols(
             df, df.columns,
             self.io_data.get_lime_folder() + "{}_Lime_explain_{}.csv".format(prefix, index))

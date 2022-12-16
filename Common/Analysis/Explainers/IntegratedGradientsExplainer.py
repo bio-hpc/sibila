@@ -16,20 +16,14 @@ from Tools.Estimators.SklearnNetwork import SklearnNetwork
 from tqdm import tqdm
 from pathlib import Path
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
-
+from Common.Config.ConfigHolder import FEATURE, ATTR, STD
 
 class IntegratedGradientsExplainer(ExplainerModel):
-
-    CSV_COLUMNS = ['feature', 'weight']
 
     def explain(self):
         # Get numerical feature importances with the integrated gradients technique
         # https://docs.seldon.io/projects/alibi/en/latest/methods/IntegratedGradients.html#Examples
         # https://distill.pub/2020/attribution-baselines/
-        #if self.cfg.get_params()['model'] == 'RNN':
-        #    model_ = model
-        #    target_ = model(xts).numpy().argmax(axis=1)
-        #    xts_ = tf.squeeze(xts).numpy()
         if is_tf_model(self.model):
             self.xts_ = self.xts
             model_ = self.model
@@ -50,8 +44,7 @@ class IntegratedGradientsExplainer(ExplainerModel):
         self.attrs = np.squeeze(explanation.attributions)
 
         # global explanation
-        df = pd.DataFrame({'feature':self.id_list, 'weight':np.mean(self.attrs, axis=0), 'std':np.std(self.attrs, axis=0)})
-        return df
+        return pd.DataFrame({FEATURE: self.id_list, ATTR: np.mean(self.attrs, axis=0), STD: np.std(self.attrs, axis=0)})
 
     def get_baseline(self, X):
         return shap.sample(X, X.shape[0])*1.005
@@ -60,8 +53,8 @@ class IntegratedGradientsExplainer(ExplainerModel):
         title = 'Integrated Gradients'
 
         errors = []
-        for c in df['feature'].to_numpy():
-            _ = df.loc[df['feature'] == c]['std'].to_numpy()
+        for c in df[FEATURE].to_numpy():
+            _ = df.loc[df[FEATURE] == c][STD].to_numpy()
             errors.append(_[0] if len(_) > 0 else 0.0)
 
         Graphics().plot_attributions(df, title, self.prefix + "_" + method + ".png", errors=errors)
@@ -73,13 +66,13 @@ class IntegratedGradientsExplainer(ExplainerModel):
             path_png = "{}png/{}.png".format(self.io_data.get_integrated_gradients_folder(), filename)
             
             # Sort in ascending order for plotting correctly
-            df2 = pd.DataFrame({'feature': self.id_list, 'weight': self.attrs[i]})
-            df2 = df2.reindex(df2['weight'].abs().sort_values(ascending=False).index)
+            df2 = pd.DataFrame({FEATURE: self.id_list, ATTR: self.attrs[i]})
+            df2 = df2.reindex(df2[ATTR].abs().sort_values(ascending=False).index)
 
             self.io_data.save_dataframe_cols(df2, df2.columns, path_csv)
 
             # Add the real value into the label            
-            df2['feature'] = df2['feature'].apply(lambda x: '{:.3f}={}'.format(self.get_value(x, i), x))
+            df2[FEATURE] = df2[FEATURE].apply(lambda x: '{:.3f}={}'.format(self.get_value(x, i), x))
 
             # Take the N most important features and sum up all the rest
             df2 = self.summarize(df2)
@@ -90,3 +83,4 @@ class IntegratedGradientsExplainer(ExplainerModel):
     def get_value(self, feature, row_id):
         index = self.id_list.index(feature)
         return self.xts_[row_id, index]
+

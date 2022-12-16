@@ -11,9 +11,10 @@ import numpy as np
 import pandas as pd
 from Tools.Estimators.TensorFlowEstimator import TensorFlowEstimator
 from Tools.ToolsModels import is_tf_model
-from Common.Config.ConfigHolder import MAX_IMPORTANCES
+from Common.Config.ConfigHolder import ATTR, FEATURE, MAX_IMPORTANCES
 
 class ExplainerModel(abc.ABC):
+
     def __init__(self, model, xtr, ytr, xts, yts, id_list, cfg, io_data, idx_xts):
         self.io_data = io_data
         self.model = model
@@ -41,10 +42,10 @@ class ExplainerModel(abc.ABC):
 
     def summarize(self, df):
         if len(df) > MAX_IMPORTANCES:
-            others_sum = df[MAX_IMPORTANCES:]['weight'].sum()
+            others_sum = df[MAX_IMPORTANCES:][ATTR].sum()
             n_others = len(self.id_list) - MAX_IMPORTANCES
             title = 'Sum other {} features'.format(str(n_others))
-            df_others = pd.DataFrame(data=[[title, others_sum]], columns=['feature', 'weight'])
+            df_others = pd.DataFrame(data=[[title, others_sum]], columns=[FEATURE, ATTR])
 
             df = df[:MAX_IMPORTANCES]
             df = pd.concat([df[:MAX_IMPORTANCES], df_others], ignore_index=True)

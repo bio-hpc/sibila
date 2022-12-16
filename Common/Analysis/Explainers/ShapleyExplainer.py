@@ -14,11 +14,9 @@ import numpy as np
 from tqdm import tqdm
 from pathlib import Path
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
-
+from Common.Config.ConfigHolder import FEATURE, ATTR
 
 class ShapleyExplainer(ExplainerModel):
-
-    CSV_COLUMNS = ['feature', 'weight']
 
     def explain(self):
         """
@@ -47,8 +45,7 @@ class ShapleyExplainer(ExplainerModel):
 
         overall_values = dict(zip(self.id_list, added_values))
         self.feature_names = ['{} [{}]'.format(f, round(overall_values[f], 3)) for f in self.id_list]
-        df = pd.DataFrame({'feature':self.id_list, 'weight':added_values})
-        return df
+        return pd.DataFrame({FEATURE:self.id_list, ATTR:added_values})
 
     def plot(self, df, method=None):
         # global explanation
@@ -57,7 +54,7 @@ class ShapleyExplainer(ExplainerModel):
         # local explanations
         prefix = Path(self.cfg.get_prefix()).stem
         for i in tqdm(range(len(self.xts))):
-            df_aux = pd.DataFrame({'feature': self.id_list, 'weight': self.shap_values[i].values, 'value': self.xts[i]})
+            df_aux = pd.DataFrame({FEATURE: self.id_list, ATTR: self.shap_values[i].values, 'value': self.xts[i]})
 
             self.io_data.save_dataframe_cols(
                 df_aux, df_aux.columns,
