@@ -77,7 +77,7 @@ class LimeExplainer(ExplainerModel):
 
         result = self.df_full.drop(columns=['range','class']).groupby(['feature'], as_index=False).agg(['mean', 'std'])
         result = result.droplevel(level=0, axis=1).reset_index()
-        #result.columns = ['feature','attribution','std']
+        result.columns = ['feature', 'weight', 'std']
 
         self.io_data.save_dataframe_cols(result, result.columns, self.cfg.get_prefix() + '_' + method + '.csv')
         Graphics().plot_attributions(df, 'LIME', self.cfg.get_prefix() + '_Lime.png', errors=errors)
