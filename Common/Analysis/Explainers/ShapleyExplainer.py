@@ -43,17 +43,15 @@ class ShapleyExplainer(ExplainerModel):
         explainer = shap.Explainer(model_fn, background)
         self.shap_values = explainer(self.xts)
 
-        overall_values = dict(zip(self.id_list, np.absolute(self.shap_values.values).sum(axis=0)))
-        self.feature_names = ['{} [{}]'.format(f, round(overall_values[f], 3)) for f in self.id_list]
+        added_values = np.absolute(self.shap_values.values).sum(axis=0)
 
-        df = pd.DataFrame.from_dict(overall_values, orient='index')
-        df = df.reset_index()
-        df.columns = self.CSV_COLUMNS
+        overall_values = dict(zip(self.id_list, added_values))
+        self.feature_names = ['{} [{}]'.format(f, round(overall_values[f], 3)) for f in self.id_list]
+        df = pd.DataFrame({'feature':self.id_list, 'weight':added_values})
         return df
 
     def plot(self, df, method=None):
         # global explanation
-        self.io_data.save_dataframe_cols(df, df.columns, self.cfg.get_prefix() + '_Shapley.csv')
         Graphics().plot_shapley(self.xts, self.feature_names, self.shap_values, self.prefix)
 
         # local explanations

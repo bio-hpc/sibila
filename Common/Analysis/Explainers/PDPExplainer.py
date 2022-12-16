@@ -7,7 +7,6 @@ __email__ = "ajbanegas@ucam.edu"
 __status__ = "Production"
 
 import pandas as pd
-from Tools.ToolsModels import is_tf_model, is_ripper_model, is_rulefit_model
 from Tools.Graphics import Graphics
 from tqdm import tqdm
 from pathlib import Path

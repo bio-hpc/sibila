@@ -86,14 +86,9 @@ class Interpretability:
         t = Timer(method)
         obj = globals()[method + 'Explainer'](**new_params)
         df = obj.explain()
-        if df is not None and 'PDP' not in method:
-            df = df.reindex(df['weight'].abs().sort_values(ascending=False).index)
-            if len(new_params['id_list']) > MAX_IMPORTANCES:
-                n_others = len(new_params['id_list']) - MAX_IMPORTANCES
-                title = 'Sum other {} features'.format(str(n_others))
-                df_others = pd.DataFrame(data=[[title, df[MAX_IMPORTANCES:]['weight'].sum()]],
-                                         columns=['feature', 'weight'])
-                df = pd.concat([df[:MAX_IMPORTANCES], df_others], ignore_index=True)
+
+        params['io_data'].save_dataframe_cols(df, df.columns, params['cfg'].get_prefix()+'_'+method+'.csv')
+        df = self.shorten_features(df, method, len(new_params['id_list']))
 
         if df is not None:
             obj.plot(df, method=method)
@@ -111,6 +106,17 @@ class Interpretability:
         idx_splited = [idx[x:x+N] for x in range(0, len(idx), N)]
         return xts_splited[block_id], yts_splited[block_id], idx_splited[block_id]
 
+    def shorten_features(self, df, method, n_features):
+        if df is not None and 'PDP' not in method:
+            df = df.reindex(df['weight'].abs().sort_values(ascending=False).index)
+            if n_features > MAX_IMPORTANCES:
+                n_others = n_features - MAX_IMPORTANCES
+                title = 'Sum other {} features'.format(str(n_others))
+                df_others = pd.DataFrame(data=[[title, df[MAX_IMPORTANCES:]['weight'].sum()]],
+                                         columns=['feature', 'weight'])
+                df = pd.concat([df[:MAX_IMPORTANCES], df_others], ignore_index=True)
+
+        return df
 
 if __name__ == "__main__":
     serialize_file = sys.argv[1]

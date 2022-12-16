@@ -43,7 +43,7 @@ class LimeExplainer(ExplainerModel):
 
         for i in tqdm(range(len(self.xts))):
             x = self.xts[i]
-            exp = explainer.explain_instance(x, predict_fn, num_features=10, top_labels=1, num_samples=n_samples)
+            exp = explainer.explain_instance(x, predict_fn, num_features=len(self.id_list), top_labels=1, num_samples=n_samples)
             if is_regression_by_config(self.cfg):
                 ypr = exp.predicted_value
                 explanation = exp.as_list(0)
@@ -77,8 +77,9 @@ class LimeExplainer(ExplainerModel):
 
         result = self.df_full.drop(columns=['range','class']).groupby(['feature'], as_index=False).agg(['mean', 'std'])
         result = result.droplevel(level=0, axis=1).reset_index()
+        #result.columns = ['feature','attribution','std']
 
-        self.io_data.save_dataframe_cols(result, result.columns, self.cfg.get_prefix() + '_Lime.csv')
+        self.io_data.save_dataframe_cols(result, result.columns, self.cfg.get_prefix() + '_' + method + '.csv')
         Graphics().plot_attributions(df, 'LIME', self.cfg.get_prefix() + '_Lime.png', errors=errors)
 
     def lime_classification(self):

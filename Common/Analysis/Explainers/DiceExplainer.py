@@ -58,11 +58,8 @@ class DiceExplainer(ExplainerModel):
             lst = [e1] if is_tf_model(self.model) else e1.cf_examples_list
             for i in tqdm(range(len(self.xts))):
                 imp = exp.local_feature_importance(self.xts[i], cf_examples_list=lst)
-                self.df_local[i] = pd.DataFrame({
-                    'feature': imp.local_importance[0].keys(),
-                    'weight': imp.local_importance[0].values()
-                })
-
+                self.df_local[i] = pd.DataFrame(imp.local_importance).mean(axis=0).to_frame().reset_index()
+                self.df_local[i].columns = ['feature', 'weight']
         except BaseException as e:
             print(str(e))
         finally:
@@ -73,13 +70,10 @@ class DiceExplainer(ExplainerModel):
             if 'imp' in locals():
                 del imp
 
-        self.df_global = None
         if len(self.df_local) > 0:
-            tmp = pd.DataFrame({'feature':[], 'weight':[]})
-            self.df_local = [tmp if x is None else x for x in self.df_local]
-            self.df_global = pd.concat(self.df_local, ignore_index=True)
-            self.df_std = self.df_global.groupby('feature').std().reset_index()
-            self.df_global = self.df_global.groupby('feature').mean().reset_index()
+            tmp = pd.concat(self.df_local)
+            self.df_global = tmp.groupby('feature')['weight'].agg(['mean','std']).reset_index()
+            self.df_global.columns = ['feature', 'weight', 'std']
             return self.df_global
 
         return None
@@ -90,11 +84,10 @@ class DiceExplainer(ExplainerModel):
         # global interpretability
         errors = []
         for c in df['feature'].to_numpy():
-            _ = self.df_std.loc[self.df_std['feature'] == c]['weight'].to_numpy()
+            _ = df.loc[df['feature'] == c]['std'].to_numpy()
             errors.append(_[0] if len(_) > 0 else 0.0)
 
-        self.io_data.save_dataframe_cols(df, df.columns, self.cfg.get_prefix() + '_Dice.csv')
-        Graphics().plot_attributions(df, title, self.cfg.get_prefix() + '_Dice.png', errors=errors)
+        Graphics().plot_attributions(df, title, self.cfg.get_prefix() + '_' + method + '.png', errors=errors)
 
         # local interpretability
         for i in tqdm(range(len(self.df_local))):
@@ -117,3 +110,4 @@ class DiceExplainer(ExplainerModel):
     def get_value(self, feature, row_id):
         index = self.id_list.index(feature)
         return self.xts[row_id, index]
+

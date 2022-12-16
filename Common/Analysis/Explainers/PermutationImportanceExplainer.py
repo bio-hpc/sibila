@@ -31,15 +31,14 @@ class PermutationImportanceExplainer(ExplainerModel):
                 my_model = get_explainer_model(self.model, self.estimator, self.yts, self.cfg)
             else:
                 my_model = self.model
+
             results = permutation_importance(
                 my_model,
                 self.xtr,
                 self.ytr,
                 scoring=scorer,
                 random_state=self.random_state,
-                #n_jobs=self.cfg.get_cores(),
-                n_jobs=
-                1,  #to parallelise it uses the picklñe library and some models are not compatible, it is left without parallelisation. 
+                n_jobs=1,  #to parallelise it uses the picklñe library and some models are not compatible, it is left without parallelisation. 
             )
 
         # build the same structure as eli5

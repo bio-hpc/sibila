@@ -50,17 +50,10 @@ class IntegratedGradientsExplainer(ExplainerModel):
         self.attrs = np.squeeze(explanation.attributions)
 
         # global explanation
-        df = pd.DataFrame(self.attrs, columns=self.id_list)
-
-        df_mean = df.mean().to_frame().reset_index()
-        self.df_std = df.std().to_frame().reset_index()
-        self.df_std.columns = self.CSV_COLUMNS
-
-        df_mean.columns = self.CSV_COLUMNS
-        return df_mean
+        df = pd.DataFrame({'feature':self.id_list, 'weight':np.mean(self.attrs, axis=0), 'std':np.std(self.attrs, axis=0)})
+        return df
 
     def get_baseline(self, X):
-        #return shap.sample(X, X.shape[0])*1.101
         return shap.sample(X, X.shape[0])*1.005
 
     def plot(self, df, method=None):
@@ -68,11 +61,10 @@ class IntegratedGradientsExplainer(ExplainerModel):
 
         errors = []
         for c in df['feature'].to_numpy():
-            _ = self.df_std.loc[self.df_std['feature'] == c]['weight'].to_numpy()
+            _ = df.loc[df['feature'] == c]['std'].to_numpy()
             errors.append(_[0] if len(_) > 0 else 0.0)
 
-        self.io_data.save_dataframe_cols(df, df.columns, self.prefix + '_IntegratedGradients.csv')
-        Graphics().plot_attributions(df, title, self.prefix + "_IntegratedGradients.png", errors=errors)
+        Graphics().plot_attributions(df, title, self.prefix + "_" + method + ".png", errors=errors)
 
         # local explanations
         for i in tqdm(range(self.attrs.shape[0])):

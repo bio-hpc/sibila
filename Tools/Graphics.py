@@ -227,10 +227,8 @@ class Graphics:
         plt.cla()
 
         if 'std' in df:
-            IOData().save_dataframe_cols(df, ['feature', 'weight', 'std'], splitext(file_out)[0] + ".csv")
             plt.errorbar(df['feature'], df['weight'], df['std'], linestyle='None', marker='o')
         else:
-            IOData().save_dataframe_cols(df, ['feature', 'weight'], splitext(file_out)[0] + ".csv")
             df.plot(x='feature', y='weight', alpha=0.5, kind='bar')
 
         plt.ylabel('Importance')
