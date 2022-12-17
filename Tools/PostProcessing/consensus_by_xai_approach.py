@@ -27,7 +27,7 @@ INTERPRETABILITY = {
     'Shapley': '/Shapley/csv/*.csv',
     'Integrated Gradients': '/Integrated_Gradients/csv/*.csv',
     'DiCE': '/DICE/csv/*.csv',
-    'Permutation Importance': '/*_hist.csv'
+    'Permutation Importance': '/*PermutationImportance.csv'
 }
 METRICS = {
     "AUC": "Auc",
@@ -100,7 +100,7 @@ def process_data(lst_csv):
                 rank.append(min(i+1, MAX_FEATURES+1))
         f.close()
 
-        data.append(pd.DataFrame({'feature': feat, 'weight': attr, 'rank': rank}))
+        data.append(pd.DataFrame({'feature': feat, 'attribution': attr, 'rank': rank}))
 
         if len(lines) == N_FEATURES:
             FEATURES = feat.copy()
@@ -111,7 +111,7 @@ def add_missing_features(df, features):
     df_feats = df['feature'].to_numpy()
     for f in features:
         if f not in df_feats:
-            df = df.append({'feature': f, 'weight': 0.0, 'rank': MAX_FEATURES+1}, ignore_index=True)
+            df = df.append({'feature': f, 'attribution': 0.0, 'rank': MAX_FEATURES+1}, ignore_index=True)
     return df    
 
 def plot_global(df, title, out_file, x_title='Average Score'):
@@ -144,9 +144,9 @@ def summarize(df, key):
     return df2
 
 def persist_data(df, title, filename, x_title=None, ascending=True):
-    df = df.reindex(df['weight'].abs().sort_values(ascending=ascending).index)
+    df = df.reindex(df['attribution'].abs().sort_values(ascending=ascending).index)
     df.to_csv('{}.csv'.format(filename), index=False)
-    df_mean = summarize(df, 'weight')
+    df_mean = summarize(df, 'attribution')
     plot_global(df_mean, title, '{}.png'.format(filename), x_title=x_title)
 
 if __name__ == "__main__":
@@ -186,16 +186,16 @@ if __name__ == "__main__":
         print_f(df)       
 
         df_agg = df.groupby('feature').agg(['mean','std']).reset_index()
-        df_agg.columns = ['feature','weight_mean','weight_std', 'rank_mean', 'rank_std']
+        df_agg.columns = ['feature','attribution_mean','attribution_std', 'rank_mean', 'rank_std']
         
         # as the previous calculation considered the sign, do it over with the abs
-        df_agg['weight_mean'] = df.groupby('feature').weight.apply(lambda c: c.abs().mean()).reset_index()['weight']
-        df_agg['weight_std'] = df.groupby('feature').weight.apply(lambda c: c.abs().std()).reset_index()['weight']
+        df_agg['attribution_mean'] = df.groupby('feature').attribution.apply(lambda c: c.abs().mean()).reset_index()['attribution']
+        df_agg['attribution_std'] = df.groupby('feature').attribution.apply(lambda c: c.abs().std()).reset_index()['attribution']
         df_agg = df_agg.fillna(0.0)
         
         # segregate the data between attribution and ranking
-        df_attr = pd.DataFrame({'feature': df_agg['feature'], 'weight': df_agg['weight_mean'], 'std': df_agg['weight_std']})
-        df_rank = pd.DataFrame({'feature': df_agg['feature'], 'weight': df_agg['rank_mean'], 'std': df_agg['rank_std']})
+        df_attr = pd.DataFrame({'feature': df_agg['feature'], 'attribution': df_agg['attribution_mean'], 'std': df_agg['attribution_std']})
+        df_rank = pd.DataFrame({'feature': df_agg['feature'], 'attribution': df_agg['rank_mean'], 'std': df_agg['rank_std']})
 
         print_f(df_attr)
         print_f(df_rank)
