@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from Tools.Estimators.TensorFlowEstimator import TensorFlowEstimator
 from Tools.ToolsModels import is_tf_model
-from Common.Config.ConfigHolder import ATTR, FEATURE, MAX_IMPORTANCES
+from Common.Config.ConfigHolder import ATTR, FEATURE, MAX_IMPORTANCES, STD
 
 class ExplainerModel(abc.ABC):
 
@@ -50,3 +50,10 @@ class ExplainerModel(abc.ABC):
             df = df[:MAX_IMPORTANCES]
             df = pd.concat([df[:MAX_IMPORTANCES], df_others], ignore_index=True)
         return df
+
+    def get_errors(self, df):
+        errors = []
+        for c in df[FEATURE].to_numpy():
+            _ = df.loc[df[FEATURE] == c][STD].to_numpy()
+            errors.append(_[0] if len(_) > 0 else 0.0)
+        return errors

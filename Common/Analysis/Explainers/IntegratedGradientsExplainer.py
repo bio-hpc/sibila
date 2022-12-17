@@ -52,12 +52,8 @@ class IntegratedGradientsExplainer(ExplainerModel):
     def plot(self, df, method=None):
         title = 'Integrated Gradients'
 
-        errors = []
-        for c in df[FEATURE].to_numpy():
-            _ = df.loc[df[FEATURE] == c][STD].to_numpy()
-            errors.append(_[0] if len(_) > 0 else 0.0)
-
-        Graphics().plot_attributions(df, title, self.prefix + "_" + method + ".png", errors=errors)
+        # global explanation
+        Graphics().plot_attributions(df, title, self.prefix + "_" + method + ".png", errors=self.get_errors(df))
 
         # local explanations
         for i in tqdm(range(self.attrs.shape[0])):

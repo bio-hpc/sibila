@@ -73,13 +73,8 @@ class LimeExplainer(ExplainerModel):
         Graphics().plot_lime_html(self.html.get(), self.cfg.get_prefix() + '_Lime_tabular_explainer.html')
 
         # global explanation
-        errors = []
-        for c in self.df_global[FEATURE].to_numpy():
-            _ = self.df_global.loc[self.df_global[FEATURE] == c][STD].to_numpy()
-            errors.append(_[0] if len(_) > 0 else 0.0)
-
         self.io_data.save_dataframe_cols(self.df_global, self.df_global.columns, self.cfg.get_prefix() + '_Lime.csv')
-        Graphics().plot_attributions(self.df_global, 'LIME', self.cfg.get_prefix() + '_Lime.png', errors=errors)
+        Graphics().plot_attributions(self.df_global, 'LIME', self.cfg.get_prefix() + '_Lime.png', errors=self.get_errors(self.df_global))
 
     def lime_classification(self):
         explainer = lime_tabular.LimeTabularExplainer(self.xtr,

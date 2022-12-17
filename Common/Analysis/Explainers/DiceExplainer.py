@@ -82,12 +82,7 @@ class DiceExplainer(ExplainerModel):
         title = 'DiCE'
 
         # global interpretability
-        errors = []
-        for c in df[FEATURE].to_numpy():
-            _ = df.loc[df[FEATURE] == c][STD].to_numpy()
-            errors.append(_[0] if len(_) > 0 else 0.0)
-
-        Graphics().plot_attributions(df, title, self.cfg.get_prefix() + '_Dice.png', errors=errors)
+        Graphics().plot_attributions(df, title, self.cfg.get_prefix() + '_Dice.png', errors=self.get_errors(df))
 
         # local interpretability
         for i in tqdm(range(len(self.df_local))):
