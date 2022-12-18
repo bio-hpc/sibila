@@ -25,7 +25,7 @@ from Tools.Bash.Queue_manager.jobs import get_nitems_per_block
 class Interpretability:
     # FeatureImportance only works with DT, RF, SVM and KNN
     TEST_METHODS = []
-    PARALLEL_METHODS = ['PermutationImportance', 'Lime', 'Shapley', 'IntegratedGradients', 'Dice', 'PDP', 'ALE']
+    PARALLEL_METHODS = ['PermutationImportance', 'RFPermutationImportance', 'Lime', 'Shapley', 'IntegratedGradients', 'Dice', 'PDP', 'ALE']
     COMMON_METHODS = []
     METHODS = {
         "DT": [],
