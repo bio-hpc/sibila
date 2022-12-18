@@ -7,3 +7,4 @@ from Common.Analysis.Explainers.ShapleyExplainer import ShapleyExplainer
 from Common.Analysis.Explainers.ALEExplainer import ALEExplainer
 from Common.Analysis.Explainers.DiceExplainer import DiceExplainer
 from Common.Analysis.Explainers.RFPermutationImportanceExplainer import RFPermutationImportanceExplainer
+from Common.Analysis.Explainers.AnchorExplainer import AnchorExplainer

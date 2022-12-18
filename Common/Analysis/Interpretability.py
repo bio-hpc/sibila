@@ -25,7 +25,7 @@ from Tools.Bash.Queue_manager.jobs import get_nitems_per_block
 class Interpretability:
     # FeatureImportance only works with DT, RF, SVM and KNN
     TEST_METHODS = []
-    PARALLEL_METHODS = ['PermutationImportance', 'RFPermutationImportance', 'Lime', 'Shapley', 'IntegratedGradients', 'Dice', 'PDP', 'ALE']
+    PARALLEL_METHODS = ['PermutationImportance', 'RFPermutationImportance', 'Lime', 'Shapley', 'IntegratedGradients', 'Dice', 'PDP', 'ALE', 'Anchor']
     COMMON_METHODS = []
     METHODS = {
         "DT": [],
@@ -86,10 +86,10 @@ class Interpretability:
         obj = globals()[method + 'Explainer'](**new_params)
         df = obj.explain()
 
-        params['io_data'].save_dataframe_cols(df, df.columns, params['cfg'].get_prefix()+'_'+method+'.csv')
-        df = self.shorten_features(df, method, len(new_params['id_list']))
-
         if df is not None:
+            params['io_data'].save_dataframe_cols(df, df.columns, params['cfg'].get_prefix()+'_'+method+'.csv')
+            df = self.shorten_features(df, method, len(new_params['id_list']))
+        #if df is not None:
             obj.plot(df, method=method)
 
         file_time = '{}_{}_time.txt'.format(new_params['cfg'].get_prefix(), method)
