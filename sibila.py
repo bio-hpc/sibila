@@ -111,6 +111,9 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     if not args.skip_interpretability:
         Interpretability(sp)
 
+    Graphics().plot_times(cfg.get_folder(), cfg.get_prefix(), type_model)
+
+
 def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset, type_model, args):
     cfg = get_basic_cfg(folder_experiment, file_dataset, args)
     model = BaseModel.load(type_model)

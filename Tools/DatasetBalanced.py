@@ -59,7 +59,7 @@ class DatasetBalanced:
         @return:
         """
         print_size(x, y)
-        os = RandomOverSampler(sampling_strategy=1)
+        os = RandomOverSampler(sampling_strategy='auto')
         x, y = os.fit_resample(x, y)
         print_size(x, y)
         return x, y

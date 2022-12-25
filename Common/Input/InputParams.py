@@ -120,7 +120,7 @@ class InputParams:
             ]
             args.parameters = [i.name for i in args.parameters]
         args.introduced_folder = True
-        if not args.folder:
+        if not args.folder and not args.explanation:
             args.folder = splitext(basename(args.dataset))[0]
             args.introduced_folder = False
 

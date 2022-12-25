@@ -4,22 +4,20 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from sklearn.metrics import roc_curve, roc_auc_score, auc
-from os.path import splitext
+from os.path import splitext, join
 from sklearn.tree import export_graphviz
 import seaborn as sns
 import pandas as pd
 from Tools.IOData import IOData
 from Tools.ToolsModels import is_tf_model, is_rulefit_model
-
 from Common.Config.ConfigHolder import MAX_SIZE_FEATURES, MAX_IMPORTANCES, CORR_CUTOFF
-
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-
 import math
 import shap
 from sklearn.inspection import plot_partial_dependence
 from alibi.explainers import plot_ale
+from glob import glob
 
 class Graphics:
     """ Draws the ANN model. Only valid for TensorFlow models """
@@ -405,4 +403,22 @@ class Graphics:
     def plot_ale(self, explainer, feature, file_out):
         plot_ale(explainer, n_cols=1, sharey='row', features=[feature])
         self.save_fig(file_out)
+
+    """ Plots the execution times of every phase of the pipeline """
+    def plot_times(self, dir_name, prefix, name_model):
+        dct_times = {}
+        lst_files = glob('{}*_time.txt'.format(prefix)) + [join(dir_name, 'load_time.txt')]
+
+        for file in lst_files:
+            with open(file) as f:
+                first_line = f.readline()
+            method = first_line.split(":")[0]
+            time = round(float(first_line.split(":")[1].strip()), 3)
+            position = round(float(first_line.split(":")[2].strip()))
+
+            dct_times[method] = (time, position)
+        # sort entries by position: entry=(time, position)
+        dct_times = dict(sorted(dct_times.items(), key=lambda x: x[1][1]))
+
+        self.plot_interpretability_times(dct_times, prefix + "_times.png", name_model)
 
