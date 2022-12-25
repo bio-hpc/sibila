@@ -10,7 +10,6 @@ __maintainer__ = "Jorge"
 __email__ = "jpena@ucam.edu"
 __status__ = "Production"
 
-import os.path
 import sys
 import pandas as pd
 import time
@@ -20,7 +19,6 @@ from Common.Analysis.Explainers import *
 from Tools.Timer import Timer
 from Tools.Graphics import Graphics
 from os.path import basename, dirname, normpath
-from glob import glob
 from Tools.Bash.Queue_manager.JobManager import JobManager
 from Tools.Bash.Queue_manager.jobs import get_nitems_per_block
 
@@ -50,9 +48,6 @@ class Interpretability:
             self.execute_method(params, run_method)
         else:
             self.execute(params)
-
-        name_model = params['cfg'].get_params()['model']
-        self.plot_times(params['cfg'].get_folder(), params['cfg'].get_prefix(), name_model)
 
     def execute(self, params):
         if len(self.TEST_METHODS) > 0:
@@ -109,23 +104,6 @@ class Interpretability:
 
     def print_data(self, total_time, method, io_data):
         io_data.print_m("{}: Total time: {} s".format(method, round(total_time, 3)))
-
-    def plot_times(self, dir_name, prefix, name_model):
-        dct_times = {}
-        lst_files = glob('{}*_time.txt'.format(prefix)) + [os.path.join(dir_name, 'load_time.txt')]
-
-        for file in lst_files:
-            with open(file) as f:
-                first_line = f.readline()
-            method = first_line.split(":")[0]
-            time = round(float(first_line.split(":")[1].strip()), 3)
-            position = round(float(first_line.split(":")[2].strip()))
-
-            dct_times[method] = (time, position)
-        # sort entries by position: entry=(time, position)
-        dct_times = dict(sorted(dct_times.items(), key=lambda x: x[1][1]))
-
-        Graphics().plot_interpretability_times(dct_times, prefix + "_times.png", name_model)
 
     def take_data(self, xts, yts, idx, block_id, N):
         xts_splited = [xts[x:x+N] for x in range(0, len(xts), N)]

@@ -19,7 +19,7 @@ keras
 alibi==0.5.8
 mlxtend
 lime
-seaborn
+seaborn==0.11.2
 plotly
 shap>=0.39
 imblearn==0.0
@@ -32,3 +32,4 @@ dice-ml
 RuleFit @ git+https://github.com/christophM/rulefit.git@8a48b632ce3a98ad5463ac72113cf832385d265e
 python-docx
 keras-tuner==1.1.0
+protobuf==3.20

@@ -1,12 +1,18 @@
 {
     "model": "RP",
-    "type_ml":"classification",
-    "train_grid":"NONE",
-    "n_jobs":8,
+    "type_ml": "classification",
+    "train_grid": "train_grid",
+    "n_jobs": 8,
     "params": {
     },
-    "params_grid":
-    {
-
+    "params_grid": {
+        "verbosity": [0],
+        "n_discretize_bins": [10,20,50],
+        "k": [1, 2],
+        "prune_size": [0.25,0.33,0.50],
+        "dl_allowance": [64],
+        "max_rules": [null],
+        "max_rule_conds": [null],
+        "max_total_conds": [null]
     }
 }
