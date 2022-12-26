@@ -14,11 +14,9 @@ import numpy as np
 from tqdm import tqdm
 from pathlib import Path
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
-
+from Common.Config.ConfigHolder import FEATURE, ATTR
 
 class ShapleyExplainer(ExplainerModel):
-
-    CSV_COLUMNS = ['feature', 'weight']
 
     def explain(self):
         """
@@ -43,23 +41,20 @@ class ShapleyExplainer(ExplainerModel):
         explainer = shap.Explainer(model_fn, background)
         self.shap_values = explainer(self.xts)
 
-        overall_values = dict(zip(self.id_list, np.absolute(self.shap_values.values).sum(axis=0)))
-        self.feature_names = ['{} [{}]'.format(f, round(overall_values[f], 3)) for f in self.id_list]
+        added_values = np.absolute(self.shap_values.values).sum(axis=0)
 
-        df = pd.DataFrame.from_dict(overall_values, orient='index')
-        df = df.reset_index()
-        df.columns = self.CSV_COLUMNS
-        return df
+        overall_values = dict(zip(self.id_list, added_values))
+        self.feature_names = ['{} [{}]'.format(f, round(overall_values[f], 3)) for f in self.id_list]
+        return pd.DataFrame({FEATURE:self.id_list, ATTR:added_values})
 
     def plot(self, df, method=None):
         # global explanation
-        self.io_data.save_dataframe_cols(df, df.columns, self.cfg.get_prefix() + '_Shapley.csv')
         Graphics().plot_shapley(self.xts, self.feature_names, self.shap_values, self.prefix)
 
         # local explanations
         prefix = Path(self.cfg.get_prefix()).stem
         for i in tqdm(range(len(self.xts))):
-            df_aux = pd.DataFrame({'feature': self.id_list, 'weight': self.shap_values[i].values, 'value': self.xts[i]})
+            df_aux = pd.DataFrame({FEATURE: self.id_list, ATTR: self.shap_values[i].values, 'value': self.xts[i]})
 
             self.io_data.save_dataframe_cols(
                 df_aux, df_aux.columns,

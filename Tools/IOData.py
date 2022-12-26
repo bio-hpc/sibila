@@ -80,6 +80,12 @@ class IOData:
     def set_ale_folder(self, ale_folder):
         self.ale_folder = ale_folder
 
+    def get_anchor_folder(self):
+        return self.anchor_folder
+
+    def set_anchor_folder(self, anchor_folder):
+        self.anchor_folder = anchor_folder
+
     def get_job_folder(self):
         return self.job_folder
 
@@ -118,6 +124,9 @@ class IOData:
         self.set_ale_folder(folder + "ALE/")
         self.create_dir(self.get_ale_folder())
 
+        self.set_anchor_folder(folder + "Anchor/")
+        self.create_dir(self.get_anchor_folder())
+
         self.set_job_folder(folder + "jobs/")
         self.create_dir(self.get_job_folder())
 
@@ -152,6 +161,9 @@ class IOData:
 
         self.set_ale_folder(folder + "ALE/")
         self.create_dir_no_remove(self.get_ale_folder())
+
+        self.set_anchor_folder(folder + "Anchor/")
+        self.create_dir_no_remove(self.get_anchor_folder())
 
         self.set_job_folder(folder + "jobs/")
         self.create_dir_no_remove(self.get_job_folder())

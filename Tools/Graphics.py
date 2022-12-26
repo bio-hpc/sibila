@@ -10,7 +10,7 @@ import seaborn as sns
 import pandas as pd
 from Tools.IOData import IOData
 from Tools.ToolsModels import is_tf_model, is_rulefit_model
-from Common.Config.ConfigHolder import MAX_SIZE_FEATURES, MAX_IMPORTANCES, CORR_CUTOFF
+from Common.Config.ConfigHolder import ATTR, FEATURE, MAX_SIZE_FEATURES, MAX_IMPORTANCES, CORR_CUTOFF, STD
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import math
@@ -165,8 +165,8 @@ class Graphics:
             title += '. Sample #{}'.format(sample_id)
 
         # Plot the chart
-        labels = df['feature'].to_numpy()
-        weights = df['weight'].to_numpy()
+        labels = df[FEATURE].to_numpy()
+        weights = df[ATTR].to_numpy()
         colors = ['r' if v < 0 else 'tab:blue' for v in weights]
         colors = ['g' if 'Sum' in labels[i] else colors[i] for i, l in enumerate(labels)]
 
@@ -204,14 +204,14 @@ class Graphics:
             plt.clf()
             plt.cla()
 
-            pie = plt.pie(x=df['weight'].abs(),
+            pie = plt.pie(x=df[ATTR].abs(),
                           autopct='%1.1f%%',
                           startangle=90,
                           normalize=True,
                           textprops=dict(size=5),
                           pctdistance=0.8)
             plt.legend(pie[0],
-                       df['feature'],
+                       df[FEATURE],
                        bbox_to_anchor=(1, 0.5),
                        loc="center right",
                        fontsize=5,
@@ -226,12 +226,10 @@ class Graphics:
         plt.clf()
         plt.cla()
 
-        if 'std' in df:
-            IOData().save_dataframe_cols(df, ['feature', 'weight', 'std'], splitext(file_out)[0] + ".csv")
-            plt.errorbar(df['feature'], df['weight'], df['std'], linestyle='None', marker='o')
+        if STD in df:
+            plt.errorbar(df[FEATURE], df[ATTR], df[STD], linestyle='None', marker='o')
         else:
-            IOData().save_dataframe_cols(df, ['feature', 'weight'], splitext(file_out)[0] + ".csv")
-            df.plot(x='feature', y='weight', alpha=0.5, kind='bar')
+            df.plot(x=FEATURE, y=ATTR, alpha=0.5, kind='bar')
 
         plt.ylabel('Importance')
         plt.xticks(rotation=45, ha='right', fontsize=6)

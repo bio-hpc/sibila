@@ -14,7 +14,7 @@ from alibi.explainers import ALE
 from tqdm import tqdm
 from pathlib import Path
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
-
+from Common.Config.ConfigHolder import FEATURE, ATTR
 
 class ALEExplainer(ExplainerModel):
     def explain(self):
@@ -29,7 +29,8 @@ class ALEExplainer(ExplainerModel):
             ale = ALE(self.model.predict_proba, feature_names=self.id_list, target_names=targets)
 
         self.exp = ale.explain(self.xts)
-        return pd.DataFrame({'feature': [], 'weight': []})
+        #self.exp.feature_names
+        return pd.DataFrame({FEATURE: [], ATTR: []})
 
     def plot(self, df, method=None):
         for i in tqdm(range(len(self.id_list))):
@@ -38,3 +39,4 @@ class ALEExplainer(ExplainerModel):
             ale_file = '{}{}_ALE_{}.png'.format(self.io_data.get_ale_folder(),
                                                 Path(self.cfg.get_prefix()).stem, self.io_data.fix_filename(feat))
             Graphics().plot_ale(self.exp, feat, ale_file)
+

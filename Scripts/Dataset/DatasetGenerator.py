@@ -73,7 +73,7 @@ class DatasetGenerator:
                 if i == 0:
                     col_id = self.check_value(s[i])
                     if col_id is None:
-                        raise Exception('The number of the rule is required')
+                        raise Exception('Variable index is required')
                     col_id = int(col_id)
                 elif i == 1:
                     min_val = self.check_value(s[i], default=0.0)
@@ -81,6 +81,9 @@ class DatasetGenerator:
                     max_val = self.check_value(s[i], default=1.0)
 
             return col_id, min_val, max_val
+
+        if self.rules is None:
+            return []
 
         d = {}
         for r in self.rules:

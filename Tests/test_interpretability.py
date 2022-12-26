@@ -58,11 +58,6 @@ METHODS = {
         'n_files': [DATASET_LEN_IDLIST],
         'deny_methods': []
     },
-    #'FeatureImportance': {
-    #    'folder': "",
-    #    'n_files': [DATASET_LEN_IDLIST],
-    #    'deny_methods': ['ANN', 'RP', 'RLF', 'XGBOOST']
-    #},
     'Dice': {
         'folder': "DICE/png/",
         'n_files': [5],
@@ -72,6 +67,16 @@ METHODS = {
         'folder': "",
         'n_files': [3],
         'deny_methods': ['ANN', 'RP', 'RLF']
+    },
+    'RFPermutationImportance': {
+        'folder': "",
+        'n_files': [4],
+        'deny_methods': []
+    },
+    'Anchor': {
+        'folder': "Anchor",
+        'n_files': [5],
+        'deny_methods': []
     }
 }
 

@@ -13,7 +13,7 @@ from sklearn.inspection import permutation_importance
 from sklearn.utils import Bunch
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
 from Tools.ToolsModels import get_explainer_model, is_tf_model, is_rulefit_model
-
+from Common.Config.ConfigHolder import FEATURE, ATTR, STD
 
 class PermutationImportanceExplainer(ExplainerModel):
     def explain(self):
@@ -31,21 +31,20 @@ class PermutationImportanceExplainer(ExplainerModel):
                 my_model = get_explainer_model(self.model, self.estimator, self.yts, self.cfg)
             else:
                 my_model = self.model
+
             results = permutation_importance(
                 my_model,
                 self.xtr,
                 self.ytr,
                 scoring=scorer,
                 random_state=self.random_state,
-                #n_jobs=self.cfg.get_cores(),
-                n_jobs=
-                1,  #to parallelise it uses the picklñe library and some models are not compatible, it is left without parallelisation. 
+                n_jobs=1,  #to parallelise it uses the pickle library and some models are not compatible, it is left without parallelisation. 
             )
 
-        # build the same structure as eli5
-        df = pd.DataFrame({'feature': self.id_list, 'weight': results.importances_mean, 'std': results.importances_std})
-        return df
+        # build the same structure as the other algorithms
+        return pd.DataFrame({FEATURE: self.id_list, ATTR: results.importances_mean, STD: results.importances_std})
 
     def plot(self, df, method=None):
-        Graphics().graphic_pie(df, self.prefix + '_' + method + '_pie.png', 'Permutation Feature Importance')
-        Graphics().graph_hist(df, self.prefix + '_' + method + '_hist.png', 'Permutation Feature Importance')
+        Graphics().graphic_pie(df, self.prefix + '_PermutationImportance_pie.png', 'Permutation Feature Importance')
+        Graphics().graph_hist(df, self.prefix + '_PermutationImportance_hist.png', 'Permutation Feature Importance')
+
