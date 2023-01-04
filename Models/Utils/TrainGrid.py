@@ -17,7 +17,6 @@ class TrainGrid:
             xtr,
             ytr,
             scoring='accuracy',
-            #scoring='f1_macro',
             n_iter=N_ITER,
             n_jobs=N_JOBS,
             n_split=N_SPLIT,
@@ -30,18 +29,26 @@ class TrainGrid:
         """
               with the grid parameters it generates several runs by mixing them randomly
         """
-
-        aux_model = RandomizedSearchCV(model,
-                                       param_distributions=grid_parameters,
-                                       n_iter=n_iter,
-                                       n_jobs=n_jobs,
-                                       scoring=scoring,
-                                       cv=CrossValidation.group_kfold(xtr,
+        if 'LinearRegression' not in str(model):
+            aux_model = RandomizedSearchCV(model,
+                                       param_distributions = grid_parameters,
+                                       n_iter = n_iter,
+                                       n_jobs = n_jobs,
+                                       scoring = scoring,
+                                       cv = CrossValidation.group_kfold(xtr,
                                                                       ytr,
                                                                       n_splits=n_split,
                                                                       random_state=random_state),
-                                       verbose=verbose,
-                                       random_state=random_state)
+                                       verbose = verbose,
+                                       random_state = random_state)
+        else:
+            aux_model = RandomizedSearchCV(model,
+                                           n_jobs = n_jobs, 
+                                           param_distributions = {
+                                               "fit_intercept": [True], 
+                                               "copy_X": [True],
+                                               "positive": [False]
+                                           })
 
         aux_model.fit(xtr, ytr)
         print("__________-")
@@ -69,12 +76,11 @@ class TrainGrid:
             scoring = "r2"
         aux_model = GridSearchCV(
             model,
-            param_grid=grid_parameters,
-            n_jobs=n_jobs,
-            scoring=scoring,
-            #cv=CrossValidation.stratified_kfold(xtr, ytr, n_splits=n_split, shuffle=True, random_state=random_state),
-            cv=CrossValidation.group_kfold(xtr, ytr, n_splits=n_split, random_state=random_state),
-            verbose=verbose,
+            param_grid = grid_parameters,
+            n_jobs = n_jobs,
+            scoring = scoring,
+            cv = CrossValidation.group_kfold(xtr, ytr, n_splits=n_split, random_state=random_state),
+            verbose = verbose,
         )
         aux_model.fit(xtr, ytr)
         print("__________-")

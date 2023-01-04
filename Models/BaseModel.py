@@ -54,8 +54,8 @@ class BaseModel(abc.ABC):
             )
         else:
             params_model = self.model.get_params()
-            if 'SVR' not in str(self.model) and 'KNeighbors' not in str(
-                    self.model):  # svr and knn are the only models that do not support random_state
+            if 'SVR' not in str(self.model) and 'KNeighbors' not in str(self.model) and 'LinearRegression' not in str(self.model):  
+                # svr and knn are the only models that do not support random_state
                 params_model['random_state'] = self.cfg.get_args()['seed']
             if not self.cfg.get_args()['regression'] and 'KNeighbors' not in str(self.model):
                 params_model['class_weight'] = class_weights
