@@ -57,3 +57,7 @@ class ExplainerModel(abc.ABC):
             _ = df.loc[df[FEATURE] == c][STD].to_numpy()
             errors.append(_[0] if len(_) > 0 else 0.0)
         return errors
+
+    def proba_sample(self, x):
+        return np.amax(self.model.predict_proba(np.array([x])))
+

@@ -20,6 +20,7 @@ MAX_IMPORTANCES = 10
 CORR_CUTOFF = 0.9
 FEATURE = 'feature'
 ATTR = 'attribution'
+PROBA = 'probability'
 STD = 'std'
 COLNAMES = [FEATURE, ATTR, STD]
 
