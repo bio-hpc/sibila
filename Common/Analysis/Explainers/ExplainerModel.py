@@ -47,8 +47,9 @@ class ExplainerModel(abc.ABC):
             title = 'Sum other {} features'.format(str(n_others))
             df_others = pd.DataFrame(data=[[title, others_sum]], columns=[FEATURE, ATTR])
 
-            df = df[:MAX_IMPORTANCES]
+            df = df[:MAX_IMPORTANCES].sort_values(by=[ATTR], ascending=False)
             df = pd.concat([df[:MAX_IMPORTANCES], df_others], ignore_index=True)
+
         return df
 
     def get_errors(self, df):

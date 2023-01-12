@@ -5,8 +5,8 @@
 CPUS=1
 TIME=72:00:00
 NAME_JOB="SIBILA"
-MEM=1500M
-PARTITION="slims"
+MEM=8000M
+PARTITION="general"
 PROJECT="" #at the moment it is not used
 #
 #  Constans
