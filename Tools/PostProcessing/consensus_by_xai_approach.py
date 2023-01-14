@@ -27,7 +27,9 @@ INTERPRETABILITY = {
     'Shapley': '/Shapley/csv/*.csv',
     'Integrated Gradients': '/Integrated_Gradients/csv/*.csv',
     'DiCE': '/DICE/csv/*.csv',
-    'Permutation Importance': '/*PermutationImportance.csv'
+    'Permutation Importance': '/*PermutationImportance.csv',
+    'RF Permutation Importance': '/*RFPermutationImportance.csv',
+    'Anchor': '/*Anchor.csv'
 }
 METRICS = {
     "AUC": "Auc",
