@@ -27,7 +27,7 @@ def read_data(file_in, io_data=None, head=None):
             io_data.print_e("File not found: " + file_in)
 
 
-def get_dataset(data_set, io_data=None):
+def get_dataset(data_set, io_data=None, predicting=False):
     """
     Load the dataset into memory
     :param data_set
@@ -36,10 +36,16 @@ def get_dataset(data_set, io_data=None):
 
     if type(data_set) is str and isfile(data_set):
         if splitext(data_set)[1] == ".csv" or splitext(data_set)[1] == ".pkl":
-            dataset = read_data(data_set, io_data)  #pd.read_csv(data_set)
+            dataset = read_data(data_set, io_data)
             features = dataset.columns
-            y = dataset.iloc[:, -1:]
-            last_field = features[len(features) - 1]
+
+            if not predicting:
+                y = dataset.iloc[:, -1:]
+                last_field = features[len(features) - 1]
+            else: # mimic the output class
+                y = pd.DataFrame(data=np.zeros((dataset.shape[0], 1)).astype(int))
+                last_field = ""
+
             x = dataset.loc[:, dataset.columns != last_field]
             idx_samples = x.iloc[:, 0].tolist()
 

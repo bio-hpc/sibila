@@ -60,8 +60,7 @@ def main():
         io_data.create_dirs_no_remove(args.folder) 
 
     t = Timer('Load data')
-    x, y, id_list, idx_samples = get_dataset(file_dataset, io_data)
-
+    x, y, id_list, idx_samples = get_dataset(file_dataset, io_data, args.model)
     x = DataNormalization().choice_method_normalize(x, args)
 
     if not args.model and not args.skip_dataset_analysis:
@@ -130,10 +129,13 @@ def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_da
         except:
             xts = tf.expand_dims(xts, -1)
             yhat = model.predict(np.array([xts]))
-           
+    
         if not args.regression:
             ypr_class.append(yhat.argmax(axis=1))
             ypr_prob.append(np.amax(yhat, axis=1))
+        else:
+            ypr_class.append(-1)
+            ypr_prob.append(np.amax(yhat))
 
     ypr_class = np.squeeze(ypr_class)
     ypr_prob = np.squeeze(ypr_prob)
