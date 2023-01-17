@@ -115,7 +115,7 @@ class Graphics:
                 return
 
         for i in yppr:
-            lst[int(i*10)] += 1
+            lst[int(i*9)] += 1
         x = np.arange(12)
         plt.xlabel('Range')
         plt.ylabel('Number of Samples')
