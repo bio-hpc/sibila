@@ -108,33 +108,25 @@ class Graphics:
     def plot_class(self, yppr, yts, file_out):
         plt.clf()
         plt.cla()
-        RANGE_0 = 0.34
-        RANGE_MID = 0.67
-        RANGE_1 = 1.1
-        lst = [0, 0, 0]
+        lst = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         for i in yts:
             if i != 0 and i != 1:
                 return
 
         for i in yppr:
-            if i < RANGE_0:
-                lst[0] += 1
-            elif i < RANGE_MID:
-                lst[1] += 1
-            elif i < RANGE_1:
-                lst[2] += 1
-
-        x = np.arange(5)
+            lst[int(i*9)] += 1
+        x = np.arange(12)
         plt.xlabel('Range')
         plt.ylabel('Number of Samples')
         plt.title('Class Probability')
         proba_out = splitext(file_out)[0] + "_proba_class.png"
         lst.insert(0, 0)
-        lst.insert(4, 0)
+        lst.insert(12, 0)
         sns.barplot(x, lst)
         #plt.yticks(np.arange(0, max(lst) * 1.10))
-        plt.xticks(x, ('', '[0 - 0.33]', '[0.34 - 0.66]', '[0.67 - 1]', ''))
+        plt.xticks(x, ('', '[0 - 0.09]', '[0.1 - 0.19]', '[0.2 - 0.29]', '[0.3 - 0.39]', '[0.4 - 0.49]', '[0.5 - 0.59]', '[0.6 - 0.69]', '[0.7 - 0.79]', '[0.8 - 0.89]', '[0.9 - 1]', ''))
+        plt.tick_params(rotation=90)
         self.save_fig(proba_out)
 
     def graph_tree(self, model, id_list, claasses, prefix_out):
