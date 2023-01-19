@@ -49,9 +49,9 @@ def get_dataset(data_set, io_data=None, predicting=False):
             x = dataset.loc[:, dataset.columns != last_field]
             idx_samples = x.iloc[:, 0].tolist()
 
-            if min(idx_samples) < 0:
-                print("\n\nThe first colum of the dataset (ids), cannot contain negative values\n")
-                exit()
+            #if min(idx_samples) < 0:
+            #    print("\n\nThe first colum of the dataset (ids), cannot contain negative values\n")
+            #    exit()
 
             x = x.drop(x.columns[0], axis=1)
             y = y[y.columns[0]]
@@ -92,15 +92,16 @@ def split_samples(x, y, train_size, io_data, random_state, idx_samples):
     :return:
     """
     # Split the data into training and testing sets
+    x = np.insert(x.astype(str), 0, idx_samples, axis=1)  # add index
 
-    x = np.insert(x, 0, idx_samples, axis=1)  # add index
     xtr, xts, ytr, yts = train_test_split(x, y, train_size=train_size, random_state=random_state)
 
-    idx_xtr = xtr[:, 0].astype(int)  # get index
-    idx_xts = xts[:, 0].astype(int)  # get index
+    # from the 2nd all the columns are converted to numbers
+    xtr = xtr[:, 1:].astype(float)
+    xts = xts[:, 1:].astype(float)
 
-    xtr = np.delete(xtr, 0, axis=1)  # remove index
-    xts = np.delete(xts, 0, axis=1)  # remove index
+    idx_xtr = xtr[:, 0]  # get index
+    idx_xts = xts[:, 0]  # get index
 
     io_data.print_m('Number of samples: {}'.format(x.shape[0]))
     io_data.print_m('Number of features: {}'.format(x.shape[1]-1))
