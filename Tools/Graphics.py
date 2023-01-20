@@ -18,6 +18,7 @@ import shap
 from sklearn.inspection import plot_partial_dependence
 from alibi.explainers import plot_ale
 from glob import glob
+from sklearn import tree
 
 class Graphics:
     """ Draws the ANN model. Only valid for TensorFlow models """
@@ -411,4 +412,15 @@ class Graphics:
         dct_times = dict(sorted(dct_times.items(), key=lambda x: x[1][1]))
 
         self.plot_interpretability_times(dct_times, prefix + "_times.png", name_model)
+
+    """ Plots the first N trees of a RF model """
+    def plot_rf_trees(self, model, id_list, classnames, prefix, ntrees):
+        fig, axes = plt.subplots(nrows=1, ncols=ntrees, figsize=(10,2), dpi=900)
+        for index in range(0, ntrees):
+            tree.plot_tree(model.estimators_[index],
+                           feature_names = id_list,
+                           class_names = classnames,
+                           filled = True,
+                           ax = axes[index])
+        fig.savefig(prefix + '_rf_trees.png')
 

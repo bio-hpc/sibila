@@ -39,9 +39,10 @@ class RF(BaseModel):
 
     def predict(self, xts):
         ypr = self.model_predict(xts)
-        #self.graph_tree(self.get_prefix(), self.model.estimators_[0], self.id_list)
+        self.graph_tree(self.cfg.get_prefix(), self.model, self.id_list)
         return ypr
 
     def graph_tree(self, prefix, model, id_list):
         g = Graphics()
-        g.graph_tree(model, id_list, self.targets, prefix)
+        g.plot_rf_trees(model, id_list, ['0','1'], prefix, 5)
+
