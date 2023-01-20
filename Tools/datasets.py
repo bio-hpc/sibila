@@ -96,12 +96,12 @@ def split_samples(x, y, train_size, io_data, random_state, idx_samples):
 
     xtr, xts, ytr, yts = train_test_split(x, y, train_size=train_size, random_state=random_state)
 
-    # from the 2nd all the columns are converted to numbers
-    xtr = xtr[:, 1:].astype(float)
-    xts = xts[:, 1:].astype(float)
-
+    # 1st column contains IDs and the rest are converted to numbers
     idx_xtr = xtr[:, 0]  # get index
     idx_xts = xts[:, 0]  # get index
+
+    xtr = xtr[:, 1:].astype(float)
+    xts = xts[:, 1:].astype(float)
 
     io_data.print_m('Number of samples: {}'.format(x.shape[0]))
     io_data.print_m('Number of features: {}'.format(x.shape[1]-1))
