@@ -34,9 +34,59 @@ class SVM(BaseModel):
                                   self.cfg.get_params()['params']['kernel']))
 
     def train(self, xtr, ytr):
-        #self.model.fit(xtr, ytr)
         self.model_fit(xtr, ytr)
+        #################################
+        self.xtr = xtr
+        self.ytr = ytr
+        #################################
 
     def predict(self, xts):
         ypr = self.model_predict(xts)
+
+        #################################
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        import numpy as np
+        import pandas as pd
+        from sklearn.inspection import DecisionBoundaryDisplay
+
+        _, ax = plt.subplots()
+        DecisionBoundaryDisplay.from_estimator(
+            self.model,
+            self.xtr,
+            cmap = cmap_light,
+            ax = ax,
+            response_method = "predict",
+            plot_method = "pcolormesh",
+            xlabel = 'eje x',
+            ylabel = 'eje y',
+            shading = "auto",
+        )
+
+        # Plot also the training points
+        sns.scatterplot(
+            x = self.xtr[:, 0],
+            y = self.xtr[:, 1],
+            hue = self.id_list[y],
+            palette = cmap_bold,
+            alpha = 1.0,
+            edgecolor = "black",
+        )
+        plt.title("titulo")
+        plt.savefig('svm_hyperplane.png', dpi=900)
+
+        """
+        plt.figure(figsize=(10, 8))
+        sns.scatterplot(x=np.squeeze(self.xtr), y=self.ytr, hue=self.ytr, s=8)
+
+        w = self.model.coef_[0]           # w consists of 2 elements
+        b = self.model.intercept_[0]      # b consists of 1 element
+        x_points = np.linspace(-1, 1)    # generating x-points from -1 to 1
+        y_points = -(w[0] / w[1]) * x_points - b / w[1]  # getting corresponding y-points
+        # Plotting a red hyperplane
+        plt.plot(x_points, y_points, c='r')
+        plt.savefig('svm_hyperplane.png', dpi=900)
+        """
+        #################################
+
         return ypr
