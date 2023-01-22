@@ -71,6 +71,8 @@ class DiceExplainer(ExplainerModel):
             if 'imp' in locals():
                 del imp
 
+        self.df_local = [i for i in self.df_local if i is not None]
+
         if len(self.df_local) > 0:
             tmp = pd.concat(self.df_local)
             self.df_global = tmp.groupby(FEATURE)[ATTR].agg(['mean','std']).reset_index()
