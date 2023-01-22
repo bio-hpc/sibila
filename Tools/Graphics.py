@@ -148,9 +148,9 @@ class Graphics:
         from subprocess import call
         call(['dot', '-Tpng', dot_file, '-o', png_file, '-Gdpi=600'])
 
-    def save_fig(self, file):
+    def save_fig(self, filename, dpi=300):
         plt.tight_layout()
-        plt.savefig(file, dpi=300)
+        plt.savefig(filename, dpi=dpi)
         plt.close()
 
     def plot_attributions(self, df, title, out_file, sample_id=None, errors=None):
@@ -422,5 +422,30 @@ class Graphics:
                            class_names = classnames,
                            filled = True,
                            ax = axes[index])
-        fig.savefig(prefix + '_rf_trees.png')
+        self.save_fig(prefix + '_rf_trees.png', dpi=900)
+
+    """ Plots the decision boundary of a SVM """
+    def plot_svm(self, model, x, y, prefix):
+        _, ax = plt.subplots()
+
+        # Plot also the training points
+        sns.scatterplot(
+            x = x[:, 0],
+            y = x[:, 1],
+            hue = y,
+            alpha = 1.0,
+            edgecolor = "black",
+        )
+
+        ax.scatter(
+            model.support_vectors_[:, 0],
+            model.support_vectors_[:, 1],
+            s = 100,
+            linewidth = 1,
+            facecolors = "none",
+            edgecolors ="k"
+        )
+
+        plt.title("SVM training points")
+        self.save_fig(prefix + '_svm_linear.png')
 
