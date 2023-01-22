@@ -425,7 +425,9 @@ class Graphics:
         self.save_fig(prefix + '_rf_trees.png', dpi='figure')
 
     """ Plots the decision boundary of a SVM """
-    def plot_svm(self, model, x, y, prefix):
+    def plot_svm(self, model, X, Y, prefix):
+        """
+        # 2D version
         _, ax = plt.subplots()
 
         # Plot also the training points
@@ -445,7 +447,22 @@ class Graphics:
             facecolors = "none",
             edgecolors ="k"
         )
+        """
+        # The equation of the separating plane is given by all x in R^3 such that:
+        # np.dot(svc.coef_[0], x) + b = 0. We should solve for the last coordinate
+        # to plot the plane in terms of x and y.
+        #z = lambda x,y: (-model.intercept_[0]-model.coef_[0][0]*x-model.coef_[0][1]*y) / model.coef_[0][2]
 
-        plt.title("SVM boundary points")
+        #tmp = np.linspace(0,1,51)
+        #x,y = np.meshgrid(tmp,tmp)
+
+        # Plot stuff
+        fig = plt.figure()
+        ax  = fig.add_subplot(111, projection='3d')
+        #ax.plot_surface(x, y, z(x,y)) # hyperplane
+        ax.plot3D(X[Y==0,0], X[Y==0,1], X[Y==0,2],'ob')
+        ax.plot3D(X[Y==1,0], X[Y==1,1], X[Y==1,2],'sr')
+
+        plt.title("SVM decision boundaries")
         self.save_fig(prefix + '_boundaries.png', dpi='figure')
 
