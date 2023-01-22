@@ -36,10 +36,10 @@ class RF(BaseModel):
 
     def train(self, xtr, ytr):
         self.model_fit(xtr, ytr)
+        self.graph_tree(self.cfg.get_prefix(), self.model, self.id_list)
 
     def predict(self, xts):
         ypr = self.model_predict(xts)
-        self.graph_tree(self.cfg.get_prefix(), self.model, self.id_list)
         return ypr
 
     def graph_tree(self, prefix, model, id_list):

@@ -15,6 +15,9 @@ MODEL_ASSERTS = {
         { '*file.dot': 'E0109' },
         { '*file.png': 'E0110' }
     ],
+    'RF':[
+        { '*rf_trees.png': 'E0115' }
+    ],
     'XGBOOST':[
         { '*feature_map.txt': 'E0112' },
         { '*tree.png': 'E0113' }

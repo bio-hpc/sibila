@@ -422,7 +422,7 @@ class Graphics:
                            class_names = classnames,
                            filled = True,
                            ax = axes[index])
-        self.save_fig(prefix + '_rf_trees.png', dpi=900)
+        self.save_fig(prefix + '_rf_trees.png', dpi='figure')
 
     """ Plots the decision boundary of a SVM """
     def plot_svm(self, model, x, y, prefix):
@@ -446,6 +446,6 @@ class Graphics:
             edgecolors ="k"
         )
 
-        plt.title("SVM training points")
-        self.save_fig(prefix + '_svm_linear.png')
+        plt.title("SVM boundary points")
+        self.save_fig(prefix + '_boundaries.png', dpi='figure')
 

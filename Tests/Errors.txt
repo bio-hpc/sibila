@@ -20,3 +20,4 @@ E0111 = Balancing method failed
 E0112 = Predicted output is not binary
 E0113 = True and predicted values have different size
 E0114 = Correlation plot missing
+E0115 = No Random Forest trees have been displayed
