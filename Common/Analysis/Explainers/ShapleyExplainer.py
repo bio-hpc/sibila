@@ -14,7 +14,7 @@ import numpy as np
 from tqdm import tqdm
 from pathlib import Path
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
-from Common.Config.ConfigHolder import FEATURE, ATTR
+from Common.Config.ConfigHolder import FEATURE, ATTR, PROBA
 
 class ShapleyExplainer(ExplainerModel):
 
@@ -54,7 +54,9 @@ class ShapleyExplainer(ExplainerModel):
         # local explanations
         prefix = Path(self.cfg.get_prefix()).stem
         for i in tqdm(range(len(self.xts))):
-            df_aux = pd.DataFrame({FEATURE: self.id_list, ATTR: self.shap_values[i].values, 'value': self.xts[i]})
+            proba = self.proba_sample(self.xts[i])
+
+            df_aux = pd.DataFrame({FEATURE: self.id_list, ATTR: self.shap_values[i].values, 'value': self.xts[i], PROBA: proba})
 
             self.io_data.save_dataframe_cols(
                 df_aux, df_aux.columns,

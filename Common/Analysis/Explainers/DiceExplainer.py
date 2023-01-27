@@ -15,7 +15,7 @@ from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
 from Tools.ToolsModels import is_tf_model, is_ripper_model, is_rulefit_model, is_regression_by_config
 from Tools.Estimators.RipperEstimator import RipperEstimator
 from pathlib import Path
-from Common.Config.ConfigHolder import FEATURE, ATTR, STD, COLNAMES
+from Common.Config.ConfigHolder import FEATURE, ATTR, STD, COLNAMES, PROBA
 
 class DiceExplainer(ExplainerModel):
 
@@ -60,6 +60,7 @@ class DiceExplainer(ExplainerModel):
                 imp = exp.local_feature_importance(self.xts[i], cf_examples_list=lst)
                 self.df_local[i] = pd.DataFrame(imp.local_importance).mean(axis=0).to_frame().reset_index()
                 self.df_local[i].columns = [FEATURE, ATTR]
+                self.df_local[i][PROBA] = self.proba_sample(self.xts[i])
         except BaseException as e:
             print(str(e))
         finally:
@@ -69,6 +70,8 @@ class DiceExplainer(ExplainerModel):
                 del query
             if 'imp' in locals():
                 del imp
+
+        self.df_local = [i for i in self.df_local if i is not None]
 
         if len(self.df_local) > 0:
             tmp = pd.concat(self.df_local)
@@ -89,6 +92,7 @@ class DiceExplainer(ExplainerModel):
             filename = "{}_Dice_{}".format(Path(self.cfg.get_prefix()).stem, self.idx_xts[i])
             path_csv = "{}csv/{}.csv".format(self.io_data.get_dice_folder(), filename)
             path_png = "{}png/{}.png".format(self.io_data.get_dice_folder(), filename)
+
             # Sort in ascending order for plotting correctly
             df2 = self.df_local[i]
             self.io_data.save_dataframe_cols(df2, df2.columns, path_csv)

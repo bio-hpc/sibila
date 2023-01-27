@@ -16,7 +16,7 @@ from Tools.Estimators.SklearnNetwork import SklearnNetwork
 from tqdm import tqdm
 from pathlib import Path
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
-from Common.Config.ConfigHolder import FEATURE, ATTR, STD
+from Common.Config.ConfigHolder import FEATURE, ATTR, STD, PROBA
 
 class IntegratedGradientsExplainer(ExplainerModel):
 
@@ -60,9 +60,10 @@ class IntegratedGradientsExplainer(ExplainerModel):
             filename = "{}_IntegratedGradients_{}".format(Path(self.cfg.get_prefix()).stem, self.idx_xts[i])
             path_csv = "{}csv/{}.csv".format(self.io_data.get_integrated_gradients_folder(), filename)
             path_png = "{}png/{}.png".format(self.io_data.get_integrated_gradients_folder(), filename)
+            proba = self.proba_sample(self.xts[i])
             
             # Sort in ascending order for plotting correctly
-            df2 = pd.DataFrame({FEATURE: self.id_list, ATTR: self.attrs[i]})
+            df2 = pd.DataFrame({FEATURE: self.id_list, ATTR: self.attrs[i], PROBA: proba})
             df2 = df2.reindex(df2[ATTR].abs().sort_values(ascending=False).index)
 
             self.io_data.save_dataframe_cols(df2, df2.columns, path_csv)
