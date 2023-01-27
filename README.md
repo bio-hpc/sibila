@@ -24,16 +24,19 @@ chmod u+x sibila.sif
 5. **ANN (Artificial Neural Networks)**
 6. **KNN (K-Nearest Neighbours)**
 7. **RLF (RuLEFit)**
-8. **RP (RiPper)**
+8. **RP (RIPPERk)**
+9. **LR (Linear/Logistic Regression)**
 
 ### Available Interpretability Methods
 1. **Permutation Feature Importance**
-2. **Local Interpretable Model-agnostic Explanations (LIME)**
-3. **Integrated Gradients** 
-4. **Shapley value**
-5. **Diverse Counterfactual Explanations (DICE)**
-6. **Partial Dependence Plots (PDP)**
-7. **Accumulated Local Effects (ALE)**
+2. **RF-based Permutation Feature Importance**
+3. **Local Interpretable Model-agnostic Explanations (LIME)**
+4. **Integrated Gradients** 
+5. **Shapley value**
+6. **Diverse Counterfactual Explanations (DICE)**
+7. **Partial Dependence Plots (PDP)**
+8. **Accumulated Local Effects (ALE)**
+9. **Anchors**
 
 ### Scripts
 It is a directory that contains scripts for creating random datasets, running manual grid search and joining results into a single output file. 
