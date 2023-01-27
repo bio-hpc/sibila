@@ -35,10 +35,13 @@ class BaseModel(abc.ABC):
         if 'train_grid' in self.cfg.get_params().keys() and self.cfg.get_params()['train_grid'].upper() != "NONE":
             train_grid = TrainGrid()
             func = getattr(train_grid, self.cfg.get_params()['train_grid'])
-            self.cfg.get_params()['params'] = func(self.model, self.cfg.get_params()['params_grid'], xtr, ytr)
-            self.model.set_params(**self.cfg.get_params()['params'])
+            try:
+                self.cfg.get_params()['params'] = func(self.model, self.cfg.get_params()['params_grid'], xtr, ytr)
+                self.model.set_params(**self.cfg.get_params()['params'])
+            except:
+                self.io_data.print_m("ERROR No hyperparameters search will be performed for {}".format(self.cfg.get_params()['model']))
+                pass
 
-        #if 'batch_size' in self.cfg.get_params()['params'].keys():
         if is_tf_model(self.model):
             self.model.fit(xtr,
                            ytr,

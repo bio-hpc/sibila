@@ -10,6 +10,20 @@ class TrainGrid:
     N_JOBS = 4  # Number of jobs to run in parallel. None means 1 unless in
     N_SPLIT = 5  # Number of jobs to run in parallel. None means 1 unless in
 
+
+    def get_scorer(self, model):
+        if is_regression(model):
+            return "r2"
+        return None
+
+    def print_search(self, src):
+        print("__________-")
+        print('Best estimator across searched params: ', src.best_estimator_)
+        print('Best score across searched params:', src.best_score_)
+        print('Best parameters across searched params:', src.best_params_)
+        print('Mean test score:', src.cv_results_['mean_test_score'])
+        print("__________-")
+
     def train_random(
             self,
             model,
@@ -23,38 +37,24 @@ class TrainGrid:
             verbose=0,
             random_state=RANDOM_STATE):
 
-        if is_regression(model):
-            #    For the regression algorithms the scoring function of r2 is used
-            scoring = "r2"
         """
-              with the grid parameters it generates several runs by mixing them randomly
+              with the random parameters it generates several runs by mixing them randomly
         """
-        if 'LinearRegression' not in str(model):
-            aux_model = RandomizedSearchCV(model,
+        random_src = RandomizedSearchCV(model,
                                        param_distributions = grid_parameters,
                                        n_iter = n_iter,
                                        n_jobs = n_jobs,
-                                       scoring = scoring,
+                                       scoring = self.get_scorer(model),
                                        cv = CrossValidation.group_kfold(xtr,
                                                                       ytr,
                                                                       n_splits=n_split,
                                                                       random_state=random_state),
                                        verbose = verbose,
                                        random_state = random_state)
-        else:
-            aux_model = RandomizedSearchCV(model,
-                                           n_jobs = n_jobs, 
-                                           param_distributions = {
-                                               "fit_intercept": [True], 
-                                               "copy_X": [True],
-                                               "positive": [False]
-                                           })
 
-        aux_model.fit(xtr, ytr)
-        print("__________-")
-        print(aux_model.cv_results_['mean_test_score'])
-        print("__________-")
-        return aux_model.best_params_
+        random_src.fit(xtr, ytr)
+        self.print_search(random_src)
+        return random_src.best_params_
 
     def train_grid(self,
                    model,
@@ -70,20 +70,16 @@ class TrainGrid:
         """
              With the grid parameters generates as many runs as possible combinations to find the best
         """
-
-        if is_regression(model):
-            #    For the regression algorithms the scoring function of r2 is used
-            scoring = "r2"
-        aux_model = GridSearchCV(
+        grid_src = GridSearchCV(
             model,
             param_grid = grid_parameters,
             n_jobs = n_jobs,
-            scoring = scoring,
+            scoring = self.get_scorer(model),
             cv = CrossValidation.group_kfold(xtr, ytr, n_splits=n_split, random_state=random_state),
             verbose = verbose,
         )
-        aux_model.fit(xtr, ytr)
-        print("__________-")
-        print(aux_model.cv_results_['mean_test_score'])
-        print("__________-")
-        return aux_model.best_params_
+
+        grid_src.fit(xtr, ytr)
+        self.print_search(grid_src)
+        return grid_src.best_params_
+
