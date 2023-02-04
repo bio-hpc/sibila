@@ -17,7 +17,7 @@ FILE_DATASET = 'Datasets/Tests/clasificacion-sintetico_v1.csv'
 FOLDER_MODELS_TEST = 'Tests/Models/'
 FOLDER_TEST = 'Tests/WorkingDir/'
 FOLDER_TEST_NUMBER = 9
-NUMBER_MODELS = 7
+NUMBER_MODELS = 9
 SEED = 2021
 SPLIT_DATASET = 0.95
 

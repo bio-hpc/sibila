@@ -30,20 +30,8 @@ class TestPrediction(BaseTest):
             args = Args(name_model)
             cfg = self.get_config_holder(args, params, p)
 
-            #ypr = []
-            #for x in X:
-            #    yhat = model.predict(np.array([x]))
-            #    ypr.append(yhat)
-            #    print(x)
-
-            #print(X)
-            #print(X.shape)
-            #print(model)
-            #print( model.predict(X) )
-            #exit()
             ypr = np.squeeze(model.predict(X))
 
-            #ypr = np.squeeze(ypr)
             if not args.regression:
                 if is_tf_model(model):
                     ypr = ypr.argmax(axis=1)

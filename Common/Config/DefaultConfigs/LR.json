@@ -1,0 +1,21 @@
+{
+    "model": "LR",
+    "type_ml":"classification",
+    "train_grid":"train_random",
+    "params": {
+	"n_jobs": 8,
+	"random_state": 2020
+    },
+    "params_grid":
+    {
+	"penalty": ["l1", "l2", "elasticnet"],
+	"dual": [false],
+	"tol": [1e-3, 1e-4, 1e-5],
+	"C": [0.25, 0.3, 0.5, 0,6, 0.75, 0.9, 1],
+	"fit_intercept": [true, false],
+	"solver": ["liblinear", "newton-cg", "sag", "saga"],
+	"max_iter": [50, 100, 500, 1000],
+	"verbose": [1],
+	"l1_ratio": [0.1, 0.25, 0.5, 0.75, 1]
+    }
+}
