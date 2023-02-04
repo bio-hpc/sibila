@@ -47,7 +47,7 @@ For instance:
 singularity exec Tools/Singularity/sibila.sif python3 Scripts/ResultAnalyzer.py -d folder_containing_results -o myfile.xlsx
 
 ### CHANGELOG
-**v1.2.0** ()
+**v1.2.0** (04/02/2023)
 - Added new parameter: --skip-dataset-analysis.
 - Use of environment variables in Python code.
 - Pass environment variables dynamically to the jobs when parallelizing interpretability.
