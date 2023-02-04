@@ -67,6 +67,7 @@ singularity exec Tools/Singularity/sibila.sif python3 Scripts/ResultAnalyzer.py 
 - Extra ranges (10-step) in class probability plot.
 - The last column has to be removed from the dataset when using prediction mode (-m).
 - Allow text IDs in the first column.
+- Included Linear/Logistic Regression.
 
 **v1.1.0** (03/09/2022)
 - Grid and random search on Artificial Neural Networks.
