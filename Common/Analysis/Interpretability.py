@@ -35,7 +35,8 @@ class Interpretability:
         "ANN": [],
         "KNN": [],
         "RP": [],
-        "RLF": []
+        "RLF": [],
+        "LR": []
     }
 
     def __init__(self, serialize_params, block_nr=None):
@@ -89,7 +90,6 @@ class Interpretability:
         if df is not None:
             params['io_data'].save_dataframe_cols(df, df.columns, params['cfg'].get_prefix()+'_'+method+'.csv')
             df = self.shorten_features(df, method, len(new_params['id_list']))
-        #if df is not None:
             obj.plot(df, method=method)
 
         file_time = '{}_{}_time.txt'.format(new_params['cfg'].get_prefix(), method)

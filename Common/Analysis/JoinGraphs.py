@@ -19,7 +19,7 @@ from docx.oxml.ns import nsdecls
 from docx.oxml import parse_xml
 from Tools.Word2Pdf import convert_to
 
-GRAPHS = ['roc_proba', 'confusion_matrix', 'correlation', 'PermutationImportance_hist', 'Lime', 'IntegratedGradients', 'Shapley', 'Dice', 'times']
+GRAPHS = ['roc_proba', 'confusion_matrix', 'correlation', 'PermutationImportance_hist', 'RFPermutationImportance_hist', 'Lime', 'IntegratedGradients', 'Shapley', 'Dice', 'times']
 LST_PREFIX = ["ALE", "PDP"]
 
 

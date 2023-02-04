@@ -21,7 +21,14 @@ class AnchorExplainer(ExplainerModel):
             https://scikit-learn.org/stable/modules/generated/sklearn.inspection.permutation_importance.html
             https://medium.com/analytics-vidhya/interpretability-in-machine-learning-f79e1da4f797
         """
-        explainer = AnchorTabular(self.model.predict_proba, self.id_list, seed=self.cfg.get_args()['seed'])
+        predict_fn = None
+        if hasattr(self.model, 'predict_proba') and callable(self.model.predict_proba):
+            predict_fn = self.model.predict_proba
+        else:
+            predict_fn = self.model.predict
+
+        #explainer = AnchorTabular(self.model.predict_proba, self.id_list, seed=self.cfg.get_args()['seed'])
+        explainer = AnchorTabular(predict_fn, self.id_list, seed=self.cfg.get_args()['seed'])
         explainer.fit(self.xtr, disc_perc=(25, 50, 75))
 
         df_local = []

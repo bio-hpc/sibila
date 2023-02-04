@@ -60,5 +60,7 @@ class ExplainerModel(abc.ABC):
         return errors
 
     def proba_sample(self, x):
-        return np.amax(self.model.predict_proba(np.array([x])))
+        if hasattr(self.model, 'predict_proba') and callable(self.model.predict_proba):
+            return np.amax(self.model.predict_proba(np.array([x])))
+        return np.amax(self.model.predict(np.array([x])))
 
