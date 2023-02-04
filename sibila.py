@@ -15,7 +15,7 @@ from datetime import datetime
 from Tools.DataNormalization import DataNormalization
 from Tools.ToolsModels import is_regression_by_config, is_tf_model
 from os.path import join, basename, splitext, dirname
-from Tools.PostProcessing.Serialize import Serialize
+from Tools.Serialize import Serialize
 from Tools.DatasetBalanced import DatasetBalanced
 import numpy as np
 import pandas as pd
