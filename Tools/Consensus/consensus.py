@@ -16,6 +16,7 @@ from os.path import join, isdir
 from ConsensusAverageMean import ConsensusAverageMean
 from ConsensusHarmonicMean import ConsensusHarmonicMean
 from ConsensusGeometricMean import ConsensusGeometricMean
+from ConsensusVoting import ConsensusVoting
 
 FOLDER_OUT = "Consensus/"
 
@@ -33,6 +34,6 @@ if __name__ == "__main__":
     #TODO create_dir(dir_out)
 
     # call consensus
-    c = ConsensusHarmonicMean(args.folder)
+    c = ConsensusVoting(args.folder)
     c.run()
 

@@ -19,6 +19,7 @@ class ConsensusBase(abc.ABC):
     LOCALS = ['LIME', 'Shapley/csv', 'IntegratedGradients/csv'] #, 'Anchor', 'Dice']
     FEATURE = 'feature'
     ATTR = 'attribution'
+    RANKING = 'ranking'
 
     def __init__(self, folder):
         self.folder = folder
@@ -62,6 +63,9 @@ class ConsensusBase(abc.ABC):
                 continue
             df = self.__load_csv(foo)
             self.__scaler(df)
+            df.sort_values(self.ATTR, ascending=False, inplace=True)
+            df.insert(len(df.columns), self.RANKING, range(1, 1 + len(df)))
+
             self.df_g = self.__append_df(self.df_g, df)
 
     """ Loads the attributions of the local methods """
@@ -72,6 +76,9 @@ class ConsensusBase(abc.ABC):
             for foo in foos:
                 df = self.__load_csv(foo)
                 self.__scaler(df)
+                df.sort_values(self.ATTR, ascending=False, inplace=True)
+                df.insert(len(df.columns), self.RANKING, range(1, 1 + len(df)))
+
                 self.df_l = self.__append_df(self.df_l, df)
 
     """ Load a file """
