@@ -23,6 +23,7 @@ class ConsensusAverageMean(ConsensusBase):
 
         # average mean of the attributions
         df_mean = df.groupby([self.FEATURE])[self.ATTR].mean().to_frame().reset_index()
+        df_mean = df_mean.reindex(df_mean[self.ATTR].abs().sort_values(ascending=False).index)
         
         # output
         #features = df_mean[self.FEATURE].to_numpy()

@@ -28,6 +28,7 @@ def create_dir(dir):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--folder', help='Folder where the files are', required=True)
+    parser.add_argument('-m', '--method', help='Consensus method', required=True, choices=['AM','HM','GM','VF','AR','CU'])
     args = parser.parse_args()
 
     # create the output folder for consensus
@@ -35,6 +36,18 @@ if __name__ == "__main__":
     #TODO create_dir(dir_out)
 
     # call consensus
-    c = ConsensusAverageRank(args.folder)
+    switch_method = {
+        'AM': ConsensusAverageMean(args.folder),
+        'HM': ConsensusHarmonicMean(args.folder),
+        'GM': ConsensusGeometricMean(args.folder),
+        'VF': ConsensusVoting(args.folder),
+        'AR': ConsensusAverageRank(args.folder)
+        #'CU':
+    }
+
+    c = switch_method.get(args.method)
+    if c is None:
+        print('ERROR: Option {} does not exist'.format(args.method))
+        exit()
     c.run()
 
