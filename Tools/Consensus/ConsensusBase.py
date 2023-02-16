@@ -9,16 +9,22 @@ __status__ = "Production"
 import abc
 import glob
 import json
+import os
 import pandas as pd
+from matplotlib import pyplot as plt
 
 class ConsensusBase(abc.ABC):
 
-    GLOBALS = ['PermutationImportance', 'RFPermutationImportance'] #, 'PDP', 'ALE']
-    LOCALS = ['Anchor', 'LIME', 'Shapley', 'IntegratedGradients', 'Dice']
+    GLOBALS = ['PermutationImportance', 'RFPermutationImportance']
+    LOCALS = ['LIME', 'Shapley/csv', 'IntegratedGradients/csv'] #, 'Anchor', 'Dice']
+    FEATURE = 'feature'
+    ATTR = 'attribution'
 
     def __init__(self, folder):
         self.folder = folder
-
+        self.df_g = None
+        self.df_l = None
+        self.title = None
 
     def run(self):
         # identify models in the folder
@@ -27,22 +33,64 @@ class ConsensusBase(abc.ABC):
         # process each model individually
         for i in range(len(models)):
             # load global explanations
-            for g in self.GLOBALS:
-                df = self.__load_csv(prefixes[i] + '_' + g + '.csv')
-                print(df)
-            print()
-
-        # TODO cargar algoritmos por columna
-        # TODO cargar algoritmos locales
-        # TODO aplicar funcion
-        pass
-
+            self.__load_globals(i, prefixes)
+            # load local explanations
+            self.__load_locals(i, prefixes)
+            # call consensus
+            df = self.consensus()
+            # plot attributions
+            self.plot(models[i], df)
 
     @abc.abstractmethod
     def consensus(self):
         """
         """
 
+    """ """
+    def plot(self, model, df):
+        print('Plotting attributions after consensus')
+        ax = df.plot.bar(x='feature', y='attribution', rot=45)
+        if self.title is not None:
+            plt.title(self.title)
+        plt.show()
+
+    """ Loads the attributions of the global methods """
+    def __load_globals(self, idx, prefixes):
+        for g in self.GLOBALS:
+            foo = prefixes[idx] + '_' + g + '.csv'
+            if not self.__load_file(foo):
+                continue
+            df = self.__load_csv(foo)
+            self.__scaler(df)
+            self.df_g = self.__append_df(self.df_g, df)
+
+    """ Loads the attributions of the local methods """
+    def __load_locals(self, idx, prefixes):
+        for l in self.LOCALS:
+            folder = os.path.split(prefixes[idx])[0] + '/' + l
+            foos = self.__find_files(folder)
+            for foo in foos:
+                df = self.__load_csv(foo)
+                self.__scaler(df)
+                self.df_l = self.__append_df(self.df_l, df)
+
+    """ Load a file """
+    def __load_file(self, path):
+        return os.path.isfile(path)
+
+    """ Finds those files in a folder with a given extension """
+    def __find_files(self, folder, ext='csv'):
+        return glob.glob(folder + '/*.' + ext)
+
+    """ Concatenates two dataframes """
+    def __append_df(self, df_src, df_tar):
+        if df_tar is None:
+            return df_src
+        if df_src is None:
+            return df_tar
+        return pd.concat([df_src, df_tar], ignore_index=True)
+
+    """ Finds the models in the given folder """
     def __find_models(self):
         files = glob.glob(self.folder + '/*_data.json')
         paths = []
@@ -54,7 +102,12 @@ class ConsensusBase(abc.ABC):
                 models.append(data['Config']['Model_params']['model'])
         return models, paths
 
-
+    """ Loads a CSV file """
     def __load_csv(self, path):
         return pd.read_csv(path)
+
+    """ Normalize the 'attribution' column in range [0,1] """
+    def __scaler(self, df, column='attribution'):
+        #df[column] = (df[column] - df[column].min()) / (df[column].max() - df[column].min())
+        df[column] = df[column]/abs(df[column]).max()*1
 

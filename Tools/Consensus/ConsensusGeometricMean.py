@@ -8,22 +8,28 @@ __status__ = "Production"
 
 import pandas as pd
 from ConsensusBase import ConsensusBase
+from scipy.stats.mstats import gmean
 
-class ConsensusAverageMean(ConsensusBase):
+class ConsensusGeometricMean(ConsensusBase):
 
     def __init__(self, folder):
-        super(ConsensusAverageMean, self).__init__(folder)
-        self.title = 'Average mean'
+        super(ConsensusGeometricMean, self).__init__(folder)
+        self.title = 'Geometric mean'
 
     def consensus(self):
-        print("Computing average mean")
+        print("Computing geometric mean")
 
         df = pd.concat([self.df_g, self.df_l], ignore_index=True)
         df = df[[self.FEATURE, self.ATTR]]
 
-        # average mean of the attributions
-        df_mean = df.groupby([self.FEATURE])[self.ATTR].mean().to_frame().reset_index()
-        
+        # re-scale to [0,1]
+        df[self.ATTR] = (df[self.ATTR] - df[self.ATTR].min()) / (df[self.ATTR].max() - df[self.ATTR].min())    
+
+        # geometric mean of the attributions
+        df_mean = df.groupby([self.FEATURE]).apply(gmean).reset_index()
+        df_mean.columns = [self.FEATURE, self.ATTR]
+        df_mean[self.ATTR] = df_mean[self.ATTR].astype(float)
+
         # output
         #features = df_mean[self.FEATURE].to_numpy()
         #attrs = df_mean[self.ATTR].to_numpy()
