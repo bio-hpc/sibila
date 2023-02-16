@@ -17,6 +17,7 @@ from ConsensusAverageMean import ConsensusAverageMean
 from ConsensusHarmonicMean import ConsensusHarmonicMean
 from ConsensusGeometricMean import ConsensusGeometricMean
 from ConsensusVoting import ConsensusVoting
+from ConsensusAverageRank import ConsensusAverageRank
 
 FOLDER_OUT = "Consensus/"
 
@@ -34,6 +35,6 @@ if __name__ == "__main__":
     #TODO create_dir(dir_out)
 
     # call consensus
-    c = ConsensusVoting(args.folder)
+    c = ConsensusAverageRank(args.folder)
     c.run()
 
