@@ -18,6 +18,7 @@ from ConsensusHarmonicMean import ConsensusHarmonicMean
 from ConsensusGeometricMean import ConsensusGeometricMean
 from ConsensusVoting import ConsensusVoting
 from ConsensusAverageRank import ConsensusAverageRank
+from ConsensusCustom import ConsensusCustom
 
 FOLDER_OUT = "Consensus/"
 
@@ -41,8 +42,8 @@ if __name__ == "__main__":
         'HM': ConsensusHarmonicMean(args.folder),
         'GM': ConsensusGeometricMean(args.folder),
         'VF': ConsensusVoting(args.folder),
-        'AR': ConsensusAverageRank(args.folder)
-        #'CU':
+        'AR': ConsensusAverageRank(args.folder),
+        'CU': ConsensusCustom(args.folder)
     }
 
     c = switch_method.get(args.method)
