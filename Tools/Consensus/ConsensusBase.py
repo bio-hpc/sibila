@@ -21,8 +21,9 @@ class ConsensusBase(abc.ABC):
     ATTR = 'attribution'
     RANKING = 'ranking'
 
-    def __init__(self, folder):
+    def __init__(self, folder, out_folder):
         self.folder = folder
+        self.out_folder = out_folder
         self.df_g = None
         self.df_l = None
         self.title = None
@@ -39,6 +40,8 @@ class ConsensusBase(abc.ABC):
             self.__load_locals(i, prefixes)
             # call consensus
             df = self.consensus()
+            # save data into the output folder
+            # TODO
             # plot attributions
             self.plot(models[i], df)
 

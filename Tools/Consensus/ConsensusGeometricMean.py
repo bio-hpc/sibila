@@ -12,8 +12,8 @@ from scipy.stats.mstats import gmean
 
 class ConsensusGeometricMean(ConsensusBase):
 
-    def __init__(self, folder):
-        super(ConsensusGeometricMean, self).__init__(folder)
+    def __init__(self, folder, dir_out):
+        super(ConsensusGeometricMean, self).__init__(folder, dir_out)
         self.title = 'Geometric mean'
 
     def consensus(self):

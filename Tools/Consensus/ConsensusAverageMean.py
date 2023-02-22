@@ -11,8 +11,8 @@ from ConsensusBase import ConsensusBase
 
 class ConsensusAverageMean(ConsensusBase):
 
-    def __init__(self, folder):
-        super(ConsensusAverageMean, self).__init__(folder)
+    def __init__(self, folder, dir_out):
+        super(ConsensusAverageMean, self).__init__(folder, dir_out)
         self.title = 'Average mean'
 
     def consensus(self):

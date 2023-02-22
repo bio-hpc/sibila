@@ -9,23 +9,25 @@ __status__ = "Production"
 import pandas as pd
 from ConsensusBase import ConsensusBase
 
-class ConsensusVoting(ConsensusBase):
+class ConsensusCustom(ConsensusBase):
 
     def __init__(self, folder, dir_out):
-        super(ConsensusVoting, self).__init__(folder, dir_out)
-        self.title = 'Voting'
+        super(ConsensusCustom, self).__init__(folder, dir_out)
+        self.title = 'Custom function'
 
     def consensus(self):
-        print("Computing feature voting")
+        print("Computing custom function")
 
         df = pd.concat([self.df_g, self.df_l], ignore_index=True)
-        df = df[[self.FEATURE, self.ATTR, self.RANKING]]
+        #df = df[[self.FEATURE, self.ATTR]]
 
-        # voting features
-        df = df[df[self.RANKING] <= 10]
-        df_mean = df[self.FEATURE].value_counts().to_frame().reset_index()
-        df_mean.columns = [self.FEATURE, self.ATTR]
+        print(df)
+        exit()
 
+        # average mean of the attributions
+        #df_mean = df.groupby([self.FEATURE])[self.ATTR].mean().to_frame().reset_index()
+        #df_mean = df_mean.reindex(df_mean[self.ATTR].abs().sort_values(ascending=False).index)
+        
         # output
         #features = df_mean[self.FEATURE].to_numpy()
         #attrs = df_mean[self.ATTR].to_numpy()

@@ -12,7 +12,7 @@ __status__ = "Production"
 
 import argparse
 import os
-from os.path import join, isdir
+from os.path import exists, join
 from ConsensusAverageMean import ConsensusAverageMean
 from ConsensusHarmonicMean import ConsensusHarmonicMean
 from ConsensusGeometricMean import ConsensusGeometricMean
@@ -22,10 +22,6 @@ from ConsensusCustom import ConsensusCustom
 
 FOLDER_OUT = "Consensus/"
 
-def create_dir(dir):
-    if not isdir(dir):
-        os.mkdir(dir)
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--folder', help='Folder where the files are', required=True)
@@ -34,16 +30,17 @@ if __name__ == "__main__":
 
     # create the output folder for consensus
     dir_out = join(args.folder, FOLDER_OUT)
-    #TODO create_dir(dir_out)
+    if not exists(dir_out):
+        os.makedirs(dir_out)
 
     # call consensus
     switch_method = {
-        'AM': ConsensusAverageMean(args.folder),
-        'HM': ConsensusHarmonicMean(args.folder),
-        'GM': ConsensusGeometricMean(args.folder),
-        'VF': ConsensusVoting(args.folder),
-        'AR': ConsensusAverageRank(args.folder),
-        'CU': ConsensusCustom(args.folder)
+        'AM': ConsensusAverageMean(args.folder, dir_out),
+        'HM': ConsensusHarmonicMean(args.folder, dir_out),
+        'GM': ConsensusGeometricMean(args.folder, dir_out),
+        'VF': ConsensusVoting(args.folder, dir_out),
+        'AR': ConsensusAverageRank(args.folder, dir_out),
+        'CU': ConsensusCustom(args.folder, dir_out)
     }
 
     c = switch_method.get(args.method)

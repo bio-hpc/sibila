@@ -12,8 +12,8 @@ from scipy.stats.mstats import hmean
 
 class ConsensusHarmonicMean(ConsensusBase):
 
-    def __init__(self, folder):
-        super(ConsensusHarmonicMean, self).__init__(folder)
+    def __init__(self, folder, dir_out):
+        super(ConsensusHarmonicMean, self).__init__(folder, dir_out)
         self.title = 'Harmonic mean'
 
     def consensus(self):
