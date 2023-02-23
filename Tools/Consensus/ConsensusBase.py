@@ -16,7 +16,7 @@ from matplotlib import pyplot as plt
 class ConsensusBase(abc.ABC):
 
     GLOBALS = ['PermutationImportance', 'RFPermutationImportance']
-    LOCALS = ['LIME', 'Shapley/csv', 'IntegratedGradients/csv'] #, 'Anchor', 'Dice']
+    LOCALS = ['LIME', 'Shapley/csv', 'IntegratedGradients/csv', 'Dice']
     FEATURE = 'feature'
     ATTR = 'attribution'
     RANKING = 'ranking'
@@ -37,13 +37,16 @@ class ConsensusBase(abc.ABC):
             # load global explanations
             self.__load_globals(i, prefixes)
             # load local explanations
-            self.__load_locals(i, prefixes)
+            self.__load_locals(i, prefixes, models)
             # call consensus
             df = self.consensus()
+            df = self.sort(df)
             # save data into the output folder
-            # TODO
+            filename = models[i] + '_' + self.title.replace(' ','_')
+            out_file = os.path.join(self.out_folder, filename)
+            df.to_csv(out_file + '.csv', index=False)
             # plot attributions
-            self.plot(models[i], df)
+            self.plot(models[i], df, out_file + '.png')
 
     @abc.abstractmethod
     def consensus(self):
@@ -51,12 +54,14 @@ class ConsensusBase(abc.ABC):
         """
 
     """ """
-    def plot(self, model, df):
+    def plot(self, model, df, filename):
         print('Plotting attributions after consensus')
         ax = df.plot.bar(x='feature', y='attribution', rot=45)
         if self.title is not None:
             plt.title(self.title)
-        plt.show()
+        plt.tight_layout()
+        plt.savefig(filename)
+        plt.close()
 
     """ Loads the attributions of the global methods """
     def __load_globals(self, idx, prefixes):
@@ -72,8 +77,12 @@ class ConsensusBase(abc.ABC):
             self.df_g = self.__append_df(self.df_g, df)
 
     """ Loads the attributions of the local methods """
-    def __load_locals(self, idx, prefixes):
+    def __load_locals(self, idx, prefixes, models):
         for l in self.LOCALS:
+            # Neural networks don't work with counterfactuals
+            if models[idx] == 'ANN' and l == 'Dice':
+                continue
+
             folder = os.path.split(prefixes[idx])[0] + '/' + l
             foos = self.__find_files(folder)
             for foo in foos:
@@ -120,4 +129,8 @@ class ConsensusBase(abc.ABC):
     def __scaler(self, df, column='attribution'):
         #df[column] = (df[column] - df[column].min()) / (df[column].max() - df[column].min())
         df[column] = df[column]/abs(df[column]).max()*1
+
+    """ Sort features by descending attribution """
+    def sort(self, df):
+        return df.reindex(df[self.ATTR].abs().sort_values(ascending=False).index)
 
