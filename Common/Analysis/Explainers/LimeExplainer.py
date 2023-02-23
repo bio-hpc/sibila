@@ -68,7 +68,7 @@ class LimeExplainer(ExplainerModel):
         self.df_global = pd.concat(df_local)
         self.df_global = self.df_global[[FEATURE, ATTR]].groupby(FEATURE).agg(['mean','std']).reset_index()
         self.df_global.columns = [FEATURE, ATTR, STD]
-        self.df_global = self.df_global.reindex(self.df_global[ATTR].abs().sort_values(ascending=False).index)
+        self.df_global = self.sort(self.df_global)
         return self.df_global
 
     def plot(self, df, method=None):
@@ -100,19 +100,6 @@ class LimeExplainer(ExplainerModel):
                                                       discretize_continuous=True,
                                                       mode='regression')
         return explainer, lime_predict, 5000
-
-    #def lime_save_explanations(self, explanation, prefix, index, ypr):
-    #    #def get_feature_name(e):
-    #    #    m = re.split('[<]+ | [>]+ | [<=]+ | [>=]+ | [=]+', e)
-    #    #    return m[1] if len(m) > 2 else m[0]
-
-    #    data = [[self.get_feature_name(e[0]), e[1], e[0], ypr] for e in explanation]
-    #    df = pd.DataFrame(data=data, columns=[FEATURE, ATTR] + ['range', 'class'])
-    #    self.io_data.save_dataframe_cols(
-    #        df, df.columns,
-    #        self.io_data.get_lime_folder() + "{}_Lime_explain_{}.csv".format(prefix, index))
-
-    #    return df
 
     def get_feature_name(self, e):
         m = re.split('[<]+ | [>]+ | [<=]+ | [>=]+ | [=]+', e)

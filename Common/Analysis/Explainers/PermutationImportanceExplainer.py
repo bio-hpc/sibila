@@ -15,6 +15,7 @@ from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
 from Tools.ToolsModels import get_explainer_model, is_tf_model, is_rulefit_model
 from Common.Config.ConfigHolder import FEATURE, ATTR, STD
 
+
 class PermutationImportanceExplainer(ExplainerModel):
     def explain(self):
         """
