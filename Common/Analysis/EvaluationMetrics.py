@@ -158,6 +158,9 @@ class EvaluationMetrics:
         """
         return mean_absolute_error(self.yts, self.ypr)
 
+    def rmse(self):
+        return np.sqrt(self.m_squared_error())
+
     def pearson_correlation_coefficient(self):
         """
         https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.pearsonr.html
@@ -228,7 +231,8 @@ class EvaluationMetrics:
                 'Pearson Correlation Coefficient': paux,
                 'Coefficient of Determination': round(self.coefficient_of_determination(), self.DECIMALS_ROUND),
                 'Mean Absolute Error': round(self.m_absolute_error(), self.DECIMALS_ROUND),
-                'Mean Squared Error': round(self.m_squared_error(), self.DECIMALS_ROUND)
+                'Mean Squared Error': round(self.m_squared_error(), self.DECIMALS_ROUND),
+                'Root Mean Squared Error': round(self.rmse(), self.DECIMALS_ROUND)
             }
             self.plot_graphics.plot_correlation(self.yts, self.ypr, self.cfg.get_name_file_correlation())
 

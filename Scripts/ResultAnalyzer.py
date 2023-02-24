@@ -22,7 +22,7 @@ from pathlib import Path
  
 class ResultAnalyzer():
 	CLASSIFICATION_COLS = ['Accuracy', 'Precision', 'Recall', 'F1', 'Specificity', 'AUC']
-	REGRESSION_COLS = ['Pearson', 'Determination', 'Mean Average Precision', 'MAE', 'MSE']
+	REGRESSION_COLS = ['Pearson', 'Determination', 'MAE', 'MSE']
 
 	def __init__(self, input_dir, output_file):
 		self.input_dir = input_dir
@@ -84,10 +84,9 @@ class ResultAnalyzer():
 		if self.regression:
 			pearson, pearson_p = [float(x) for x in analysis['Pearson Correlation Coefficient'].split('/')]
 			r2 = analysis['Coefficient of Determination']
-			avg_precision = analysis['Mean average precision']
 			mae = analysis['Mean Absolute Error']
 			mse = analysis['Mean Squared Error']
-			return pearson, r2, avg_precision, mae, mse
+			return pearson, r2, mae, mse
 		else:
 			accuracy = analysis['Accuracy']
 			precision = analysis['Precision']
