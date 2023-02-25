@@ -16,6 +16,7 @@ from Tools.ToolsModels import is_tf_model, is_ripper_model, is_rulefit_model, is
 from Tools.Estimators.RipperEstimator import RipperEstimator
 from pathlib import Path
 from Common.Config.ConfigHolder import FEATURE, ATTR, STD, COLNAMES, PROBA
+from Tools.ToolsModels import is_regression_by_config
 
 class DiceExplainer(ExplainerModel):
 
@@ -57,7 +58,12 @@ class DiceExplainer(ExplainerModel):
 
             lst = [e1] if is_tf_model(self.model) else e1.cf_examples_list
             for i in tqdm(range(len(self.xts))):
-                imp = exp.local_feature_importance(self.xts[i], cf_examples_list=lst)
+                imp = exp.local_feature_importance(
+                                  self.xts[i], 
+                                  cf_examples_list = lst,
+                                  desired_class = "opposite",
+                                  desired_range = desired_range
+                      )
                 self.df_local[i] = pd.DataFrame(imp.local_importance).mean(axis=0).to_frame().reset_index()
                 self.df_local[i].columns = [FEATURE, ATTR]
                 self.df_local[i][PROBA] = self.proba_sample(self.xts[i])
