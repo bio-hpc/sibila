@@ -18,18 +18,34 @@ class ConsensusCustom(ConsensusBase):
     def consensus(self):
         print("Computing custom function")
 
-        df = pd.concat([self.df_g, self.df_l], ignore_index=True)
-        #df = df[[self.FEATURE, self.ATTR]]
+        alfa = (4*pow(self.model_acc, 2))-(4*self.model_acc)+1
 
-        print(df)
-        exit()
+        # global methods
+        dfg = self.__scale(self.df_g)
+        dfg[self.ATTR] = dfg[self.ATTR] * alfa
+
+        # local methods
+        dfl = self.__scale(self.df_l)
+        dfl[self.ATTR] = dfl[self.ATTR] * alfa
+        dfl[self.ATTR] = dfl[self.ATTR] * dfl[self.PROBA]
+
+        # merge both transformed explanations
+        df = pd.concat([dfg, dfl], ignore_index=True)
+        df = df[[self.FEATURE, self.ATTR]]
 
         # average mean of the attributions
-        #df_mean = df.groupby([self.FEATURE])[self.ATTR].mean().to_frame().reset_index()
-        #df_mean = df_mean.reindex(df_mean[self.ATTR].abs().sort_values(ascending=False).index)
-        
+        df_mean = df.groupby([self.FEATURE])[self.ATTR].sum().to_frame().reset_index()
+        df_mean = df_mean.reindex(df_mean[self.ATTR].abs().sort_values(ascending=False).index)
+
         # output
         #features = df_mean[self.FEATURE].to_numpy()
         #attrs = df_mean[self.ATTR].to_numpy()
         #return features, attrs
         return df_mean
+
+    def __scale(self, df):
+        sign = list(map(lambda x: -1 if x<0 else 1, df[self.ATTR].to_numpy()))
+        aux = df.copy()
+        aux[self.ATTR] = ((df[self.ATTR]-df[self.ATTR].min())/(df[self.ATTR].max()-df[self.ATTR].min()))*sign
+        return aux
+

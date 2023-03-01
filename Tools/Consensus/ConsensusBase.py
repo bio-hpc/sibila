@@ -19,7 +19,10 @@ class ConsensusBase(abc.ABC):
     LOCALS = ['LIME', 'Shapley/csv', 'IntegratedGradients/csv', 'Dice']
     FEATURE = 'feature'
     ATTR = 'attribution'
+    PROBA = 'probability'
     RANKING = 'ranking'
+    CLASS_METRIC = 'Auc'
+    REG_METRIC = 'Coefficient of Determination'
 
     def __init__(self, folder, out_folder):
         self.folder = folder
@@ -27,6 +30,7 @@ class ConsensusBase(abc.ABC):
         self.df_g = None
         self.df_l = None
         self.title = None
+        self.model_acc = None
 
     def run(self):
         # identify models in the folder
@@ -34,17 +38,33 @@ class ConsensusBase(abc.ABC):
 
         # process each model individually
         for i in range(len(models)):
+            # get model's metrics
+            metrics = self.__get_metrics(i, prefixes)
+            if metrics is not None:
+                if self.CLASS_METRIC in metrics.keys():
+                    self.model_acc = metrics[self.CLASS_METRIC]
+                elif self.REG_METRIC in metrics.keys():
+                    self.model_acc = metrics[self.REG_METRIC]
+
+            # the model wasn't evaluated and, consequently, is not valid
+            if self.model_acc is None:
+                continue
+
             # load global explanations
             self.__load_globals(i, prefixes)
+
             # load local explanations
             self.__load_locals(i, prefixes, models)
+
             # call consensus
             df = self.consensus()
             df = self.sort(df)
+
             # save data into the output folder
             filename = models[i] + '_' + self.title.replace(' ','_')
             out_file = os.path.join(self.out_folder, filename)
             df.to_csv(out_file + '.csv', index=False)
+
             # plot attributions
             self.plot(models[i], df, out_file + '.png')
 
@@ -53,7 +73,15 @@ class ConsensusBase(abc.ABC):
         """
         """
 
-    """ """
+    """ Obtains the model's metrics """
+    def __get_metrics(self, idx, prefixes):
+        foo = prefixes[idx] + '_data.json'
+        with open(foo, 'r') as f:
+            data = json.load(f)
+            return data['Analysis']
+        return None
+
+    """ Plots the attributions after consensus """
     def plot(self, model, df, filename):
         print('Plotting attributions after consensus')
         ax = df.plot.bar(x='feature', y='attribution', rot=45)
@@ -70,7 +98,7 @@ class ConsensusBase(abc.ABC):
             if not self.__load_file(foo):
                 continue
             df = self.__load_csv(foo)
-            self.__scaler(df)
+            #self.__scaler(df)
             df.sort_values(self.ATTR, ascending=False, inplace=True)
             df.insert(len(df.columns), self.RANKING, range(1, 1 + len(df)))
 
@@ -87,7 +115,7 @@ class ConsensusBase(abc.ABC):
             foos = self.__find_files(folder)
             for foo in foos:
                 df = self.__load_csv(foo)
-                self.__scaler(df)
+                #self.__scaler(df)
                 df.sort_values(self.ATTR, ascending=False, inplace=True)
                 df.insert(len(df.columns), self.RANKING, range(1, 1 + len(df)))
 
