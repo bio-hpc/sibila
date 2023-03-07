@@ -26,6 +26,7 @@ class ConsensusCustom(ConsensusBase):
 
         # local methods
         dfl = self.__scale(self.df_l)
+        dfl[self.ATTR] = dfl[self.ATTR]/self.df_l.shape[0] # divide by the number of samples to compare with globals
         dfl[self.ATTR] = dfl[self.ATTR] * alfa
         dfl[self.ATTR] = dfl[self.ATTR] * dfl[self.PROBA]
 

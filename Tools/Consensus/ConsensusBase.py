@@ -103,7 +103,6 @@ class ConsensusBase(abc.ABC):
             if not self.__load_file(foo):
                 continue
             df = self.__load_csv(foo)
-            #self.__scaler(df)
             df.sort_values(self.ATTR, ascending=False, inplace=True)
             df.insert(len(df.columns), self.RANKING, range(1, 1 + len(df)))
 
@@ -120,7 +119,6 @@ class ConsensusBase(abc.ABC):
             foos = self.__find_files(folder)
             for foo in foos:
                 df = self.__load_csv(foo)
-                #self.__scaler(df)
                 df.sort_values(self.ATTR, ascending=False, inplace=True)
                 df.insert(len(df.columns), self.RANKING, range(1, 1 + len(df)))
 
