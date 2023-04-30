@@ -35,7 +35,7 @@ import tensorflow as tf
 
 from sklearn.metrics import f1_score, precision_score, recall_score, mean_absolute_error, \
     mean_squared_error, confusion_matrix, accuracy_score, roc_curve, roc_auc_score, \
-    r2_score
+    r2_score, matthews_corrcoef
 from Tools.Graphics import Graphics
 from Tools.ToolsModels import is_regression_by_config
 from Tools.TypeML import TypeML
@@ -146,20 +146,23 @@ class EvaluationMetrics:
     def auc_value(self):
         return roc_auc_score(self.yts, self.ypr)
 
+    def mcc_value(self):
+        return matthews_corrcoef(self.yts, self.ypr)
+
     def m_squared_error(self):
         """
         https://www.iartificial.net/error-cuadratico-medio-para-regresion/
         """
         return mean_squared_error(self.yts, self.ypr)
 
+    def root_m_squared_error(self):
+        return mean_squared_error(self.yts, self.ypr, squared=False)
+
     def m_absolute_error(self):
         """
         https://es.wikipedia.org/wiki/Error_absoluto_medio
         """
         return mean_absolute_error(self.yts, self.ypr)
-
-    def rmse(self):
-        return np.sqrt(self.m_squared_error())
 
     def pearson_correlation_coefficient(self):
         """
@@ -222,6 +225,7 @@ class EvaluationMetrics:
                 'Recall': round(self.recall() * 100, self.DECIMALS_ROUND),
                 'Specificity': round(self.specificity() * 100, self.DECIMALS_ROUND),
                 'Auc': round(self.auc_value(), self.DECIMALS_ROUND),
+                'MCC': round(self.mcc_value(), self.DECIMALS_ROUND)
             }
             self.g_roc_curve()
         else:
@@ -232,7 +236,7 @@ class EvaluationMetrics:
                 'Coefficient of Determination': round(self.coefficient_of_determination(), self.DECIMALS_ROUND),
                 'Mean Absolute Error': round(self.m_absolute_error(), self.DECIMALS_ROUND),
                 'Mean Squared Error': round(self.m_squared_error(), self.DECIMALS_ROUND),
-                'Root Mean Squared Error': round(self.rmse(), self.DECIMALS_ROUND)
+                'Root Mean Squared Error': round(self.root_m_squared_error(), self.DECIMALS_ROUND)
             }
             self.plot_graphics.plot_correlation(self.yts, self.ypr, self.cfg.get_name_file_correlation())
 
