@@ -92,7 +92,7 @@ class Graphics:
         classes = np.unique(yts)
         for clazz in classes:            
             if is_tf_model(model):
-                yppr = model(xts).numpy()[:, clazz]
+                yppr = model(xts)
 
             fpr, tpr, thr = roc_curve(yts, yppr, pos_label=clazz)
             auc_value = auc(fpr, tpr)

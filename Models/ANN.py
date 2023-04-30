@@ -88,7 +88,7 @@ class ANN(BaseModel):
                 model.add(tf.keras.layers.Dropout(rate=params['dropout_rate']))
 
             if not is_regression_by_config(self.cfg):
-                model.add(tf.keras.layers.Dense(params['output_units'], activation="softmax", kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
+                model.add(tf.keras.layers.Dense(1, activation="sigmoid", kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
             else:
                 model.add(tf.keras.layers.Dense(params['output_units'], kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
 
@@ -134,7 +134,7 @@ class ANN(BaseModel):
             class_weights = None
 
         tuner.search(xtr, ytr, 
-                     verbose = 0,
+                     verbose = 1,
                      epochs = params['epochs'],
                      batch_size = self.cfg.get_params()['params']['batch_size'],
                      class_weight = class_weights,
@@ -186,4 +186,5 @@ class ANN(BaseModel):
         if is_regression_by_config(self.cfg):
             return np.squeeze(ypr)
 
-        return ypr.argmax(axis=1)
+        return np.round(ypr).astype(int)
+

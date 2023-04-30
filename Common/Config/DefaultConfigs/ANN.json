@@ -7,7 +7,7 @@
         "random_state": 500,
         "cv_splits": 10,
         "batch_size": 1024,
-        "search_type": "grid"
+        "search_type": "random"
     },
     "params_grid": {
         "objective": ["accuracy"],
@@ -24,8 +24,8 @@
         "max_lr": 1e-2,
         "sampling_lr": "log",
         "metrics": ["accuracy"],
-        "loss_function": "sparse_categorical_crossentropy",
-        "epochs": 500,
+        "loss_function": "binary_crossentropy",
+        "epochs": 300,
         "executions_per_trial": 5,
         "early_stopping_patience": 3
     }
