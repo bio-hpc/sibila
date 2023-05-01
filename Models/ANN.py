@@ -52,7 +52,7 @@ class ANN(BaseModel):
     def grid_search(self, xtr, ytr):
         params = self.cfg.get_params()['params_grid']
         seed = self.cfg.get_params()['params']['random_state']
-        search_type = self.cfg.get_params()['params']['search_type']
+        search_type = self.cfg.get_params()['params']['train_grid']
  
         def get_optimizer(opt_name, lr):
             if opt_name == 'Adam':
@@ -105,7 +105,7 @@ class ANN(BaseModel):
 
         build_model(kt.HyperParameters())
 
-        if search_type == 'grid':
+        if search_type == 'train_grid':
             tuner = kt.Hyperband(
                 hypermodel = build_model,
                 objective = kt.HyperParameters().Choice('objective',params["objective"]),
@@ -115,7 +115,7 @@ class ANN(BaseModel):
                 directory = self.cfg.get_folder() + "/keras_tuner_dir",
                 project_name = "sibila"
             )
-        elif search_type == 'random':
+        elif search_type == 'train_random':
             tuner = kt.RandomSearch(
                 hypermodel = build_model,
                 objective = kt.HyperParameters().Choice('objective',params["objective"]),
