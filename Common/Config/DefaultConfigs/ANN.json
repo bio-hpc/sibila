@@ -7,7 +7,7 @@
         "random_state": 500,
         "cv_splits": 10,
         "batch_size": 1024,
-        "search_type": "grid"
+        "train_grid": "train_random"
     },
     "params_grid": {
         "objective": ["accuracy"],

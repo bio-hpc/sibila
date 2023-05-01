@@ -45,7 +45,7 @@ class BaseModel(abc.ABC):
         if is_tf_model(self.model):
             self.model.fit(xtr,
                            ytr,
-                           verbose = 0,
+                           verbose = 1,
                            batch_size = self.cfg.get_params()['params']['batch_size'],
                            epochs = self.cfg.get_params()['params_grid']['epochs'],
                            class_weight = class_weights,
