@@ -20,8 +20,8 @@ from os.path import basename, join, isdir
 from pathlib import Path
  
 class ResultAnalyzer():
-	CLASSIFICATION_COLS = ['Accuracy', 'Precision', 'Recall', 'F1', 'Specificity', 'AUC']
-	REGRESSION_COLS = ['Pearson', 'Determination', 'Mean Average Precision', 'MAE', 'MSE']
+	CLASSIFICATION_COLS = ['Accuracy', 'Precision', 'Recall', 'F1', 'Specificity', 'AUC', 'MCC']
+	REGRESSION_COLS = ['Pearson', 'Determination', 'MAE', 'MSE', 'RMSE']
 
 	def __init__(self, input_dir, output_file):
 		self.input_dir = input_dir
@@ -81,10 +81,10 @@ class ResultAnalyzer():
 		if self.regression:
 			pearson, pearson_p = [float(x) for x in analysis['Pearson Correlation Coefficient'].split('/')]
 			r2 = analysis['Coefficient of Determination']
-			avg_precision = analysis['Mean average precision']
 			mae = analysis['Mean Absolute Error']
 			mse = analysis['Mean Squared Error']
-			return pearson, r2, avg_precision, mae, mse
+			rmse = analysis['Root Mean Squared Error']
+			return pearson, r2, mae, mse, rmse
 		else:
 			accuracy = analysis['Accuracy']
 			precision = analysis['Precision']
@@ -92,7 +92,8 @@ class ResultAnalyzer():
 			recall = analysis['Recall']
 			specificity = analysis['Specificity']
 			auc = analysis['Auc']
-			return accuracy, precision, f1, recall, specificity, auc
+			mcc = analysis['MCC']
+			return accuracy, precision, f1, recall, specificity, auc, mcc
 
 	def __get_key(self, filename):
 		return basename(filename).split('_')[0]
