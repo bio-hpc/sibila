@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """ResultAnalyzer.py:
     Translates the output files into an Excel with all the metrics.
-
 """
 __author__ = "Antonio Jesús Banegas-Luna"
 __version__ = "1.0"
@@ -11,6 +10,7 @@ __email__ = "ajbanegas@ucam.edu"
 __status__ = "Production"
 
 import argparse
+import codecs
 import glob
 import json
 import numpy as np
@@ -36,8 +36,8 @@ class ResultAnalyzer():
 
 		self.__print('Searching for summary files')
 		resume = []
-		for path in Path(self.input_dir).rglob('*_data.json'):
-			resume.append(str(path))
+		for path in Path(self.input_dir).rglob('*.tar.gz'):
+			resume.append(str(path)) 
 
 		if len(resume) == 0:
 			self.__print('No results were found')
@@ -62,18 +62,20 @@ class ResultAnalyzer():
 		self.__print('Exporting to Excel')
 		self.__export_excel(df)
 
-	def __extract_resume(self, foo):
+	def __extract_resume(self, tarfoo):
 		data = []
-		with open(foo, 'r') as f:
-			content = f.read()
-			metrics = self.__find_metrics(content)
-			key = self.__get_key(foo)
-			data.append((key, metrics))
 
+		tar = tarfile.open(tarfoo, "r:gz")
+		utf8reader = codecs.getreader('utf-8')
+		for name in tar.getmembers():
+			if name.name.endswith('_data.json'):
+				content = json.load(tar.extractfile(name))
+				metrics =  self.__find_metrics(content)
+				key = self.__get_key(tarfoo)
+				data.append((key, metrics))
 		return data
 
-	def __find_metrics(self, content):
-		data = json.loads(content)
+	def __find_metrics(self, data):
 		analysis = data['Analysis']
 
 		self.regression = False if 'Auc' in analysis.keys() else True
