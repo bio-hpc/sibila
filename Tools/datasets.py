@@ -56,7 +56,11 @@ def get_dataset(data_set, io_data=None, predicting=False):
             x = x.drop(x.columns[0], axis=1)
             y = y[y.columns[0]]
 
-            features = features[1:-1]
+            if not predicting:
+                features = features[1:-1]
+            else:
+                features = features[1:]
+
             features = pd.DataFrame(features)
             feature_list = features.iloc[:, 0].tolist()  # feature list
             """
