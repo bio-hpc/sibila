@@ -23,6 +23,7 @@ from Models import *
 from Tools.Timer import Timer
 from Tools.Bash.Queue_manager.JobManager import JobManager
 import tensorflow as tf
+import os
 tf.get_logger().setLevel('ERROR')
 
 
@@ -115,7 +116,7 @@ def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_da
     cfg = get_basic_cfg(folder_experiment, file_dataset, args)
     model = BaseModel.load(type_model)
     print("\n")
-    cfg.set_prefix(join(args.folder, basename(type_model)))
+    cfg.set_prefix(join(args.folder, os.path.splitext(basename(type_model))[0]))
 
     ypr_class, ypr_prob = [], []
     for xts in x:
@@ -145,6 +146,13 @@ def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_da
     df = pd.DataFrame({'Sample ID': idx_samples, 'Predicted class': ypr_class, 'Probability': ypr_prob})
     df.to_csv(outfile, index=False)
     print('Results saved in {}'.format(outfile))
+    
+    if not args.skip_interpretability:
+        print(x)
+        print(idx_samples)
+        sample = [[i] for i in idx_samples]
+        sp = Serialize(model, x, ypr_class, x, ypr_class, id_list, cfg, io_data, idx_samples)
+        Interpretability(sp)
 
     exit()
 
