@@ -1,5 +1,6 @@
 from Models.Utils.TrainGrid import TrainGrid
 from Models.Utils.LearningHistoryCallback import LearningHistoryCallback
+from Models.Utils.CrossValidation import CrossValidation
 import abc
 from Tools.DatasetBalanced import DatasetBalanced
 from Tools.ToolsModels import is_tf_model, is_regression_by_config, is_xgboost_model
@@ -33,7 +34,13 @@ class BaseModel(abc.ABC):
             class_weights = None
 
         if 'train_grid' in self.cfg.get_params().keys() and self.cfg.get_params()['train_grid'].upper() != "NONE":
-            train_grid = TrainGrid()
+            cvmethod = CrossValidation(self.io_data).choice_method('GKF')
+            cvarg = self.cfg.get_args()['crossvalidation']
+            if cvarg is not None:
+                cv = CrossValidation(self.io_data)
+                cvmethod = cv.choice_method(self.cfg.get_args()['crossvalidation'])
+
+            train_grid = TrainGrid(cvmethod)
             func = getattr(train_grid, self.cfg.get_params()['train_grid'])
             try:
                 self.cfg.get_params()['params'] = func(self.model, self.cfg.get_params()['params_grid'], xtr, ytr)

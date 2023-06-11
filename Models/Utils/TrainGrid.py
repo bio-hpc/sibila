@@ -1,5 +1,6 @@
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.model_selection import GridSearchCV
+from .CrossValidation import CrossValidation
 from Models.Utils.CrossValidation import CrossValidation
 from Tools.ToolsModels import is_regression
 
@@ -10,6 +11,9 @@ class TrainGrid:
     N_JOBS = 4  # Number of jobs to run in parallel. None means 1 unless in
     N_SPLIT = 5  # Number of jobs to run in parallel. None means 1 unless in
 
+
+    def __init__(self, cv):
+        self.cv = cv
 
     def get_scorer(self, model):
         if is_regression(model):
@@ -30,7 +34,6 @@ class TrainGrid:
             grid_parameters,
             xtr,
             ytr,
-            scoring='accuracy',
             n_iter=N_ITER,
             n_jobs=N_JOBS,
             n_split=N_SPLIT,
@@ -40,17 +43,16 @@ class TrainGrid:
         """
               with the random parameters it generates several runs by mixing them randomly
         """
-        random_src = RandomizedSearchCV(model,
-                                       param_distributions = grid_parameters,
-                                       n_iter = n_iter,
-                                       n_jobs = n_jobs,
-                                       scoring = self.get_scorer(model),
-                                       cv = CrossValidation.group_kfold(xtr,
-                                                                      ytr,
-                                                                      n_splits=n_split,
-                                                                      random_state=random_state),
-                                       verbose = verbose,
-                                       random_state = random_state)
+        random_src = RandomizedSearchCV(
+                         model,
+                         param_distributions = grid_parameters,
+                         n_iter = n_iter,
+                         n_jobs = n_jobs,
+                         scoring = self.get_scorer(model),
+                         cv = self.cv(xtr, ytr, n_splits=n_split, random_state=random_state),
+                         verbose = 1,
+                         random_state = random_state
+                     )
 
         random_src.fit(xtr, ytr)
         self.print_search(random_src)
@@ -61,7 +63,6 @@ class TrainGrid:
                    grid_parameters,
                    xtr,
                    ytr,
-                   scoring='accuracy',
                    n_iter=N_ITER,
                    n_split=N_SPLIT,
                    n_jobs=N_JOBS,
@@ -75,8 +76,8 @@ class TrainGrid:
             param_grid = grid_parameters,
             n_jobs = n_jobs,
             scoring = self.get_scorer(model),
-            cv = CrossValidation.group_kfold(xtr, ytr, n_splits=n_split, random_state=random_state),
-            verbose = verbose,
+            cv = self.cv(xtr, ytr, n_splits=n_split, random_state=random_state),
+            verbose = 1
         )
 
         grid_src.fit(xtr, ytr)
