@@ -35,7 +35,7 @@ import tensorflow as tf
 
 from sklearn.metrics import f1_score, precision_score, recall_score, mean_absolute_error, \
     mean_squared_error, confusion_matrix, accuracy_score, roc_curve, roc_auc_score, \
-    r2_score, matthews_corrcoef
+    r2_score, matthews_corrcoef, average_precision_score
 from Tools.Graphics import Graphics
 from Tools.ToolsModels import is_regression_by_config
 from Tools.TypeML import TypeML
@@ -105,25 +105,34 @@ class EvaluationMetrics:
         """
         return accuracy_score(self.yts, self.ypr, normalize=True)
 
-    def precision(self):
+    def precision_positive(self):
         """
         Precision= True_Positive/ (True_Positive+ False_Positive)
-        :return: precision
+        :return: precision_positive
         """
-        return precision_score(self.yts, self.ypr, average='binary')
+        return precision_score(self.yts, self.ypr, average='binary',pos_label=1)
 
-    def recall(self):
+    def precision_negative(self):
+        return precision_score(self.yts, self.ypr, average='binary', pos_label=0)
+
+    def recall_positive(self):
         """
         Recall= True_Positive/ (True_Positive+ False_Negative)
-        :return: recall
+        :return: recall-positive
         """
-        return recall_score(self.yts, self.ypr)
+        return recall_score(self.yts, self.ypr,pos_label=1)
 
-    def f1_score(self):
+    def recall_negative(self):
+        return recall_score(self.yts, self.ypr,pos_label=0)
+        
+    def f1_score_positive(self):
         """
         F1-score= 2*Precision*Recall/(Precision+Recall)
         """
-        return f1_score(self.yts, self.ypr, average="binary")
+        return f1_score(self.yts, self.ypr, average="binary",pos_label=1)
+
+    def f1_score_negative(self):
+        return f1_score(self.yts, self.ypr, average="binary",pos_label=0)
 
     def specificity(self):
         """
@@ -148,6 +157,9 @@ class EvaluationMetrics:
 
     def mcc_value(self):
         return matthews_corrcoef(self.yts, self.ypr)
+    
+    def ap_value(self):
+        return average_precision_score(self.yts, self.ypr)
 
     def m_squared_error(self):
         """
@@ -220,12 +232,16 @@ class EvaluationMetrics:
             self.data['Analysis'] = {
                 'Confusion matrix': self.confusion_matrix().tolist(),
                 'Accuracy': round(self.classification_accuracy() * 100, self.DECIMALS_ROUND),
-                'Precision': round(self.precision() * 100, self.DECIMALS_ROUND),
-                'F1': round(self.f1_score() * 100, self.DECIMALS_ROUND),
-                'Recall': round(self.recall() * 100, self.DECIMALS_ROUND),
+                'Precision-Positive': round(self.precision_positive() * 100, self.DECIMALS_ROUND),
+                'Precision-Negative': round(self.precision_negative() * 100, self.DECIMALS_ROUND),
+                'F1-Positive': round(self.f1_score_positive() * 100, self.DECIMALS_ROUND),
+                'F1-Negative': round(self.f1_score_negative() * 100, self.DECIMALS_ROUND),
+                'Recall-Positive': round(self.recall_positive() * 100, self.DECIMALS_ROUND),
+                'Recall-Negative': round(self.recall_negative() * 100, self.DECIMALS_ROUND),
                 'Specificity': round(self.specificity() * 100, self.DECIMALS_ROUND),
                 'Auc': round(self.auc_value(), self.DECIMALS_ROUND),
-                'MCC': round(self.mcc_value(), self.DECIMALS_ROUND)
+                'MCC': round(self.mcc_value(), self.DECIMALS_ROUND),
+                'Average precision-score': round(self.ap_value(), self.DECIMALS_ROUND)
             }
             self.g_roc_curve()
         else:
