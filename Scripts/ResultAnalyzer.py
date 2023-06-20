@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """ResultAnalyzer.py:
     Translates the output files into an Excel with all the metrics.
-
 """
 __author__ = "Antonio Jesús Banegas-Luna"
 __version__ = "1.0"
@@ -21,8 +20,8 @@ from os.path import basename, join, isdir
 from pathlib import Path
  
 class ResultAnalyzer():
-	CLASSIFICATION_COLS = ['Accuracy', 'Precision', 'Recall', 'F1', 'Specificity', 'AUC']
-	REGRESSION_COLS = ['Pearson', 'Determination', 'MAE', 'MSE']
+	CLASSIFICATION_COLS = ['Accuracy', 'Precision', 'Recall', 'F1', 'Specificity', 'AUC', 'MCC']
+	REGRESSION_COLS = ['Pearson', 'Determination', 'MAE', 'MSE', 'RMSE']
 
 	def __init__(self, input_dir, output_file):
 		self.input_dir = input_dir
@@ -60,6 +59,7 @@ class ResultAnalyzer():
 			df = self.__calculate_metrics(grouped_values, self.CLASSIFICATION_COLS)
 			df = df.sort_values('AUC mean', ascending=False)
 
+		df = self.__summarize_metrics(df)
 		self.__print('Exporting to Excel')
 		self.__export_excel(df)
 
@@ -86,7 +86,8 @@ class ResultAnalyzer():
 			r2 = analysis['Coefficient of Determination']
 			mae = analysis['Mean Absolute Error']
 			mse = analysis['Mean Squared Error']
-			return pearson, r2, mae, mse
+			rmse = analysis['Root Mean Squared Error']
+			return pearson, r2, mae, mse, rmse
 		else:
 			accuracy = analysis['Accuracy']
 			precision = analysis['Precision']
@@ -94,7 +95,8 @@ class ResultAnalyzer():
 			recall = analysis['Recall']
 			specificity = analysis['Specificity']
 			auc = analysis['Auc']
-			return accuracy, precision, f1, recall, specificity, auc
+			mcc = analysis['MCC']
+			return accuracy, precision, f1, recall, specificity, auc, mcc
 
 	def __get_key(self, filename):
 		return basename(filename).split('_')[0]
@@ -109,21 +111,45 @@ class ResultAnalyzer():
 				d[key].append(metrics)
 		return d
 
+	def __summarize_metrics(self, df):
+		meancols = np.insert(df.mean(numeric_only=True).to_numpy(), 0, 0.0)
+		meanrow = dict(zip(df.columns, meancols))
+
+		stdcols = np.insert(df.std(numeric_only=True).to_numpy(), 0, 0.0)
+		stdrow = dict(zip(df.columns, stdcols))
+
+		df = df.append(meanrow, ignore_index=True)
+		df = df.append(stdrow, ignore_index=True)
+
+		df.at[len(df)-2, 'Model'] = 'Mean'
+		df.at[len(df)-1, 'Model'] = 'Std'
+		return df
+
 	def __calculate_metrics(self, data, col_names):
-		columns = ['Model']
+		columns = ['Model'] # add a column with the model name
+		# set column names
 		for c in col_names:
-			columns += [c+' mean'] + [c+' std']
+			columns += [c+' mean']
 
 		L = [(k, *t) for k, v in data.items() for t in v]
 		df = pd.DataFrame(L, columns=['Model']+col_names)
-		df = df.groupby(['Model']).agg({k:['mean','std'] for k in col_names}).fillna(0).reset_index()
+		df = df.groupby(['Model']).agg({k:['mean'] for k in col_names}).fillna(0).reset_index()
 		df.columns = columns
 
 		return df
 
 	def __export_excel(self, df):
-		df.to_excel(self.output_file, sheet_name='Summary', float_format="%.3f", 
+		writer = pd.ExcelWriter(self.output_file)
+
+		df.to_excel(writer, sheet_name='Summary', float_format="%.3f", 
 			freeze_panes=(1,1), columns=df.columns, index=False)
+
+		for column in df:
+			col_width = max(df[column].astype(str).map(len).max(), len(column))
+			col_idx = df.columns.get_loc(column)
+			writer.sheets['Summary'].set_column(col_idx, col_idx, col_width)
+
+		writer.save()
 
 def main(args):
 	a = ResultAnalyzer(args.dir, output_file=args.output)

@@ -32,8 +32,8 @@ class ShapleyExplainer(ExplainerModel):
             return np.array(pred).astype(int)
 
         # global explanation
-        K = len(np.unique(self.ytr, axis=0))
-        x_summary = shap.kmeans(self.xtr, K)
+        #K = len(np.unique(self.ytr, axis=0))
+        #x_summary = shap.kmeans(self.xtr, K)
         model_fn = shapley_predict if is_tf_model(self.model) else self.model.predict
         model_fn = ripper_predict if is_ripper_model(self.model) else model_fn
 
