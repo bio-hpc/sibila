@@ -164,6 +164,9 @@ class EvaluationMetrics:
         """
         return mean_absolute_error(self.yts, self.ypr)
 
+    def rmse(self):
+        return np.sqrt(self.m_squared_error())
+
     def pearson_correlation_coefficient(self):
         """
         https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.pearsonr.html

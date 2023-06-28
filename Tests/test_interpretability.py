@@ -5,7 +5,7 @@ from glob import glob
 import shutil
 from Tests.errors import *
 from Tests.BaseTest import *
-from Tools.PostProcessing.Serialize import Serialize
+from Tools.Serialize import Serialize
 from Common.Analysis.Interpretability import Interpretability
 from Common.Analysis.EvaluationMetrics import TypeML
 from Models.BaseModel import BaseModel

@@ -25,7 +25,7 @@ from Tools.Bash.Queue_manager.jobs import get_nitems_per_block
 class Interpretability:
     # FeatureImportance only works with DT, RF, SVM and KNN
     TEST_METHODS = []
-    PARALLEL_METHODS = ['PermutationImportance', 'RFPermutationImportance', 'Lime', 'Shapley', 'IntegratedGradients', 'Dice', 'PDP', 'ALE', 'Anchor']
+    PARALLEL_METHODS = ['PermutationImportance', 'RFPermutationImportance', 'Lime', 'Shapley', 'IntegratedGradients', 'Dice', 'Anchor', 'PDP', 'ALE']
     COMMON_METHODS = []
     METHODS = {
         "DT": [],
@@ -88,6 +88,8 @@ class Interpretability:
         df = obj.explain()
 
         if df is not None:
+            if ATTR in df.columns:
+                df = self.sort(df)
             params['io_data'].save_dataframe_cols(df, df.columns, params['cfg'].get_prefix()+'_'+method+'.csv')
             df = self.shorten_features(df, method, len(new_params['id_list']))
             obj.plot(df, method=method)
@@ -116,6 +118,10 @@ class Interpretability:
                 df = pd.concat([df[:MAX_IMPORTANCES], df_others], ignore_index=True)
 
         return df
+
+    def sort(self, df):
+        return df.reindex(df[ATTR].abs().sort_values(ascending=False).index)
+
 
 if __name__ == "__main__":
     serialize_file = sys.argv[1]

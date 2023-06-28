@@ -14,7 +14,7 @@ __status__ = "Production"
 import math
 import os
 import subprocess
-from Tools.PostProcessing.Serialize import Serialize
+from Tools.Serialize import Serialize
 from Tools.IOData import serialize_class
 from .jobs import interpretability_cmd, build_blocks, env
 

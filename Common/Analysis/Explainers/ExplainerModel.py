@@ -64,3 +64,6 @@ class ExplainerModel(abc.ABC):
             return np.amax(self.model.predict_proba(np.array([x])))
         return np.amax(self.model.predict(np.array([x])))
 
+
+    def sort(self, df):
+        return df.reindex(df[ATTR].abs().sort_values(ascending=False).index)
