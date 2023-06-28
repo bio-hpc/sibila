@@ -13,7 +13,7 @@ class ConsensusCustom(ConsensusBase):
 
     def __init__(self, folder, dir_out):
         super(ConsensusCustom, self).__init__(folder, dir_out)
-        self.title = 'Custom function'
+        self.title = 'Consensus'
 
     def consensus(self):
         print("Computing custom function")
