@@ -6,7 +6,7 @@
         "draw_model": true,
         "random_state": 500,
         "cv_splits": 10,
-        "batch_size": 1024,
+        "batch_size": 32,
         "train_grid": "train_random"
     },
     "params_grid": {
@@ -25,8 +25,8 @@
         "sampling_lr": "log",
         "metrics": ["accuracy"],
         "loss_function": "sparse_categorical_crossentropy",
-        "epochs": 500,
+        "epochs": 200,
         "executions_per_trial": 5,
-        "early_stopping_patience": 3
+        "early_stopping_patience": 150
     }
 }
