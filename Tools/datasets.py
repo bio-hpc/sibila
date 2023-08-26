@@ -81,7 +81,7 @@ def get_dataset(data_set, io_data=None, predicting=False):
     return np.array(x), np.array(y), feature_list, idx_samples
 
 
-def split_samples(x, y, train_size, io_data, random_state, idx_samples):
+def split_samples(x, y, train_size, io_data, random_state, idx_samples, is_regression=False):
     """
         Split the samples by the percentage indicated in samble_test
     :param x:
@@ -105,20 +105,28 @@ def split_samples(x, y, train_size, io_data, random_state, idx_samples):
 
     io_data.print_m('Number of samples: {}'.format(x.shape[0]))
     io_data.print_m('Number of features: {}'.format(x.shape[1]-1))
-    io_data.print_m('Target classes: {}'.format(','.join(np.unique(y).astype(str))))
+    if not is_regression:
+        io_data.print_m('Target classes: {}'.format(','.join(np.unique(y).astype(str))))
 
     io_data.print_m('Training:')
     unique, counts = np.unique(ytr, return_counts=True)
-    io_data.print_m('\tTotal number of samples: {}'.format(xtr.shape[0]))
-    for i, c in enumerate(unique):
-        pct = round((counts[i]/xtr.shape[0])*100., 2)
-        io_data.print_m('\tNumber of samples of class {}: {} ({}%)'.format(c, counts[i], pct))
+    if not is_regression:
+        io_data.print_m('\tTotal number of samples: {}'.format(xtr.shape[0]))
+        for i, c in enumerate(unique):
+            pct = round((counts[i]/xtr.shape[0])*100., 2)
+            io_data.print_m('\tNumber of samples of class {}: {} ({}%)'.format(c, counts[i], pct))
+    else:
+        io_data.print_m('\tTotal number of values: {}'.format(len(unique)))
 
     io_data.print_m('Test:')
     unique, counts = np.unique(yts, return_counts=True)
-    io_data.print_m('\tTotal number of samples: {}'.format(xts.shape[0]))
-    for i, c in enumerate(unique):
-        pct = round((counts[i]/xts.shape[0])*100., 2)
-        io_data.print_m('\tNumber of samples of class {}: {} ({}%)'.format(c, counts[i], pct))
+    if not is_regression:
+        io_data.print_m('\tTotal number of samples: {}'.format(xts.shape[0]))
+        for i, c in enumerate(unique):
+            pct = round((counts[i]/xts.shape[0])*100., 2)
+            io_data.print_m('\tNumber of samples of class {}: {} ({}%)'.format(c, counts[i], pct))
+    else:
+        io_data.print_m('\tTotal number of values: {}'.format(len(unique)))
 
     return xtr, xts, ytr, yts, idx_xtr, idx_xts
+

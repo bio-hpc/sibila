@@ -89,11 +89,12 @@ def main():
 
 def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset, type_model, args):
     cfg = get_cfg(folder_experiment, file_dataset, type_model, args)
+    is_regression = is_regression_by_config(cfg)
 
     model = globals()[type_model](io_data, cfg, id_list)
     print("\n")
     cfg.set_prefix(model.get_prefix())
-    xtr, xts, ytr, yts, idx_xtr, idx_xts = split_samples(x, y, (args.trainsize / 100), io_data, args.seed, idx_samples)
+    xtr, xts, ytr, yts, idx_xtr, idx_xts = split_samples(x, y, (args.trainsize / 100), io_data, args.seed, idx_samples, is_regression=is_regression)
 
     t = Timer('Training')
     model.train(xtr, ytr)
