@@ -18,7 +18,10 @@ class ConsensusCustom(ConsensusBase):
     def consensus(self):
         print("Computing custom function")
 
-        alfa = (4*pow(self.model_acc, 2))-(4*self.model_acc)+1
+        if not self.is_regression:
+            alfa = (4*pow(self.model_acc, 2))-(4*self.model_acc)+1 # model_acc = AUC
+        else:
+            alfa = self.model_acc # model_acc = R2
 
         # global methods
         dfg = self.__scale(self.df_g)
@@ -38,10 +41,6 @@ class ConsensusCustom(ConsensusBase):
         df_mean = df.groupby([self.FEATURE])[self.ATTR].sum().to_frame().reset_index()
         df_mean = df_mean.reindex(df_mean[self.ATTR].abs().sort_values(ascending=False).index)
 
-        # output
-        #features = df_mean[self.FEATURE].to_numpy()
-        #attrs = df_mean[self.ATTR].to_numpy()
-        #return features, attrs
         return df_mean
 
     def __scale(self, df):

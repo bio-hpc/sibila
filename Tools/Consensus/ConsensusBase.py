@@ -31,6 +31,7 @@ class ConsensusBase(abc.ABC):
         self.df_l = None
         self.title = None
         self.model_acc = None
+        self.is_regression = False
 
     def run(self):
         # identify models in the folder
@@ -43,8 +44,10 @@ class ConsensusBase(abc.ABC):
             if metrics is not None:
                 if self.CLASS_METRIC in metrics.keys():
                     self.model_acc = metrics[self.CLASS_METRIC]
+                    self.is_regression = False
                 elif self.REG_METRIC in metrics.keys():
                     self.model_acc = metrics[self.REG_METRIC]
+                    self.is_regression = True
 
             # the model wasn't evaluated and, consequently, is not valid
             if self.model_acc is None:
