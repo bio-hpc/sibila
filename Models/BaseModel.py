@@ -24,6 +24,30 @@ class BaseModel(abc.ABC):
         self.id_list = id_list
         self.targets = []
 
+    def __has_class_weights(self):
+        declined_models = ['KNeighbors', 'Bagging']
+        is_declined_model = False
+
+        for s in declined_models:
+            if s in str(self.model):
+                is_declined_model = True
+
+        if not self.cfg.get_args()['regression'] and not is_declined_model:
+            return True
+        return False
+
+    def __has_seed(self):
+        declined_models = ['SVR', 'KNeighbors', 'LinearRegression']
+        is_declined_model = False
+
+        for s in declined_models:
+            if s in str(self.model):
+                is_declined_model = True
+
+        if not is_declined_model:
+            return True
+        return False
+
     def model_fit(self, xtr, ytr):
         self.io_data.print_m('\n\tStart Train {}'.format(self.cfg.get_params()['model']))
 
@@ -64,10 +88,10 @@ class BaseModel(abc.ABC):
             )
         else:
             params_model = self.model.get_params()
-            if 'SVR' not in str(self.model) and 'KNeighbors' not in str(self.model) and 'LinearRegression' not in str(self.model):  
+            if self.__has_seed():
                 # svr and knn are the only models that do not support random_state
                 params_model['random_state'] = self.cfg.get_args()['seed']
-            if not self.cfg.get_args()['regression'] and 'KNeighbors' not in str(self.model):
+            if self.__has_class_weights():
                 params_model['class_weight'] = class_weights
             self.model.set_params(**params_model)
 
