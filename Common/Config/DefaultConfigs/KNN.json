@@ -2,6 +2,7 @@
   "model": "KNN",
   "train_grid":"train_random",
   "type_ml":"classification",
+  "classification_type": "binary",
   "params": {
       "n_neighbors": 5,
       "algorithm" : "auto",

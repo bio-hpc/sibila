@@ -1,6 +1,7 @@
 {
     "model": "DT",
     "type_ml":"classification",
+    "classification_type": "binary",
     "train_grid":"train_random",
     "n_jobs":8,
     "params": {

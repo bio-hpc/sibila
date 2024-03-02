@@ -8,34 +8,36 @@ from Tools.Estimators.XGBOOSTRegressor import XGBOOSTRegressor
 def is_regression(model):
     return "Regressor" in str(model) or 'SVR' in str(model)
 
-
 def is_regression_by_config(cfg):
     return cfg.get_params()['type_ml'].lower() == TypeML.REGRESSION.value
-
 
 def is_regression_by_args(args):
     return args.regression
 
-
 def is_penalty_weighted(args):
     return args['balanced'] != None and 'PEN' in args['balanced']
-
 
 def is_tf_model(model):
     return 'tensorflow' in str(model)
 
-
 def is_ripper_model(model):
     return 'RIPPER' in str(model)
-
 
 def is_xgboost_model(model):
     return 'XGB' in str(model)
 
-
 def is_rulefit_model(model):
     return 'RuleFit' in str(model)
 
+def is_multiclass(cfg):
+    if not is_regression_by_config(cfg) and cfg.get_params()['classification_type'] == 'multiclass':
+        return True
+    return False
+
+def is_binary(cfg):
+    if not is_regression_by_config(cfg) and cfg.get_params()['classification_type'] == 'binary':
+        return True
+    return False
 
 def make_model(cfg, id_list, input_shape=None):
     return tf.keras.Sequential([
@@ -55,3 +57,4 @@ def get_explainer_model(model, estimator, yts, cfg):
     elif 'XGBRegressor' in str(model):
         return XGBOOSTRegressor(model)
     return model
+

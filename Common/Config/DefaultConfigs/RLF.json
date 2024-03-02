@@ -1,6 +1,7 @@
 {
     "model": "RLF",
     "type_ml":"classification",
+    "classification_type": "binary",
     "train_grid":"NONE",
     "n_jobs":8,
     "params": {

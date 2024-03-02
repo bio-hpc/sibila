@@ -9,7 +9,7 @@ from sklearn.tree import export_graphviz
 import seaborn as sns
 import pandas as pd
 from Tools.IOData import IOData
-from Tools.ToolsModels import is_tf_model, is_rulefit_model
+from Tools.ToolsModels import is_tf_model, is_rulefit_model, is_binary
 from Common.Config.ConfigHolder import ATTR, FEATURE, MAX_SIZE_FEATURES, MAX_IMPORTANCES, CORR_CUTOFF, STD
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
@@ -30,7 +30,6 @@ class Graphics:
                                       dpi=300)
 
     """ Plots the correlation between true and predicted values """
-
     def plot_correlation(self, y, yhat, file_out, xlabel='Predictions', ylabel='True values'):
         fig = plt.figure(clear=True)
         ax = plt.gca()
@@ -43,8 +42,8 @@ class Graphics:
         plt.close(fig)
 
     """
-	Plots the evolution of loss and accuracy while training. 
-	"""
+    Plots the evolution of loss and accuracy while training. 
+    """
     def plot_metrics_evolution(self, epochs, metrics, file_out):
         steps = [i + 1 for i in range(epochs)]
 
@@ -61,9 +60,7 @@ class Graphics:
     def _generate_graph_roc(self, x, y, auc_value, file_out, title):
         plt.clf()
         plt.cla()
-        #plt.figure(1)
         plt.plot([0, 1], [0, 1], 'k--')
-        #plt.plot(fpr, tpr, label='(area = {:.3f}) {}'.format(auc_value, round(aux,3)))
         plt.plot(x, y, label='(AUC = {:.3f})'.format(auc_value))
         plt.xlabel('False positive rate')
         plt.ylabel('True positive rate')
@@ -72,7 +69,7 @@ class Graphics:
         self.save_fig(file_out)
         plt.close()
 
-    def plot_roc_curve(self, model, xts, yts, ypr, file_out):
+    def plot_roc_curve(self, model, xts, yts, ypr, file_out, cfg):
         """
             https://github.com/dataprofessor/code/blob/master/python/ROC_curve.ipynb
         """
@@ -80,11 +77,8 @@ class Graphics:
 
         if is_tf_model(model) and file_out.find("RNN") >= 0:
             xts = tf.expand_dims(xts, -1)
-
-        # if isinstance(self.model, sklearn):Not work
         elif not is_tf_model(model):
             # predict_proba() in sklearn produces returns two columns (N,K ) N number of datapoits, k number of classes
-
             yppr = model.predict_proba(xts)
             yppr = yppr[:, 1]
 
@@ -95,16 +89,17 @@ class Graphics:
             if is_tf_model(model):
                 yppr = model(xts).numpy()[:, clazz]
 
-            fpr, tpr, thr = roc_curve(yts, yppr, pos_label=clazz)
+            fpr, tpr, thr = roc_curve(yts.ravel(), yppr.ravel(), pos_label=clazz)
             auc_value = auc(fpr, tpr)
             proba_out = splitext(file_out)[0] + "_proba_{}.png".format(clazz)
             self._generate_graph_roc(fpr, tpr, auc_value, proba_out, 'ROC curve prob class {}'.format(str(clazz)))
 
-            ypr_class = tf.round(yppr).numpy().astype(int)
-            fpr, tpr, thr = roc_curve(yts, ypr_class, pos_label=clazz)
-            auc_value = roc_auc_score(yts, ypr_class)
-            roc_out = splitext(file_out)[0] + "_{}.png".format(clazz)
-            self._generate_graph_roc(fpr, tpr, auc_value, roc_out, 'ROC curve class {}'.format(str(clazz)))
+            if is_binary(cfg):
+                ypr_class = tf.round(yppr).numpy().astype(int)
+                fpr, tpr, thr = roc_curve(yts, ypr_class, pos_label=clazz)
+                auc_value = roc_auc_score(yts, ypr_class)
+                roc_out = splitext(file_out)[0] + "_{}.png".format(clazz)
+                self._generate_graph_roc(fpr, tpr, auc_value, roc_out, 'ROC curve class {}'.format(str(clazz)))
 
     def plot_class(self, yppr, yts, file_out):
         plt.clf()

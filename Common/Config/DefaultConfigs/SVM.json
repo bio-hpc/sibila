@@ -2,6 +2,7 @@
     "model": "SVM",
     "train_grid":"train_random",
     "type_ml":"classification",
+    "classification_type": "binary",
     "n_jobs": 8,
     "params":
     {

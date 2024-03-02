@@ -2,27 +2,29 @@
   "model": "RF",
   "train_grid":"train_random",
   "type_ml":"classification",
+  "classification_type": "binary", 
   "params": {
-      "n_estimators": 100,
-      "criterion" :  "gini",
-      "max_depth": null,
-      "min_samples_split": 2,
-      "bootstrap": "False",
-      "max_features": "sqrt",
-      "verbose": 0,
-      "n_jobs": 8
+      	"n_estimators": 100,
+      	"criterion": "gini",
+      	"max_depth": null,
+      	"min_samples_split": 2,
+      	"bootstrap": false,
+      	"max_features": "sqrt",
+      	"verbose": 0,
+      	"n_jobs": 8
   },
   "params_grid":
-  {   "n_jobs": [8],
-      "n_estimators": [50, 100, 400, 800],
-      "criterion" :  ["gini", "entropy"],
-      "max_depth": [25, 50, 250],
-      "min_samples_split": [2, 5, 10],
-      "min_samples_leaf": [2, 5, 10],
-      "min_weight_fraction_leaf": [0],
-      "max_features":["auto", "sqrt", "log2"],
-      "oob_score": [true, false],
-      "bootstrap":["True", "False"]
+  {   
+	"n_jobs": [8],
+      	"n_estimators": [50, 100, 400, 800],
+      	"criterion": ["gini", "entropy"],
+      	"max_depth": [25, 50, 250],
+      	"min_samples_split": [2, 5, 10],
+      	"min_samples_leaf": [2, 5, 10],
+      	"min_weight_fraction_leaf": [0],
+      	"max_features":["auto", "sqrt", "log2"],
+      	"oob_score": [true, false],
+      	"bootstrap":[true, false]
 
   }
 }

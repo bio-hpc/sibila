@@ -1,6 +1,7 @@
 {
     "model": "LR",
     "type_ml":"classification",
+    "classification_type": "binary",
     "train_grid":"train_random",
     "params": {
 	"n_jobs": 8,
