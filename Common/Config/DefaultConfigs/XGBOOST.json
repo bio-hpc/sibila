@@ -1,22 +1,20 @@
 {
     "model": "XGBOOST",
-    "train_grid":"train_random",
-    "type_ml":"classification",
+    "train_grid": "train_random",
+    "type_ml": "classification",
     "classification_type": "binary",
     "params": {
-        "n_estimators": 600,
         "objective": "binary:logistic",
-        "silent":true,
-        "n_jobs": 8
-      },
-    
+	"random_state": 2020
+    },
     "params_grid": {
+      "n_estimators": [50, 100, 300, 600],
       "n_jobs": [8],
       "booster": ["gbtree", "gblinear", "dart"],
       "verbosity": [3],
-      "eta" : [0.1,0.3,0.5],
+      "eta" : [0.1, 0.3, 0.5],
       "gamma":[0,  0.5],
-      "max_depth": [4,6,8],
+      "max_depth": [4, 6, 8],
       "min_child_weight": [1,2],
       "max_delta_step": [0, 5, 10],
       "subsample": [0.1, 0.5, 1],
@@ -25,7 +23,7 @@
       "tree_method": ["auto", "exact", "approx", "hist"],
       "grow_policy": ["depthwise", "lossguide"],
       "max_leaves": [0, 5, 15, 25],
-      "max_bin": [128,256],
+      "max_bin": [128, 256],
       "sketch_eps": [0.01, 0.03, 0.05],
       "refresh_leaf": [0, 1 ],
       "scale_pos_weight": [1, 10, 25, 50, 75, 99, 100, 1000]

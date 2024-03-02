@@ -11,7 +11,6 @@ PREFIX_OUT_DT = '{}_{}_{}'  # Model, Dataset, numero de arboles, numero de profu
 class DT(BaseModel):
     def __init__(self, io_data, cfg, id_list):
         super(DT, self).__init__(io_data, cfg, id_list)
-        #self.model = DecisionTreeClassifier(**self.cfg.get_params()['params'])
 
         if self.cfg.get_params()['type_ml'].lower() == TypeML.CLASSIFICATION.value:
             self.model = DecisionTreeClassifier(**self.cfg.get_params()['params'])
@@ -32,8 +31,11 @@ class DT(BaseModel):
     def get_prefix(self):
         return join(
             self.cfg.get_folder(),
-            PREFIX_OUT_DT.format(self.cfg.get_params()['model'], self.cfg.get_name_dataset(),
-                                 str(self.cfg.get_params()['params']['max_leaf_nodes'])))
+            PREFIX_OUT_DT.format(self.cfg.get_params()['model'], 
+                                 self.cfg.get_name_dataset(),
+                                 str(self.cfg.get_params()['n_jobs'])
+                                )
+        )
 
     def train(self, xtr, ytr):
         self.model_fit(xtr, ytr)

@@ -30,8 +30,11 @@ class SVM(BaseModel):
     def get_prefix(self):
         return join(
             self.cfg.get_folder(),
-            PREFIX_OUT_SVM.format(self.cfg.get_params()['model'], self.cfg.get_name_dataset(),
-                                  self.cfg.get_params()['params']['kernel']))
+            PREFIX_OUT_SVM.format(self.cfg.get_params()['model'], 
+                                  self.cfg.get_name_dataset(),
+                                  self.cfg.get_params()['n_jobs']
+                                 )
+        )
 
     def train(self, xtr, ytr):
         #self.model.fit(xtr, ytr)

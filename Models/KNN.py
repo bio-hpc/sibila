@@ -25,8 +25,10 @@ class KNN(BaseModel):
         return join(
             self.cfg.get_folder(),
             PREFIX_OUT_KNN.format(self.cfg.get_params()['model'], self.cfg.get_name_dataset(),
-                                  self.cfg.get_params()['params']['n_neighbors'],
-                                  str(self.cfg.get_params()['params']['algorithm'])))
+                                  self.cfg.get_params()['params']['n_jobs'],
+                                  str(self.cfg.get_params()['params']['weights'])
+                                 )
+        )
 
     def train(self, xtr, ytr):
         self.model_fit(xtr, ytr)

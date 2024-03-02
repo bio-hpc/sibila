@@ -1,21 +1,20 @@
 {
     "model": "RLF",
-    "type_ml":"classification",
+    "type_ml": "classification",
     "classification_type": "binary",
-    "train_grid":"NONE",
-    "n_jobs":8,
+    "train_grid": "train_random",
     "params": {
-        "tree_size": 4,
-        "sample_fract": "default",
-        "max_rules":2000,
-        "memory_par":0.01,
-        "rfmode":"classify",
-        "lin_trim_quantile":0.025,
-        "lin_standardise":true,
-        "exp_rand_tree_size":true
+        "n_jobs": -1
     },
-    "params_grid":
-    {
-
+    "params_grid": {
+        "tree_size": [4, 16, 32],
+        "sample_fract": "default",
+        "max_rules": [50, 100, 500, 1000],
+        "memory_par": [0.01, 0.05, 0.1],
+        "rfmode": "classify",
+        "lin_trim_quantile": [0.025, 0.05, 0.1],
+        "lin_standardise": [true, false],
+        "exp_rand_tree_size": [true, false],
+	"cv": [3, 5]
     }
 }

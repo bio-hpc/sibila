@@ -2,12 +2,12 @@
     "model": "RP",
     "type_ml": "classification",
     "classification_type": "binary",
-    "train_grid": "train_grid",
+    "train_grid": "train_random",
     "n_jobs": 8,
     "params": {
     },
     "params_grid": {
-        "verbosity": [0],
+        "verbosity": [5],
         "n_discretize_bins": [10,20,50],
         "k": [1, 2],
         "prune_size": [0.25,0.33,0.50],

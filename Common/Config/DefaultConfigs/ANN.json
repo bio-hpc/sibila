@@ -1,7 +1,7 @@
 {
     "model": "ANN",
     "type_ml": "classification",
-    "classification_type": "binary",
+    "classification_type": "multiclass",
     "n_job": 1,
     "params": {
         "draw_model": true,
