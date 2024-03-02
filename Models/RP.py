@@ -12,19 +12,16 @@ class RP(BaseModel):
     def __init__(self, io_data, cfg, id_list):
         super(RP, self).__init__(io_data, cfg, id_list)
         if self.cfg.get_params()['type_ml'].lower() == TypeML.CLASSIFICATION.value:
-            #self.model = lw.RIPPER()
             self.model = lw.RIPPER(**self.cfg.get_params()['params'])
         else:
             print("Error: This model is only valid for classification")
             exit()
 
     def get_prefix(self):
-
         return join(self.cfg.get_folder(),
                     PREFIX_OUT_DT.format(self.cfg.get_params()['model'], self.cfg.get_name_dataset()))
 
     def train(self, xtr, ytr):
-
         self.model_fit(xtr, ytr)
 
     def predict(self, xts):

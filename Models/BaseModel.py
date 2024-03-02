@@ -3,7 +3,7 @@ from Models.Utils.LearningHistoryCallback import LearningHistoryCallback
 from Models.Utils.CrossValidation import CrossValidation
 import abc
 from Tools.DatasetBalanced import DatasetBalanced
-from Tools.ToolsModels import is_tf_model, is_regression_by_config, is_xgboost_model
+from Tools.ToolsModels import is_tf_model, is_regression_by_config, is_xgboost_model, is_ripper_model
 import tensorflow as tf
 import os
 from joblib import dump
@@ -69,8 +69,10 @@ class BaseModel(abc.ABC):
                 params_model['random_state'] = self.cfg.get_args()['seed']
             if not self.cfg.get_args()['regression'] and 'KNeighbors' not in str(self.model):
                 params_model['class_weight'] = class_weights
-            self.model.set_params(**params_model)
+            if is_ripper_model(self.model):
+                params_model['feature_names'] = self.id_list
 
+            self.model.set_params(**params_model)
             self.model.fit(xtr, ytr)
 
         self.io_data.print_m('End Train {}'.format(self.cfg.get_params()['model']))
