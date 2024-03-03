@@ -46,7 +46,7 @@ class EvaluationMetrics:
 
     FORMAT_TEXT = '\t{:>35}:\t{:<10}'
 
-    def __init__(self, yts, ypr, xts=None, cfg=None, model=None, id_list=None, io_data=None):
+    def __init__(self, yts, ypr, xts=None, cfg=None, model=None, id_list=None, io_data=None, n_classes=2):
         """
         :param yts [numpy.ndarray]: test y
         :param ypr [numpy.ndarray]: prdict y
@@ -63,6 +63,7 @@ class EvaluationMetrics:
         self.id_list = id_list
         self.io_data = io_data
         self.K = len(self.yts)
+        self.n_classes = n_classes
         self.plot_graphics = Graphics()
 
     @staticmethod
@@ -95,7 +96,9 @@ class EvaluationMetrics:
         if self.cfg:
             skplt.metrics.plot_confusion_matrix(self.yts, self.ypr)
             self.plot_graphics.save_fig(self.cfg.get_name_file_matrix_confusion())
-        return multilabel_confusion_matrix(self.yts, self.ypr)
+        if is_multiclass(self.cfg):
+            return multilabel_confusion_matrix(self.yts, self.ypr)
+        return confusion_matrix(self.yts, self.ypr)
 
     def classification_accuracy(self):
         """
@@ -160,15 +163,10 @@ class EvaluationMetrics:
 
     def auc_value(self):
         if is_multiclass(self.cfg):
-            n_classes = len(self.id_list)
-            fpr = [0] * n_classes
-            tpr = [0] * n_classes
-            thresholds = [0] * n_classes
-            auc_score = [0] * n_classes
-
-            for i in range(n_classes):
-                fpr[i], tpr[i], thresholds[i] = roc_curve(self.yts, self.ypr, pos_label=i)
-                auc_score[i] = auc(fpr[i], tpr[i])
+            auc_score = [0] * self.n_classes
+            for i in range(self.n_classes):
+                fpr, tpr, thresholds = roc_curve(self.yts, self.ypr, pos_label=i)
+                auc_score[i] = auc(fpr, tpr)
 
             auc_score = np.nan_to_num(auc_score)
             return np.mean(auc_score)

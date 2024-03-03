@@ -6,8 +6,8 @@
     "params": {
         "draw_model": true,
         "random_state": 500,
-        "cv_splits": 10,
-        "batch_size": 32,
+        "cv_splits": 5,
+        "batch_size": 128,
         "train_grid": "train_random"
     },
     "params_grid": {
