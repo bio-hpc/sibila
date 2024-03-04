@@ -26,6 +26,7 @@ chmod u+x sibila.sif
 7. **RLF (RuLEFit)**
 8. **RP (RIPPERk)**
 9. **LR (Linear/Logistic Regression)**
+10.**BAG (Bagging)**
 
 ### Available Interpretability Methods
 1. **Permutation Feature Importance**
@@ -47,6 +48,11 @@ For instance:
 singularity exec Tools/Singularity/sibila.sif python3 Scripts/ResultAnalyzer.py -d folder_containing_results -o myfile.xlsx
 
 ### CHANGELOG
+**v1.2.1** (04/03/2024)
+- Added bagging (BAG) model.
+- Support for multiclass classification.
+- Support for grid and random search with RuleFit model.
+
 **v1.2.0** (04/02/2023)
 - Added new parameter: --skip-dataset-analysis.
 - Use of environment variables in Python code.
