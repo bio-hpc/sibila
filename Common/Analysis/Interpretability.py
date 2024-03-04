@@ -36,7 +36,8 @@ class Interpretability:
         "KNN": [],
         "RP": [],
         "RLF": [],
-        "LR": []
+        "LR": [],
+        "BAG": []
     }
 
     def __init__(self, serialize_params, block_nr=None):
