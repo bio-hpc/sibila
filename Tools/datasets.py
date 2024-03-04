@@ -59,6 +59,7 @@ def get_dataset(data_set, io_data=None, predicting=False):
             features = features[1:-1]
             features = pd.DataFrame(features)
             feature_list = features.iloc[:, 0].tolist()  # feature list
+            target_classes = len(np.unique(y))
             """
             elif splitext(data_set)[1] == ".pkl":
                 #exit()
@@ -78,7 +79,7 @@ def get_dataset(data_set, io_data=None, predicting=False):
     else:
         io_data.print_e("Dataset not found")
 
-    return np.array(x), np.array(y), feature_list, idx_samples
+    return np.array(x), np.array(y), feature_list, idx_samples, target_classes
 
 
 def split_samples(x, y, train_size, io_data, random_state, idx_samples, is_regression=False):

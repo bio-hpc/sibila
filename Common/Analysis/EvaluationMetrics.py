@@ -35,9 +35,9 @@ import tensorflow as tf
 
 from sklearn.metrics import f1_score, precision_score, recall_score, mean_absolute_error, \
     mean_squared_error, confusion_matrix, accuracy_score, roc_curve, roc_auc_score, \
-    r2_score, matthews_corrcoef
+    r2_score, matthews_corrcoef, multilabel_confusion_matrix, auc
 from Tools.Graphics import Graphics
-from Tools.ToolsModels import is_regression_by_config
+from Tools.ToolsModels import is_regression_by_config, is_multiclass
 from Tools.TypeML import TypeML
 from Tools.Timer import Timer
 
@@ -46,7 +46,7 @@ class EvaluationMetrics:
 
     FORMAT_TEXT = '\t{:>35}:\t{:<10}'
 
-    def __init__(self, yts, ypr, xts=None, cfg=None, model=None, id_list=None, io_data=None):
+    def __init__(self, yts, ypr, xts=None, cfg=None, model=None, id_list=None, io_data=None, n_classes=2):
         """
         :param yts [numpy.ndarray]: test y
         :param ypr [numpy.ndarray]: prdict y
@@ -63,6 +63,7 @@ class EvaluationMetrics:
         self.id_list = id_list
         self.io_data = io_data
         self.K = len(self.yts)
+        self.n_classes = n_classes
         self.plot_graphics = Graphics()
 
     @staticmethod
@@ -95,6 +96,8 @@ class EvaluationMetrics:
         if self.cfg:
             skplt.metrics.plot_confusion_matrix(self.yts, self.ypr)
             self.plot_graphics.save_fig(self.cfg.get_name_file_matrix_confusion())
+        if is_multiclass(self.cfg):
+            return multilabel_confusion_matrix(self.yts, self.ypr)
         return confusion_matrix(self.yts, self.ypr)
 
     def classification_accuracy(self):
@@ -110,41 +113,65 @@ class EvaluationMetrics:
         Precision= True_Positive/ (True_Positive+ False_Positive)
         :return: precision
         """
-        return precision_score(self.yts, self.ypr, average='binary')
+        avg_value = 'macro' if is_multiclass(self.cfg) else 'binary'
+        return precision_score(self.yts, self.ypr, average=avg_value)
 
     def recall(self):
         """
         Recall= True_Positive/ (True_Positive+ False_Negative)
         :return: recall
         """
-        return recall_score(self.yts, self.ypr)
+        avg_value = 'macro' if is_multiclass(self.cfg) else 'binary'
+        return recall_score(self.yts, self.ypr, average=avg_value)
 
     def f1_score(self):
         """
         F1-score= 2*Precision*Recall/(Precision+Recall)
         """
-        return f1_score(self.yts, self.ypr, average="binary")
+        avg_value = 'macro' if is_multiclass(self.cfg) else 'binary'
+        return f1_score(self.yts, self.ypr, average=avg_value)
 
     def specificity(self):
         """
         Specificity = tn / (tn + fp)
         """
-        tn, fp, fn, tp = confusion_matrix(self.yts, self.ypr).ravel()
-        return tn / (tn + fp)
+        if is_multiclass(self.cfg):
+            spec = 0.0
+            cm = multilabel_confusion_matrix(self.yts, np.rint(self.ypr)) # res = 3 matrices 2x2
+            N = cm.shape[0]
+            for i in range(N):
+                tp = cm[i][0][0]
+                fp = cm[i][0][1]
+                fn = cm[i][1][0]
+                tn = cm[i][1][1]
+                spec = spec + (tn / (tn + tp))
+            return spec / N
+        else:
+            tn, fp, fn, tp = confusion_matrix(self.yts, self.ypr).ravel()
+            return tn / (tn + fp)
 
     def g_roc_curve(self):
         """
            https://github.com/dataprofessor/code/blob/master/python/ROC_curve.ipynb
         """
         if self.model and self.cfg:
-            self.plot_graphics.plot_roc_curve(self.model, self.xts, self.yts, self.ypr, self.cfg.get_name_file_roc())
+            self.plot_graphics.plot_roc_curve(self.model, self.xts, self.yts, self.ypr, self.cfg.get_name_file_roc(), self.cfg)
 
     def save_fig(self, file):
         if self.cfg:
             plt.savefig(file, dpi=300)
 
     def auc_value(self):
-        return roc_auc_score(self.yts, self.ypr)
+        if is_multiclass(self.cfg):
+            auc_score = [0] * self.n_classes
+            for i in range(self.n_classes):
+                fpr, tpr, thresholds = roc_curve(self.yts, self.ypr, pos_label=i)
+                auc_score[i] = auc(fpr, tpr)
+
+            auc_score = np.nan_to_num(auc_score)
+            return np.mean(auc_score)
+        else:
+            return roc_auc_score(self.yts, self.ypr)
 
     def mcc_value(self):
         return matthews_corrcoef(self.yts, self.ypr)
@@ -180,9 +207,7 @@ class EvaluationMetrics:
         return r2_score(self.yts, self.ypr)
 
     def print_m(self, txt, value):
-
         t = self.FORMAT_TEXT.format(txt, str(value)) if value else "\t{}".format(txt)
-
         print(t)
         if self.cfg:
             f = open(self.cfg.get_name_file_resume(), 'a')  # guardar en fichero
@@ -246,3 +271,4 @@ class EvaluationMetrics:
         self.print_data()
         self.create_json()
         t.save('{}_analysis_time.txt'.format(self.cfg.get_prefix()), self.io_data)
+

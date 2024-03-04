@@ -2,7 +2,7 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.model_selection import GridSearchCV
 from .CrossValidation import CrossValidation
 from Models.Utils.CrossValidation import CrossValidation
-from Tools.ToolsModels import is_regression
+from Tools.ToolsModels import is_regression, is_rulefit_model
 
 
 class TrainGrid:
@@ -18,6 +18,8 @@ class TrainGrid:
     def get_scorer(self, model):
         if is_regression(model):
             return "r2"
+        elif is_rulefit_model(model):
+            return "accuracy"
         return None
 
     def print_search(self, src):

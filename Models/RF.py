@@ -30,9 +30,12 @@ class RF(BaseModel):
 
         return join(
             self.cfg.get_folder(),
-            PREFIX_OUT_RF.format(self.cfg.get_params()['model'], self.cfg.get_name_dataset(),
-                                 self.cfg.get_params()['params']['n_estimators'],
-                                 str(self.cfg.get_params()['params']['max_depth'])))
+            PREFIX_OUT_RF.format(self.cfg.get_params()['model'], 
+                                 self.cfg.get_name_dataset(),
+                                 self.cfg.get_params()['params']['n_jobs'],
+                                 self.cfg.get_params()['params']['verbose']
+                                )
+        )
 
     def train(self, xtr, ytr):
         self.model_fit(xtr, ytr)

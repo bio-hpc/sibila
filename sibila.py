@@ -60,7 +60,7 @@ def main():
         io_data.create_dirs_no_remove(args.folder) 
 
     t = Timer('Load data')
-    x, y, id_list, idx_samples = get_dataset(file_dataset, io_data, args.model)
+    x, y, id_list, idx_samples, n_classes = get_dataset(file_dataset, io_data, args.model)
     x = DataNormalization().choice_method_normalize(x, args)
 
     if not args.model and not args.skip_dataset_analysis:
@@ -79,7 +79,7 @@ def main():
         x, y, idx_samples = DatasetBalanced().choice_method_balanced(x, y, args, idx_samples)
 
         [
-            execute(x, y, id_list, idx_samples, io_data, args.folder, file_dataset, type_model, args)
+            execute(x, y, id_list, idx_samples, io_data, args.folder, file_dataset, type_model, args, n_classes)
             for type_model in options
         ]
 
@@ -87,7 +87,7 @@ def main():
         MergeResults(args.folder)
         EndProcess(args.folder)
 
-def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset, type_model, args):
+def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset, type_model, args, n_classes):
     cfg = get_cfg(folder_experiment, file_dataset, type_model, args)
     is_regression = is_regression_by_config(cfg)
 
@@ -102,7 +102,7 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
 
     ypr = model.predict(xts)
     BaseModel.save_model(cfg, model.get_model())
-    EvaluationMetrics(yts, ypr, xts, cfg, model.get_model(), id_list, io_data).all_metrics()
+    EvaluationMetrics(yts, ypr, xts, cfg, model.get_model(), id_list, io_data, n_classes).all_metrics()
 
     sp = Serialize(model.get_model(), xtr, ytr, xts, yts, id_list, cfg, io_data, idx_xts)
     pkl_file = save_params(sp)

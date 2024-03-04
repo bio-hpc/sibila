@@ -2,18 +2,13 @@
   "model": "KNN",
   "train_grid":"train_random",
   "type_ml":"classification",
+  "classification_type": "binary",
   "params": {
-      "n_neighbors": 5,
-      "algorithm" : "auto",
-      "leaf_size": 30,
-      "p": 2,
-      "metric": "minkowski",
       "n_jobs": 8,
       "weights": "distance"
   },
   "params_grid":
   {
-      "n_jobs": [8],
       "n_neighbors": [3, 4, 5, 6, 7],
       "algorithm" : ["auto", "ball_tree", "kd_tree", "brute"],
       "leaf_size": [10, 20, 30, 50],

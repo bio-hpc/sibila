@@ -1,12 +1,13 @@
 {
     "model": "ANN",
     "type_ml": "classification",
+    "classification_type": "multiclass",
     "n_job": 1,
     "params": {
         "draw_model": true,
         "random_state": 500,
-        "cv_splits": 10,
-        "batch_size": 32,
+        "cv_splits": 5,
+        "batch_size": 128,
         "train_grid": "train_random"
     },
     "params_grid": {
@@ -14,8 +15,8 @@
         "max_layers": 3,
         "min_units": 4,
         "max_units": 512,
-        "step_units": 1,
-        "output_units": 2,
+        "step_units": 4,
+        "output_units": 3,
         "activation": ["relu","elu","tanh","sigmoid","softmax","linear","exponential"],
         "dropout": true,
         "dropout_rate": 0.15,
@@ -25,8 +26,8 @@
         "sampling_lr": "log",
         "metrics": ["accuracy"],
         "loss_function": "sparse_categorical_crossentropy",
-        "epochs": 200,
+        "epochs": 10,
         "executions_per_trial": 5,
-        "early_stopping_patience": 150
+        "early_stopping_patience": 5
     }
 }

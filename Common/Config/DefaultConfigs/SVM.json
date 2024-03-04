@@ -1,18 +1,15 @@
 {
     "model": "SVM",
-    "train_grid":"train_random",
-    "type_ml":"classification",
+    "train_grid": "train_random",
+    "type_ml": "classification",
+    "classification_type": "binary",
     "n_jobs": 8,
-    "params":
-    {
-        "kernel": "linear",
-        "verbose": 1,
-        "probability": 1
+    "params": {
+        "verbose": 1
     },
     "params_grid": {
-
         "probability": [1],
-        "C": [ 0.5,1, 1.5],
+        "C": [0.5, 1, 1.5],
         "kernel": ["linear", "poly", "rbf", "sigmoid"],
         "degree": [1,2,3,4,5],
         "gamma": ["scale", "auto"],
@@ -20,7 +17,6 @@
         "shrinking": [true, false],
         "tol": [0.0001,0.0005, 0.001, 0.002],
         "cache_size": [100,200,300],
-        "verbose": [0],
         "max_iter": [-1, 100, 150, 200,500],
         "decision_function_shape": ["ovo", "ovr"]
     }

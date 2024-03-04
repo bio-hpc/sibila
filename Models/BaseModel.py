@@ -3,7 +3,7 @@ from Models.Utils.LearningHistoryCallback import LearningHistoryCallback
 from Models.Utils.CrossValidation import CrossValidation
 import abc
 from Tools.DatasetBalanced import DatasetBalanced
-from Tools.ToolsModels import is_tf_model, is_regression_by_config, is_xgboost_model
+from Tools.ToolsModels import is_tf_model, is_regression_by_config, is_xgboost_model, is_ripper_model, is_rulefit_model
 import tensorflow as tf
 import os
 from joblib import dump
@@ -65,11 +65,12 @@ class BaseModel(abc.ABC):
                 cvmethod = cv.choice_method(self.cfg.get_args()['crossvalidation'])
 
             train_grid = TrainGrid(cvmethod)
+
             func = getattr(train_grid, self.cfg.get_params()['train_grid'])
             try:
                 self.cfg.get_params()['params'] = func(self.model, self.cfg.get_params()['params_grid'], xtr, ytr)
                 self.model.set_params(**self.cfg.get_params()['params'])
-            except:
+            except Exception as e:
                 self.io_data.print_m("ERROR No hyperparameters search will be performed for {}".format(self.cfg.get_params()['model']))
                 pass
 
@@ -93,8 +94,10 @@ class BaseModel(abc.ABC):
                 params_model['random_state'] = self.cfg.get_args()['seed']
             if self.__has_class_weights():
                 params_model['class_weight'] = class_weights
-            self.model.set_params(**params_model)
+            if is_ripper_model(self.model):
+                params_model['feature_names'] = self.id_list
 
+            self.model.set_params(**params_model)
             self.model.fit(xtr, ytr)
 
         self.io_data.print_m('End Train {}'.format(self.cfg.get_params()['model']))

@@ -12,7 +12,7 @@ from dice_ml.utils import helpers
 from tqdm import tqdm
 from Tools.Graphics import Graphics
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
-from Tools.ToolsModels import is_tf_model, is_ripper_model, is_rulefit_model, is_regression_by_config
+from Tools.ToolsModels import is_tf_model, is_ripper_model, is_rulefit_model, is_regression_by_config, is_multiclass
 from Tools.Estimators.RipperEstimator import RipperEstimator
 from pathlib import Path
 from Common.Config.ConfigHolder import FEATURE, ATTR, STD, COLNAMES, PROBA
@@ -44,12 +44,14 @@ class DiceExplainer(ExplainerModel):
         exp = dice_ml.Dice(d, m, method=self.DICE_METHOD)
             
         self.df_local = [None] * len(self.xts)
+        desired_class = 0 if is_multiclass(self.cfg) else "opposite"
+
         try:
             query = pd.DataFrame(self.xts, columns=self.id_list)
             e1 = exp.generate_counterfactuals(
                     query,
                     total_CFs = 10,
-                    desired_class = "opposite",
+                    desired_class = desired_class,
                     features_to_vary = lst_features,
                     posthoc_sparsity_algorithm = "binary",
                     random_seed = self.cfg.get_args()['seed'],
@@ -61,7 +63,7 @@ class DiceExplainer(ExplainerModel):
                 imp = exp.local_feature_importance(
                                   self.xts[i], 
                                   cf_examples_list = lst,
-                                  desired_class = "opposite",
+                                  desired_class = desired_class,
                                   desired_range = desired_range
                       )
                 self.df_local[i] = pd.DataFrame(imp.local_importance).mean(axis=0).to_frame().reset_index()
