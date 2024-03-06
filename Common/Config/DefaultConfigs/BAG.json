@@ -2,6 +2,7 @@
   "model": "BAG",
   "train_grid":"train_random",
   "type_ml":"classification",
+  "classification_type": "binary",
   "params": {
       "n_estimators": 10,
       "bootstrap": false,

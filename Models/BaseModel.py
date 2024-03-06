@@ -25,7 +25,7 @@ class BaseModel(abc.ABC):
         self.targets = []
 
     def __has_class_weights(self):
-        declined_models = ['KNeighbors', 'Bagging']
+        declined_models = ['KNeighbors', 'Bagging', 'RuleFit']
         is_declined_model = False
 
         for s in declined_models:
