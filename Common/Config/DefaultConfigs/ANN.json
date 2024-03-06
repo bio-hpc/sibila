@@ -1,7 +1,7 @@
 {
     "model": "ANN",
     "type_ml": "classification",
-    "classification_type": "multiclass",
+    "classification_type": "binary",
     "n_job": 1,
     "params": {
         "draw_model": true,
@@ -16,7 +16,7 @@
         "min_units": 4,
         "max_units": 512,
         "step_units": 4,
-        "output_units": 3,
+        "output_units": 2,
         "activation": ["relu","elu","tanh","sigmoid","softmax","linear","exponential"],
         "dropout": true,
         "dropout_rate": 0.15,
@@ -26,7 +26,7 @@
         "sampling_lr": "log",
         "metrics": ["accuracy"],
         "loss_function": "sparse_categorical_crossentropy",
-        "epochs": 10,
+        "epochs": 80,
         "executions_per_trial": 5,
         "early_stopping_patience": 5
     }
