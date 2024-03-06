@@ -12,11 +12,7 @@ PREFIX_OUT_DT = '{}_{}'  # Model, Dataset
 class RLF(BaseModel):
     def __init__(self, io_data, cfg, id_list):
         super(RLF, self).__init__(io_data, cfg, id_list)
-        if self.cfg.get_params()['type_ml'].lower() == TypeML.CLASSIFICATION.value:
-            self.model = RuleFit(**self.cfg.get_params()['params'])
-        else:
-            print("Error: This model is only valid for classification")
-            exit()
+        self.model = RuleFit(**self.cfg.get_params()['params'])
 
     def get_prefix(self):
         return join(self.cfg.get_folder(),

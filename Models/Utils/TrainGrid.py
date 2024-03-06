@@ -2,7 +2,7 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.model_selection import GridSearchCV
 from .CrossValidation import CrossValidation
 from Models.Utils.CrossValidation import CrossValidation
-from Tools.ToolsModels import is_regression, is_rulefit_model
+from Tools.ToolsModels import is_regression_by_config, is_rulefit_model
 
 
 class TrainGrid:
@@ -12,15 +12,16 @@ class TrainGrid:
     N_SPLIT = 5  # Number of jobs to run in parallel. None means 1 unless in
 
 
-    def __init__(self, cv):
+    def __init__(self, cv, cfg=None):
         self.cv = cv
+        self.cfg = cfg
 
     def get_scorer(self, model):
-        if is_regression(model):
-            return "r2"
-        elif is_rulefit_model(model):
-            return "accuracy"
-        return None
+       if is_regression_by_config(self.cfg):
+           return "r2"
+       elif is_rulefit_model(model):
+           return "accuracy"
+       return None
 
     def print_search(self, src):
         print("__________-")
@@ -46,15 +47,16 @@ class TrainGrid:
               with the random parameters it generates several runs by mixing them randomly
         """
         random_src = RandomizedSearchCV(
-                         model,
-                         param_distributions = grid_parameters,
-                         n_iter = n_iter,
-                         n_jobs = n_jobs,
-                         scoring = self.get_scorer(model),
-                         cv = self.cv(xtr, ytr, n_splits=n_split, random_state=random_state),
-                         verbose = 1,
-                         random_state = random_state
-                     )
+            model,
+            param_distributions = grid_parameters,
+            n_iter = n_iter,
+            n_jobs = n_jobs,
+            scoring = self.get_scorer(model),
+            error_score = 0.0,
+            cv = self.cv(xtr, ytr, n_splits=n_split, random_state=random_state),
+            verbose = 1,
+            random_state = random_state
+        )
 
         random_src.fit(xtr, ytr)
         self.print_search(random_src)

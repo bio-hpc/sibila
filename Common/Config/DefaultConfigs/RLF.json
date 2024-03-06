@@ -11,7 +11,7 @@
         "sample_fract": "default",
         "max_rules": [50, 100, 500, 1000],
         "memory_par": [0.01, 0.05, 0.1],
-        "rfmode": "classify",
+        "rfmode": "regress",
         "lin_trim_quantile": [0.025, 0.05, 0.1],
         "lin_standardise": [true, false],
         "exp_rand_tree_size": [true, false],

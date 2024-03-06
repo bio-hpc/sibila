@@ -12,7 +12,7 @@ from Tools.DatasetBalanced import DatasetBalanced
 
 class InputParams:
     ALLOW_EXTENSIONS_DATASET = ['csv', 'pkl']
-    REGRESSION_MODELS = ['ANN', 'KNN', 'RF', 'DT', 'SVM', 'XGBOOST', 'LR', 'BAG']
+    REGRESSION_MODELS = ['ANN', 'KNN', 'RF', 'DT', 'SVM', 'XGBOOST', 'LR', 'BAG', 'RLF']
 
 
     def __init__(self):

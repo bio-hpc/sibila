@@ -54,7 +54,7 @@ class CrossValidation:
                 # call user function to customize every cross validation
                 custom_fn(xtr, ytr)
                 
-                cv_idx += 1            
+                cv_idx += 1
         else:
             IOData.print_e('Invalid method object')
             exit()

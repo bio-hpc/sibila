@@ -64,7 +64,7 @@ class BaseModel(abc.ABC):
                 cv = CrossValidation(self.io_data)
                 cvmethod = cv.choice_method(self.cfg.get_args()['crossvalidation'])
 
-            train_grid = TrainGrid(cvmethod)
+            train_grid = TrainGrid(cvmethod, cfg=self.cfg)
 
             func = getattr(train_grid, self.cfg.get_params()['train_grid'])
             try:
