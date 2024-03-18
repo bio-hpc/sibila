@@ -104,7 +104,7 @@ class BaseModel(abc.ABC):
 
     def model_predict(self, xts):
         self.io_data.print_m('\n\tStart Predict {}'.format(self.cfg.get_params()['model']))
-        ypr = self.model.predict(xts)
+        ypr_proba = self.model.predict_proba(xts)
         self.io_data.print_m('End Predict {}'.format(self.cfg.get_params()['model']))
         self.cfg.set_time_end()
         try:
@@ -112,7 +112,7 @@ class BaseModel(abc.ABC):
         except:
             self.io_data.print_m("ERROR {} does not have the method, not all parameters can be displayed".format(
                 self.cfg.get_params()['model']))
-        return ypr
+        return ypr_proba
 
     def get_model(self):
         return self.model

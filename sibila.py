@@ -100,9 +100,9 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     model.train(xtr, ytr)
     t.save('{}_training_time.txt'.format(cfg.get_prefix()), io_data)
 
-    ypr = model.predict(xts)
+    ypr_proba = model.predict(xts)
     BaseModel.save_model(cfg, model.get_model())
-    EvaluationMetrics(yts, ypr, xts, cfg, model.get_model(), id_list, io_data, n_classes).all_metrics()
+    EvaluationMetrics(yts, ypr_proba, xts, cfg, model.get_model(), id_list, io_data, n_classes).all_metrics()
 
     sp = Serialize(model.get_model(), xtr, ytr, xts, yts, id_list, cfg, io_data, idx_xts)
     pkl_file = save_params(sp)

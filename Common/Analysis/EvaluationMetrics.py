@@ -46,17 +46,19 @@ class EvaluationMetrics:
 
     FORMAT_TEXT = '\t{:>35}:\t{:<10}'
 
-    def __init__(self, yts, ypr, xts=None, cfg=None, model=None, id_list=None, io_data=None, n_classes=2):
+    def __init__(self, yts, ypr_proba, xts=None, cfg=None, model=None, id_list=None, io_data=None, n_classes=2):
         """
         :param yts [numpy.ndarray]: test y
-        :param ypr [numpy.ndarray]: prdict y
+        :param ypr [numpy.ndarray]: predict y
+        :param ypr_proba [numpy.ndarray]: predict y probability
         :param xts [numpy.ndarray]: text x
         :param xts [ConfigHodler]: config class
         :param model [sklearn]:  model sklearn
         """
-        EvaluationMetrics.check_input(yts, ypr, xts, model)
+        EvaluationMetrics.check_input(yts, ypr_proba, xts, model)
         self.yts = yts
-        self.ypr = ypr
+        self.ypr = np.argmax(ypr_proba, axis=1)
+        self.ypr_proba = ypr_proba
         self.xts = xts
         self.model = model
         self.cfg = cfg
@@ -67,14 +69,14 @@ class EvaluationMetrics:
         self.plot_graphics = Graphics()
 
     @staticmethod
-    def check_input(yts, ypr, xts, model):
+    def check_input(yts, ypr_proba, xts, model):
         """
         Checks that the input values are correct
         """
         if not isinstance(yts, np.ndarray):
             print('Error: yts must be a numpy array')
             exit()
-        if not isinstance(ypr, np.ndarray):
+        if not isinstance(ypr_proba, np.ndarray):
             print('Error: ypr must be a numpy array')
             exit()
         if not xts is None:
@@ -171,7 +173,7 @@ class EvaluationMetrics:
             auc_score = np.nan_to_num(auc_score)
             return np.mean(auc_score)
         else:
-            return roc_auc_score(self.yts, self.ypr)
+            return roc_auc_score(self.yts, self.ypr_proba[:, 1])
 
     def mcc_value(self):
         return matthews_corrcoef(self.yts, self.ypr)
