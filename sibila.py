@@ -14,7 +14,8 @@ import datetime
 from datetime import datetime
 from Tools.DataNormalization import DataNormalization
 from Tools.ToolsModels import is_regression_by_config, is_tf_model
-from os.path import join, basename, splitext, dirname
+import os
+from os.path import join, basename, splitext, dirname, exists
 from Tools.Serialize import Serialize
 from Tools.DatasetBalanced import DatasetBalanced
 import numpy as np
@@ -22,6 +23,7 @@ import pandas as pd
 from Models import *
 from Tools.Timer import Timer
 from Tools.Bash.Queue_manager.JobManager import JobManager
+import subprocess as sp
 import tensorflow as tf
 tf.get_logger().setLevel('ERROR')
 
@@ -59,6 +61,13 @@ def main():
     else:
         io_data.create_dirs_no_remove(args.folder) 
 
+    logger_fname = join(args.folder, 'log_compute.csv')
+    if exists(logger_fname):
+        os.remove(logger_fname)
+
+    logger_pid = sp.Popen(['python', 'log_gpu_cpu_stats.py', logger_fname,'--loop','0.2'])
+    print('Started logging compute utilisation')
+
     t = Timer('Load data')
     x, y, id_list, idx_samples, n_classes = get_dataset(file_dataset, io_data, args.model)
     x = DataNormalization().choice_method_normalize(x, args)
@@ -82,6 +91,9 @@ def main():
             execute(x, y, id_list, idx_samples, io_data, args.folder, file_dataset, type_model, args, n_classes)
             for type_model in options
         ]
+
+    logger_pid.kill()
+    Graphics().plot_gpu_time(logger_fname, join(args.folder, 'gpu_time.png'))
 
     if not args.queue:
         MergeResults(args.folder)
