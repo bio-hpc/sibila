@@ -87,7 +87,8 @@ class ConsensusBase(abc.ABC):
     """ Plots the attributions after consensus """
     def plot(self, model, df, filename):
         print('Plotting attributions after consensus')
-        ax = df.plot.bar(x='feature', y='attribution', rot=60)
+        df_aux = df.head(10)
+        ax = df_aux.plot.bar(x='feature', y='attribution', rot=60)
         if self.title is not None:
             plt.title(self.title + ' - ' + model)
 
