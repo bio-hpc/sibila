@@ -77,7 +77,8 @@ class LimeExplainer(ExplainerModel):
 
         # global explanation
         self.io_data.save_dataframe_cols(self.df_global, self.df_global.columns, self.cfg.get_prefix() + '_Lime.csv')
-        Graphics().plot_attributions(self.df_global, 'LIME', self.cfg.get_prefix() + '_Lime.png', errors=self.get_errors(self.df_global))
+        aux_df = self.summarize(self.df_global)
+        Graphics().plot_attributions(aux_df, 'LIME', self.cfg.get_prefix() + '_Lime.png', errors=self.get_errors(aux_df))
 
     def lime_classification(self):
         explainer = lime_tabular.LimeTabularExplainer(self.xtr,
