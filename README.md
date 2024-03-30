@@ -52,6 +52,9 @@ singularity exec Tools/Singularity/sibila.sif python3 Scripts/ResultAnalyzer.py 
 - Added bagging (BAG) model.
 - Support for multiclass classification.
 - Support for grid and random search with RuleFit model.
+- The plot of global attributions displays the 10 most attributed features for readability.
+- Implemented consensus via scoring functions (average mean, harmonic mean, own function...).
+- Corrections of ResultAnalyzer.py.
 
 **v1.2.0** (04/02/2023)
 - Added new parameter: --skip-dataset-analysis.
