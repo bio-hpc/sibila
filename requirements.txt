@@ -33,5 +33,5 @@ RuleFit @ git+https://github.com/christophM/rulefit.git@8a48b632ce3a98ad5463ac72
 python-docx
 keras-tuner==1.1.0
 protobuf==3.20
-psutil
-contextlib
+psutil==5.9.8
+contextlib2
