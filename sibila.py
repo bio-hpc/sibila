@@ -23,7 +23,8 @@ import pandas as pd
 from Models import *
 from Tools.Timer import Timer
 from Tools.Bash.Queue_manager.JobManager import JobManager
-import subprocess as sp
+#import subprocess as sp
+from Tools.GPUTracker import GPUTracker
 import tensorflow as tf
 tf.get_logger().setLevel('ERROR')
 
@@ -61,12 +62,12 @@ def main():
     else:
         io_data.create_dirs_no_remove(args.folder) 
 
-    logger_fname = join(args.folder, 'log_compute.csv')
-    if exists(logger_fname):
-        os.remove(logger_fname)
+    #logger_fname = join(args.folder, 'log_compute.csv')
+    #if exists(logger_fname):
+    #    os.remove(logger_fname)
 
-    logger_pid = sp.Popen(['python', 'log_gpu_cpu_stats.py', logger_fname,'--loop','0.2'])
-    print('Started logging compute utilisation')
+    #logger_pid = sp.Popen(['python', 'log_gpu_cpu_stats.py', logger_fname,'--loop','0.2'])
+    #print('Started logging compute utilisation')
 
     t = Timer('Load data')
     x, y, id_list, idx_samples, n_classes = get_dataset(file_dataset, io_data, args.model)
@@ -92,8 +93,8 @@ def main():
             for type_model in options
         ]
 
-    logger_pid.kill()
-    Graphics().plot_gpu_time(logger_fname, join(args.folder, 'gpu_time.png'))
+    #logger_pid.kill()
+    #Graphics().plot_gpu_usage(logger_fname, join(args.folder, 'gpu_usage.png'))
 
     if not args.queue:
         MergeResults(args.folder)
@@ -106,6 +107,10 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     model = globals()[type_model](io_data, cfg, id_list)
     print("\n")
     cfg.set_prefix(model.get_prefix())
+
+    gt = GPUTracker(cfg.get_prefix())
+    gt.start(type_model)
+
     xtr, xts, ytr, yts, idx_xtr, idx_xts = split_samples(x, y, (args.trainsize / 100), io_data, args.seed, idx_samples, is_regression=is_regression)
 
     t = Timer('Training')
@@ -120,6 +125,9 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     pkl_file = save_params(sp)
     io_data.print_m("Model's state saved in {}".format(pkl_file))
 
+    gt.stop()
+    gt.plot()
+
     if not args.skip_interpretability:
         Interpretability(sp)
 
@@ -129,6 +137,9 @@ def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_da
     model = BaseModel.load(type_model)
     print("\n")
     cfg.set_prefix(join(args.folder, basename(type_model)))
+
+    gt = GPUTracker(cfg.get_prefix())
+    gt.start(type_model)
 
     ypr_class, ypr_prob = [], []
     for xts in x:
@@ -158,6 +169,9 @@ def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_da
     df = pd.DataFrame({'Sample ID': idx_samples, 'Predicted class': ypr_class, 'Probability': ypr_prob})
     df.to_csv(outfile, index=False)
     print('Results saved in {}'.format(outfile))
+
+    gt.stop()
+    gt.plot()
 
     exit()
 
