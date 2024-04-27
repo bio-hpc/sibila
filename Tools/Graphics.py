@@ -408,3 +408,15 @@ class Graphics:
 
         self.plot_interpretability_times(dct_times, prefix + "_times.png", name_model)
 
+    """ Plots the time taken by code executed on GPU """
+    def plot_gpu_usage(self, logger_fname, file_out):
+        logger_df = pd.read_csv(logger_fname)
+        t = pd.to_datetime(logger_df['Timestamp (s)'], unit='s')
+        cols = [col for col in logger_df.columns if 'time' not in col.lower() and 'temp' not in col.lower()]
+        plt.figure(figsize=(15, 9))
+        plt.plot(t, logger_df[cols])
+        plt.legend(cols)
+        plt.xlabel('Time')
+        plt.ylabel('Utilisation (%)')
+        self.save_fig(file_out)
+        

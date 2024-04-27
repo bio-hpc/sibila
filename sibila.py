@@ -14,7 +14,8 @@ import datetime
 from datetime import datetime
 from Tools.DataNormalization import DataNormalization
 from Tools.ToolsModels import is_regression_by_config, is_tf_model
-from os.path import join, basename, splitext, dirname
+import os
+from os.path import join, basename, splitext, dirname, exists
 from Tools.Serialize import Serialize
 from Tools.DatasetBalanced import DatasetBalanced
 import numpy as np
@@ -22,6 +23,7 @@ import pandas as pd
 from Models import *
 from Tools.Timer import Timer
 from Tools.Bash.Queue_manager.JobManager import JobManager
+from Tools.GPUTracker import GPUTracker
 import tensorflow as tf
 tf.get_logger().setLevel('ERROR')
 
@@ -94,6 +96,10 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     model = globals()[type_model](io_data, cfg, id_list)
     print("\n")
     cfg.set_prefix(model.get_prefix())
+
+    gt = GPUTracker(cfg.get_prefix())
+    gt.start(type_model)
+
     xtr, xts, ytr, yts, idx_xtr, idx_xts = split_samples(x, y, (args.trainsize / 100), io_data, args.seed, idx_samples, is_regression=is_regression)
 
     t = Timer('Training')
@@ -108,6 +114,9 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     pkl_file = save_params(sp)
     io_data.print_m("Model's state saved in {}".format(pkl_file))
 
+    gt.stop()
+    gt.plot()
+
     if not args.skip_interpretability:
         Interpretability(sp)
 
@@ -117,6 +126,9 @@ def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_da
     model = BaseModel.load(type_model)
     print("\n")
     cfg.set_prefix(join(args.folder, basename(type_model)))
+
+    gt = GPUTracker(cfg.get_prefix())
+    gt.start(type_model)
 
     ypr_class, ypr_prob = [], []
     for xts in x:
@@ -146,6 +158,9 @@ def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_da
     df = pd.DataFrame({'Sample ID': idx_samples, 'Predicted class': ypr_class, 'Probability': ypr_prob})
     df.to_csv(outfile, index=False)
     print('Results saved in {}'.format(outfile))
+
+    gt.stop()
+    gt.plot()
 
     exit()
 
