@@ -102,9 +102,15 @@ class BaseModel(abc.ABC):
 
         self.io_data.print_m('End Train {}'.format(self.cfg.get_params()['model']))
 
+    
+
+
     def model_predict(self, xts):
         self.io_data.print_m('\n\tStart Predict {}'.format(self.cfg.get_params()['model']))
-        ypr_proba = self.model.predict_proba(xts)
+        if is_regression_by_config(self.cfg):
+            ypr_proba = self.model.predict(xts)
+        else:
+            ypr_proba = self.model.predict_proba(xts)
         self.io_data.print_m('End Predict {}'.format(self.cfg.get_params()['model']))
         self.cfg.set_time_end()
         try:

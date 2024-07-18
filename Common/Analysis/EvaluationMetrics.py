@@ -57,8 +57,15 @@ class EvaluationMetrics:
         """
         EvaluationMetrics.check_input(yts, ypr_proba, xts, model)
         self.yts = yts
-        self.ypr = np.argmax(ypr_proba, axis=1)
-        self.ypr_proba = ypr_proba
+        if is_regression_by_config(cfg):
+            self.ypr = ypr_proba
+        else:
+            if ypr_proba.ndim > 1:
+                self.ypr = np.argmax(ypr_proba, axis=1)
+                self.ypr_proba = ypr_proba[:, 1]
+            else:
+                self.ypr = ypr_proba
+                self.ypr_proba = ypr_proba
         self.xts = xts
         self.model = model
         self.cfg = cfg
@@ -173,7 +180,7 @@ class EvaluationMetrics:
             auc_score = np.nan_to_num(auc_score)
             return np.mean(auc_score)
         else:
-            return roc_auc_score(self.yts, self.ypr_proba[:, 1])
+            return roc_auc_score(self.yts, self.ypr_proba)
 
     def mcc_value(self):
         return matthews_corrcoef(self.yts, self.ypr)
