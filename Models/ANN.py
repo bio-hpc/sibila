@@ -125,6 +125,16 @@ class ANN(BaseModel):
                 directory = self.cfg.get_folder() + "/keras_tuner_dir",
                 project_name = "sibila"
             )
+        elif search_type == 'train_bayesian':
+            tuner = kt.BayesianOptimization(
+                hypermodel = build_model,
+                objective = kt.HyperParameters().Choice('objective',params["objective"]),
+                max_trials = params['executions_per_trial'],
+                overwrite = True,
+                seed = seed,
+                directory = self.cfg.get_folder() + "/keras_tuner_dir",
+                project_name = "sibila"
+            )
         else:
             self.io_data.print_m("ERROR {} method does not exist for hyperparameter tuning".format(search_type))
 
