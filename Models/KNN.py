@@ -32,6 +32,9 @@ class KNN(BaseModel):
 
     def train(self, xtr, ytr):
         self.model_fit(xtr, ytr)
+        graphics = Graphics()
+        file_out = self.cfg.get_prefix() + '_points.png'
+        graphics.graph_knn_points(self.model, xtr, ytr, self.id_list, file_out)
 
     def predict(self, xts):
         ypr = self.model_predict(xts)

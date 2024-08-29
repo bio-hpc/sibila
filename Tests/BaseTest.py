@@ -83,7 +83,7 @@ class BaseTest(unittest.TestCase):
 
     def get_dataset(self, io_data):
         self.assertTrue(isfile(FILE_DATASET), get_error_txt(ERROR_FILE, FILE_DATASET))
-        x, y, id_list, idx_samples = get_dataset(FILE_DATASET, io_data)
+        x, y, id_list, idx_samples, target_classes = get_dataset(FILE_DATASET, io_data)
 
         DATASET_LEN = x.shape[0]
         DATASET_LEN_IDLIST = x.shape[1]

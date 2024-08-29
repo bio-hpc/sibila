@@ -411,6 +411,9 @@ class Graphics:
     """ Plots the time taken by code executed on GPU """
     def plot_gpu_usage(self, logger_fname, file_out):
         logger_df = pd.read_csv(logger_fname)
+        if 'Timestamp (s)' not in logger_df.columns:
+            return
+
         t = pd.to_datetime(logger_df['Timestamp (s)'], unit='s')
         cols = [col for col in logger_df.columns if 'time' not in col.lower() and 'temp' not in col.lower()]
         plt.figure(figsize=(15, 9))
@@ -420,3 +423,7 @@ class Graphics:
         plt.ylabel('Utilisation (%)')
         self.save_fig(file_out)
         
+    """ Plots KNN cluster distribution """
+    def graph_knn_points(self, model, xtr, ytr, id_list, file_out):
+        sns.scatterplot(x=xtr[:,0], y=ytr, palette=plt.cm.Paired, alpha=1.0, edgecolor="black")
+        self.save_fig(file_out)
