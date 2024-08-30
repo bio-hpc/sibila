@@ -48,6 +48,12 @@ For instance:
 singularity exec Tools/Singularity/sibila.sif python3 Scripts/ResultAnalyzer.py -d folder_containing_results -o myfile.xlsx
 
 ### CHANGELOG
+**v1.2.2 (in progress)**
+- Implemented BayesianOptimizer as method for hyperparameter searaching.
+- Implemented downsampling option.
+- KNN creates a new plot to help interpretability.
+- Only training data is balanced when using -b option.
+
 **v1.2.1** (04/03/2024)
 - Added bagging (BAG) model.
 - Support for multiclass classification.
