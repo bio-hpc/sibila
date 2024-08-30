@@ -72,14 +72,13 @@ def main():
     if args.model:
         if is_regression_by_config(get_basic_cfg("", file_dataset, args)):
             y = DataNormalization().choice_method_normalize(y.reshape(-1, 1), args).ravel()
-        x, y, idx_samples = DatasetBalanced().choice_method_balanced(x, y, args, idx_samples)
+        #x, y, idx_samples = DatasetBalanced().choice_method_balanced(x, y, args, idx_samples)
         [execute_pred(x, y, id_list, idx_samples, io_data, args.folder, file_dataset, type_model, args) for type_model in args.model]
     else:
         # you look at the first option to know if it is regression. If it is regression, then y is also normalized
         if is_regression_by_config(get_cfg("", file_dataset, options[0], args)):
             y = DataNormalization().choice_method_normalize(y.reshape(-1, 1), args).ravel()
-        x, y, idx_samples = DatasetBalanced().choice_method_balanced(x, y, args, idx_samples)
-
+        #x, y, idx_samples = DatasetBalanced().choice_method_balanced(x, y, args, idx_samples)
         [
             execute(x, y, id_list, idx_samples, io_data, args.folder, file_dataset, type_model, args, n_classes)
             for type_model in options
@@ -101,6 +100,7 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     gt.start(type_model)
 
     xtr, xts, ytr, yts, idx_xtr, idx_xts = split_samples(x, y, (args.trainsize / 100), io_data, args.seed, idx_samples, is_regression=is_regression)
+    xtr, ytr, idx_samples = DatasetBalanced().choice_method_balanced(xtr, ytr, args, idx_samples)
 
     t = Timer('Training')
     model.train(xtr, ytr)
