@@ -3,6 +3,7 @@
 import numpy as np
 from Tools.IOData import IOData
 from imblearn.over_sampling import ADASYN, RandomOverSampler, SMOTE
+from imblearn.under_sampling import RandomUnderSampler
 from Tools.ToolsModels import is_penalty_weighted, is_regression_by_config
 
 __author__ = "Jorge de la Peña García"
@@ -21,7 +22,7 @@ def print_size(x, y):
 
 
 class DatasetBalanced:
-    METHODS = {'ADASYN': 'adasyn', 'ROS': 'random_over_sample', 'SMOTE': 'smote', 'PEN': 'weight_penalty'}
+    METHODS = {'ADASYN': 'adasyn', 'ROS': 'random_over_sample', 'SMOTE': 'smote', 'PEN': 'weight_penalty', 'RUS': 'random_under_sample'}
 
     def choice_method_balanced(self, x, y, args, idx_samples):
 
@@ -60,6 +61,21 @@ class DatasetBalanced:
         """
         print_size(x, y)
         os = RandomOverSampler(sampling_strategy='auto')
+        x, y = os.fit_resample(x, y)
+        print_size(x, y)
+        return x, y
+
+    @staticmethod
+    def random_under_sample(x, y, random_state=None):
+        """
+
+        @param x: numpy.ndarray:
+        @param y: numpy.ndarray:
+
+        @return:
+        """
+        print_size(x, y)
+        os = RandomUnderSampler(sampling_strategy='auto')
         x, y = os.fit_resample(x, y)
         print_size(x, y)
         return x, y
