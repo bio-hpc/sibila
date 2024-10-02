@@ -4,7 +4,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from sklearn.metrics import roc_curve, roc_auc_score, auc
-from os.path import splitext, join
+from os.path import splitext, join, exists
 from sklearn.tree import export_graphviz
 import seaborn as sns
 import pandas as pd
@@ -410,6 +410,8 @@ class Graphics:
 
     """ Plots the time taken by code executed on GPU """
     def plot_gpu_usage(self, logger_fname, file_out):
+        if not exists(logger_fname):
+            return
         logger_df = pd.read_csv(logger_fname)
         if 'Timestamp (s)' not in logger_df.columns:
             return
