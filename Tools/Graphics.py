@@ -160,11 +160,13 @@ class Graphics:
 
         plt.clf()
         plt.cla()
-        plt.xticks(fontsize=6)
-        plt.yticks(fontsize=6)
+        plt.xticks(fontsize=8)
+        plt.yticks(fontsize=8)
         plt.title(title)
         plt.xlabel('Average Attribution')
-        plt.barh(labels, np.abs(weights), color=colors, xerr=errors, error_kw=dict(lw=0.75, capsize=1))
+        plt.ticklabel_format(axis='x', style='sci', scilimits=(-3, 3))
+        #plt.barh(labels, np.abs(weights), color=colors, xerr=errors, error_kw=dict(lw=0.75, capsize=1))
+        plt.barh(labels, np.abs(weights), color=colors)
         plt.gca().invert_yaxis()
 
         for i in range(len(weights)):
