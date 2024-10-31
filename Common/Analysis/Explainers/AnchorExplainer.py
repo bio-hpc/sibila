@@ -34,6 +34,7 @@ class AnchorExplainer(ExplainerModel):
         df_local = []
         for i in tqdm(range(len(self.xts))):
             explanation = explainer.explain(self.xts[i], threshold=0.95)
+
             features = np.unique([self.id_list[f] for f in explanation.raw['feature']])
             precisions = [ explanation.precision ]*len(features)
             coverages = [ explanation.coverage ]*len(features)
@@ -50,9 +51,9 @@ class AnchorExplainer(ExplainerModel):
             df_local.append(df)
 
         # global interpretability
-        df_prec = pd.concat(df_local).groupby(FEATURE)['precision'].agg(['mean','std'])
-        df_cov = pd.concat(df_local).groupby(FEATURE)['coverage'].sum()
-        df_global = pd.merge(df_prec, df_cov, on=FEATURE).reset_index()
+        df_prec = pd.concat(df_local).groupby('rule')['precision'].agg(['mean','std']) # groupby('FEATURE')
+        df_cov = pd.concat(df_local).groupby('rule')['coverage'].sum() # groupby('FEATURE')
+        df_global = pd.merge(df_prec, df_cov, on='rule').reset_index()
         df_global.columns = [FEATURE, 'precision', 'std', 'coverage']
 
         out_file = self.cfg.get_prefix() + '_Anchor.csv'
