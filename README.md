@@ -53,6 +53,8 @@ singularity exec Tools/Singularity/sibila.sif python3 Scripts/ResultAnalyzer.py 
 - Implemented downsampling option.
 - KNN creates a new plot to help interpretability.
 - Only training data is balanced when using -b option.
+- Plotted anchor rules with precision and coverage.
+- Removed error bars from global interpretability plots.
 
 **v1.2.1** (04/03/2024)
 - Added bagging (BAG) model.
