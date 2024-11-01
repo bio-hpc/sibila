@@ -25,7 +25,7 @@ class TestPrediction(BaseTest):
             model = BaseModel.load(file_model)
             name_model = basename(file_model).split("_")[0]
 
-            params = {'type_ml': TypeML.CLASSIFICATION.value, 'model': name_model}
+            params = {'type_ml': TypeML.CLASSIFICATION.value, 'model': name_model, 'classification_type': 'binary'}
             p = FOLDER_TEST + name_model
             args = Args(name_model)
             cfg = self.get_config_holder(args, params, p)
@@ -48,7 +48,7 @@ class TestPrediction(BaseTest):
             self.assertEqual(self.count_files_by_pattern(name_model + '*data.json'), 1, get_error(ERROR_DATA_JSON))
             self.assertEqual(self.count_files_by_pattern(name_model + '*resume.txt'), 1, get_error(ERROR_DATA_TXT))
             self.assertTrue(self.count_files_by_pattern(name_model + '*roc_proba_*.png') > 0, get_error(ERROR_ROC_PROBA))
-            self.assertTrue(self.count_files_by_pattern(name_model + '*roc_*.png') > 0, get_error(ERROR_ROC))            
+            self.assertTrue(self.count_files_by_pattern(name_model + '*roc_*.png') > 0, get_error(ERROR_ROC))
 
             print('{:<8}{}{:>3}{} '.format(name_model, bcolors.OKGREEN, "Ok", bcolors.ENDC))
 

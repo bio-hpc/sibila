@@ -19,6 +19,7 @@ from sklearn.inspection import plot_partial_dependence
 from alibi.explainers import plot_ale
 from glob import glob
 
+
 class Graphics:
     """ Draws the ANN model. Only valid for TensorFlow models """
     def draw_model(self, model, file_out):
@@ -431,3 +432,33 @@ class Graphics:
     def graph_knn_points(self, model, xtr, ytr, id_list, file_out):
         sns.scatterplot(x=xtr[:,0], y=ytr, palette=plt.cm.Paired, alpha=1.0, edgecolor="black")
         self.save_fig(file_out)
+
+    """ Plot scopes rules """
+    def plot_anchors(self, df, file_out):
+        df['feature_wrapped'] = df['feature'].apply(lambda x: self.split_text(x, max_length=20))
+        fig, ax = plt.subplots(figsize=(10, 6))
+        y_pos = np.arange(len(df))
+        ax.barh(y_pos, df['precision'], xerr=df['std'], align='center', color='skyblue', label='Precision', capsize=5)
+        ax.barh(y_pos, df['coverage'], align='center', color='salmon', alpha=0.5, label='Coverage')
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(df['feature_wrapped'], fontsize=6, rotation=30, rotation_mode='anchor')
+        ax.invert_yaxis()
+        ax.set_xlabel('Values')
+        ax.set_title('Global Precision and Coverage of Anchors')
+        ax.legend()
+        plt.tight_layout()
+        self.save_fig(file_out)
+
+    def split_text(self, text, max_length=20):
+        words = text.split()
+        lines = []
+        current_line = ""
+        for word in words:
+            if len(current_line + word) <= max_length:
+                current_line += (word + " ")
+            else:
+                lines.append(current_line)
+                current_line = word + " "
+        lines.append(current_line)
+        return "\n".join(lines)
+

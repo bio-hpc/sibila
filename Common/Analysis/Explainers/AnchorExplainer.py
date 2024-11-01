@@ -55,10 +55,12 @@ class AnchorExplainer(ExplainerModel):
         df_cov = pd.concat(df_local).groupby('rule')['coverage'].sum() # groupby('FEATURE')
         df_global = pd.merge(df_prec, df_cov, on='rule').reset_index()
         df_global.columns = [FEATURE, 'precision', 'std', 'coverage']
+        df_global[ATTR] = df_global['precision']
+        df_global['std'] = df_global['std'].fillna(0)
 
         out_file = self.cfg.get_prefix() + '_Anchor.csv'
         self.io_data.save_dataframe_cols(df_global, df_global.columns, out_file)
-        return None
+        return df_global
 
     def plot(self, df, method=None):
-        pass
+        Graphics().plot_anchors(df, self.cfg.get_prefix() + '_Anchors.png')

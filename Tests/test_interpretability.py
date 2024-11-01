@@ -75,7 +75,7 @@ METHODS = {
     },
     'Anchor': {
         'folder': "Anchor",
-        'n_files': [5],
+        'n_files': [6],
         'deny_methods': []
     }
 }
