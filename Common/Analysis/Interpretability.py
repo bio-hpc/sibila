@@ -60,7 +60,11 @@ class Interpretability:
 
             self.execute_methods_parallel(params, self.PARALLEL_METHODS)
             self.execute_methods(params, self.COMMON_METHODS)
-            name_model = params['cfg'].get_params()['model'].upper()
+            cfg_params = params.get('cfg')
+            if cfg_params and 'model' in cfg_params.get_params():
+                name_model = params['cfg'].get_params()['model'].upper()
+            else:
+                exit()
             self.execute_methods(params, self.METHODS[name_model])
 
     def execute_methods(self, params, lst_methods):

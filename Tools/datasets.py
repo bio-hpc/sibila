@@ -33,7 +33,6 @@ def get_dataset(data_set, io_data=None, predicting=False):
     :param data_set
     :return:
     """
-
     if type(data_set) is str and isfile(data_set):
         if splitext(data_set)[1] == ".csv" or splitext(data_set)[1] == ".pkl":
             dataset = read_data(data_set, io_data)
@@ -56,7 +55,10 @@ def get_dataset(data_set, io_data=None, predicting=False):
             x = x.drop(x.columns[0], axis=1)
             y = y[y.columns[0]]
 
-            features = features[1:-1]
+            if not predicting:
+                features = features[1:-1]
+            else:
+                features = features[1:]
             features = pd.DataFrame(features)
             feature_list = features.iloc[:, 0].tolist()  # feature list
             target_classes = len(np.unique(y))
@@ -78,7 +80,6 @@ def get_dataset(data_set, io_data=None, predicting=False):
             io_data.print_e("Invalid dataset")
     else:
         io_data.print_e("Dataset not found")
-
     return np.array(x), np.array(y), feature_list, idx_samples, target_classes
 
 

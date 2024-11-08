@@ -109,7 +109,6 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     ypr = model.predict(xts)
     BaseModel.save_model(cfg, model.get_model())
     EvaluationMetrics(yts, ypr, xts, cfg, model.get_model(), id_list, io_data, n_classes).all_metrics()
-
     sp = Serialize(model.get_model(), xtr, ytr, xts, yts, id_list, cfg, io_data, idx_xts)
     pkl_file = save_params(sp)
     io_data.print_m("Model's state saved in {}".format(pkl_file))
@@ -120,7 +119,6 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     if not args.skip_interpretability:
         Interpretability(sp)
 
-
 def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset, type_model, args):
     cfg = get_basic_cfg(folder_experiment, file_dataset, args)
     model = BaseModel.load(type_model)
@@ -129,6 +127,16 @@ def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_da
 
     gt = GPUTracker(cfg.get_prefix())
     gt.start(type_model)
+
+    # Determine if the problem is binary or multiclass classification
+    n_classes = len(np.unique(y))
+    if not args.regression:
+        if n_classes == 2:
+            classification_type = "binary"
+        else:
+            classification_type = "multiclass"
+        print(f"Classification type: {classification_type}")
+        cfg.get_params()['classification_type'] = classification_type
 
     ypr_class, ypr_prob = [], []
     for xts in x:
@@ -161,8 +169,15 @@ def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_da
 
     gt.stop()
     gt.plot()
+    
+    # Preparing for interpretability if not skipped
+    if not args.skip_interpretability:
+        idx = np.array([str(i) for i in idx_samples])
+        sp = Serialize(model, x, y, x, y, id_list, cfg, io_data, idx)
+        Interpretability(sp)
 
     exit()
+
 
 if __name__ == "__main__":
     main()

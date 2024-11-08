@@ -146,13 +146,17 @@ class BaseModel(abc.ABC):
 
     @staticmethod
     def get_filename_save_model(cfg, model):
+        prefix = cfg.get_prefix()
 
+        if '.' in prefix and len(prefix.split('.')[-1]) > 1:
+            return prefix
+        
         if is_tf_model(model):
-            return cfg.get_prefix() + '.h5'
+            return prefix + '.h5'
         elif is_xgboost_model(model):
-            return cfg.get_prefix() + '.dat'
+            return prefix + '.dat'
         else:
-            return cfg.get_prefix() + '.joblib'
+            return prefix + '.joblib'
 
     @staticmethod
     def save_model(cfg, model):
