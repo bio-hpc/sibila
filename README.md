@@ -55,6 +55,7 @@ singularity exec Tools/Singularity/sibila.sif python3 Scripts/ResultAnalyzer.py 
 - Only training data is balanced when using -b option.
 - Plotted anchor rules with precision and coverage.
 - Removed error bars from global interpretability plots.
+- Implemented MAPE as regression metric.
 
 **v1.2.1** (04/03/2024)
 - Added bagging (BAG) model.
