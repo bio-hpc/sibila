@@ -149,6 +149,12 @@ class Graphics:
         plt.savefig(file, dpi=300)
         plt.close()
 
+    def to_latex_notation(self, number):
+        mantisa, exponente = "{:.1e}".format(number).split("e")
+        exponente = int(exponente)
+        text = f"${mantisa} \\times 10^{{{exponente}}}$"
+        return text
+
     def plot_attributions(self, df, title, out_file, sample_id=None, errors=None):
         if sample_id is not None:
             title += '. Sample #{}'.format(sample_id)
@@ -172,7 +178,8 @@ class Graphics:
 
         for i in range(len(weights)):
             v = weights[i]
-            s = ' {:+.2e}'.format(v)
+            #s = ' {:+.2e}'.format(v)
+            s = self.to_latex_notation(v)
             plt.text(abs(v), i-0.05, s, fontsize=6, color=colors[i])
 
         self.save_fig(out_file)
