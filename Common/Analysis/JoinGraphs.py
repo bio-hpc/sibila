@@ -100,7 +100,9 @@ class JoinGraphs:
                 'Pearson': [float(x) for x in analysis['Pearson Correlation Coefficient'].split('/')],
                 'R2': analysis['Coefficient of Determination'],
                 'MAE': analysis['Mean Absolute Error'],
-                'MSE': analysis['Mean Squared Error']
+                'MSE': analysis['Mean Squared Error'],
+                'RMSE': analysis['Root Mean Squared Error'],
+                'MAPE': analysis['Mean Absolute Percentage Error']
             }
         else:
             return {

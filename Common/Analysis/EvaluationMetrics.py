@@ -35,7 +35,7 @@ import tensorflow as tf
 
 from sklearn.metrics import f1_score, precision_score, recall_score, mean_absolute_error, \
     mean_squared_error, confusion_matrix, accuracy_score, roc_curve, roc_auc_score, \
-    r2_score, matthews_corrcoef, multilabel_confusion_matrix, auc
+    r2_score, matthews_corrcoef, multilabel_confusion_matrix, auc, mean_absolute_percentage_error
 from Tools.Graphics import Graphics
 from Tools.ToolsModels import is_regression_by_config, is_multiclass
 from Tools.TypeML import TypeML
@@ -206,6 +206,12 @@ class EvaluationMetrics:
         """
         return r2_score(self.yts, self.ypr)
 
+    def mean_absolute_percentage_error(self):
+        """
+        https://scikit-learn.org/dev/modules/generated/sklearn.metrics.mean_absolute_percentage_error.html
+        """
+        return mean_absolute_percentage_error(self.yts, self.ypr)
+
     def print_m(self, txt, value):
         t = self.FORMAT_TEXT.format(txt, str(value)) if value else "\t{}".format(txt)
         print(t)
@@ -264,7 +270,8 @@ class EvaluationMetrics:
                 'Coefficient of Determination': round(self.coefficient_of_determination(), self.DECIMALS_ROUND),
                 'Mean Absolute Error': round(self.m_absolute_error(), self.DECIMALS_ROUND),
                 'Mean Squared Error': round(self.m_squared_error(), self.DECIMALS_ROUND),
-                'Root Mean Squared Error': round(self.root_m_squared_error(), self.DECIMALS_ROUND)
+                'Root Mean Squared Error': round(self.root_m_squared_error(), self.DECIMALS_ROUND),
+                'Mean Absolute Percentage Error': round(self.mean_absolute_percentage_error(), self.DECIMALS_ROUND)
             }
             self.plot_graphics.plot_correlation(self.yts, self.ypr, self.cfg.get_name_file_correlation())
 
