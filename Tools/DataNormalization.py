@@ -6,12 +6,6 @@ from Tools.IOData import IOData
     DataNormalization.py:
     source: https://scikit-learn.org/stable/modules/preprocessing.html
 """
-__author__ = "Jorge de la Peña García"
-__version__ = "1.0"
-__maintainer__ = "Jorge"
-__email__ = "jpena@ucam.edu"
-__status__ = "Production"
-
 
 class DataNormalization:
     METHODS = {
