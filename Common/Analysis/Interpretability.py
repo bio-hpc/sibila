@@ -4,11 +4,6 @@
 https://medium.com/analytics-vidhya/interpretability-in-machine-learning-f79e1da4f797
 
 """
-__author__ = "Jorge de la Peña García"
-__version__ = "1.0"
-__maintainer__ = "Jorge"
-__email__ = "jpena@ucam.edu"
-__status__ = "Production"
 
 import sys
 import pandas as pd
