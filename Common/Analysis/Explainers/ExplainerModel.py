@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-__author__ = "Jorge de la Peña"
-__version__ = "1.0"
-__maintainer__ = "Jorge"
-__email__ = "jpena@ucam.edu"
-__status__ = "Production"
 
 import abc
 import numpy as np
