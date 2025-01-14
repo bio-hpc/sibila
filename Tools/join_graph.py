@@ -1,8 +1,4 @@
 """
-__author__ = "Jorge de la Peña García"
-__version__ = "1.0"
-__maintainer__ = "Jorge"
-__email__ = "jpena@ucam.edu"
 __status__ = "Production"
 """
 import sys
