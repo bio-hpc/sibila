@@ -6,12 +6,6 @@ from imblearn.over_sampling import ADASYN, RandomOverSampler, SMOTE
 from imblearn.under_sampling import RandomUnderSampler
 from Tools.ToolsModels import is_penalty_weighted, is_regression_by_config
 
-__author__ = "Jorge de la Peña García"
-__version__ = "1.0"
-__maintainer__ = "Jorge"
-__email__ = "jpena@ucam.edu"
-__status__ = "Production"
-
 
 def print_size(x, y):
     print("_________________-")
