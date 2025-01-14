@@ -1,6 +1,3 @@
-"""
-__status__ = "Production"
-"""
 import sys
 import os
 from os.path import basename
