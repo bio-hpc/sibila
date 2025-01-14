@@ -4,11 +4,6 @@
     Makes a consensus of the interpretability (RF, DT, SVM...) of the different ML models (Lime, Permutation...)
 
 """
-__author__ = "Antonio Jesús Banegas-Luna"
-__version__ = "1.0"
-__maintainer__ = "Jorge"
-__email__ = "ajbanegas@ucam.edu"
-__status__ = "Production"
 
 import argparse
 from glob import glob
