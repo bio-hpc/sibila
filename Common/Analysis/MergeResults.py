@@ -3,11 +3,6 @@
 """MergeResults.py:
     Gather all the information from the json files obtained in the tests and create a table in a csv file
 """
-__author__ = "Jorge de la Peña García"
-__version__ = "1.0"
-__maintainer__ = "Jorge"
-__email__ = "jpena@ucam.edu"
-__status__ = "Production"
 
 import glob
 import json
