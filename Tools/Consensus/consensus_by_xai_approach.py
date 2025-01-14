@@ -3,11 +3,6 @@
 
     Makes a consensus of the interpretability on different ML models
 """
-__author__ = "Antonio Jesús Banegas-Luna"
-__version__ = "1.0"
-__maintainer__ = "Jorge"
-__email__ = "ajbanegas@ucam.edu"
-__status__ = "Production"
 
 import argparse
 from glob import glob
