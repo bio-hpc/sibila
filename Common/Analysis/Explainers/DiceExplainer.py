@@ -1,11 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-__author__ = "Jorge de la Peña"
-__version__ = "1.0"
-__maintainer__ = "Jorge"
-__email__ = "jpenas@ucam.edu"
-__status__ = "Production"
-
 import dice_ml
 import pandas as pd
 from dice_ml.utils import helpers
