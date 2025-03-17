@@ -12,7 +12,7 @@ from Tools.Graphics import Graphics
 from sklearn.inspection import permutation_importance
 from sklearn.utils import Bunch
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
-from Tools.ToolsModels import get_explainer_model, is_tf_model, is_rulefit_model
+from Tools.ToolsModels import get_explainer_model, is_tf_model, is_rulefit_model, is_multiclass
 from Common.Config.ConfigHolder import FEATURE, ATTR, STD
 
 
@@ -26,7 +26,13 @@ class PermutationImportanceExplainer(ExplainerModel):
         if len(self.id_list) == 1:
             results = Bunch(importances_mean=1.0, importances_std=0.0)
         else:
-            scorer = 'r2' if is_regression_by_config(self.cfg) else 'roc_auc'
+            scorer = None
+            if is_regression_by_config(self.cfg):
+                scorer = 'r2'
+            elif is_multiclass(self.cfg):
+                scorer = 'neg_log_loss'
+            else:
+                scorer = 'roc_auc'
 
             if is_tf_model(self.model) or is_rulefit_model(self.model):
                 my_model = get_explainer_model(self.model, self.estimator, self.yts, self.cfg)

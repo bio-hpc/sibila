@@ -17,6 +17,8 @@ FEATURE = 'feature'
 ATTR = 'attribution'
 PROBA = 'probability'
 STD = 'std'
+TRUEVAL = 'true_value'
+PREDVAL = 'predicted_value'
 COLNAMES = [FEATURE, ATTR, STD]
 
 class ConfigHolder:

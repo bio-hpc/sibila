@@ -18,14 +18,14 @@ from ConsensusHarmonicMean import ConsensusHarmonicMean
 from ConsensusGeometricMean import ConsensusGeometricMean
 from ConsensusVoting import ConsensusVoting
 from ConsensusAverageRank import ConsensusAverageRank
-from ConsensusCustom import ConsensusCustom
+from ConsensusWSCF import ConsensusWSCF
 
 FOLDER_OUT = "Consensus/"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--folder', help='Folder where the files are', required=True)
-    parser.add_argument('-m', '--method', help='Consensus method', required=True, choices=['AM','HM','GM','VF','AR','CU'])
+    parser.add_argument('-m', '--method', help='Consensus method', required=True, choices=['AM','HM','GM','VF','AR','WS'])
     args = parser.parse_args()
 
     # create the output folder for consensus
@@ -40,7 +40,7 @@ if __name__ == "__main__":
         'GM': ConsensusGeometricMean(args.folder, dir_out),
         'VF': ConsensusVoting(args.folder, dir_out),
         'AR': ConsensusAverageRank(args.folder, dir_out),
-        'CU': ConsensusCustom(args.folder, dir_out)
+        'WS': ConsensusWSCF(args.folder, dir_out)
     }
 
     c = switch_method.get(args.method)

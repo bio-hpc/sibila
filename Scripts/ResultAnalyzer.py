@@ -21,7 +21,7 @@ from pathlib import Path
  
 class ResultAnalyzer():
 	CLASSIFICATION_COLS = ['Accuracy', 'Precision', 'Recall', 'F1', 'Specificity', 'AUC', 'MCC']
-	REGRESSION_COLS = ['Pearson', 'Determination', 'MAE', 'MSE', 'RMSE']
+	REGRESSION_COLS = ['Pearson', 'Determination', 'MAE', 'MSE', 'RMSE', 'MAPE']
 
 	def __init__(self, input_dir, output_file):
 		self.input_dir = input_dir
@@ -87,7 +87,8 @@ class ResultAnalyzer():
 			mae = analysis['Mean Absolute Error']
 			mse = analysis['Mean Squared Error']
 			rmse = analysis['Root Mean Squared Error']
-			return pearson, r2, mae, mse, rmse
+			mape = analysis['Mean Absolute Percentage Error']
+			return pearson, r2, mae, mse, rmse, mape
 		else:
 			accuracy = analysis['Accuracy']
 			precision = analysis['Precision']
@@ -105,6 +106,7 @@ class ResultAnalyzer():
 		d = {}
 		for v in flat_values:
 			key, metrics = v[0], v[1]
+			print(key)
 			if key not in d:
 				d[key] = [ metrics ]
 			else:
@@ -113,13 +115,12 @@ class ResultAnalyzer():
 
 	def __summarize_metrics(self, df):
 		meancols = np.insert(df.mean(numeric_only=True).to_numpy(), 0, 0.0)
-		meanrow = dict(zip(df.columns, meancols))
-
+		df_mean = pd.DataFrame([meancols], columns=df.columns)
 		stdcols = np.insert(df.std(numeric_only=True).to_numpy(), 0, 0.0)
-		stdrow = dict(zip(df.columns, stdcols))
+		df_std = pd.DataFrame([stdcols], columns=df.columns)
 
-		df = df.append(meanrow, ignore_index=True)
-		df = df.append(stdrow, ignore_index=True)
+		df = pd.concat([df, df_mean], ignore_index=True)
+		df = pd.concat([df, df_std], ignore_index=True)
 
 		df.at[len(df)-2, 'Model'] = 'Mean'
 		df.at[len(df)-1, 'Model'] = 'Std'
@@ -139,17 +140,9 @@ class ResultAnalyzer():
 		return df
 
 	def __export_excel(self, df):
-		writer = pd.ExcelWriter(self.output_file)
-
-		df.to_excel(writer, sheet_name='Summary', float_format="%.3f", 
-			freeze_panes=(1,1), columns=df.columns, index=False)
-
-		for column in df:
-			col_width = max(df[column].astype(str).map(len).max(), len(column))
-			col_idx = df.columns.get_loc(column)
-			writer.sheets['Summary'].set_column(col_idx, col_idx, col_width)
-
-		writer.save()
+		with pd.ExcelWriter(self.output_file, engine='openpyxl') as writer:
+			df.to_excel(writer, sheet_name='Summary', float_format="%.3f", 
+				freeze_panes=(1,1), columns=df.columns, index=False)
 
 def main(args):
 	a = ResultAnalyzer(args.dir, output_file=args.output)
@@ -162,3 +155,4 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 	main(args)
+

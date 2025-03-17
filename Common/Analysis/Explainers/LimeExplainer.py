@@ -17,7 +17,7 @@ from tqdm import tqdm
 from pathlib import Path
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
 from Tools.ToolsModels import is_rulefit_model
-from Common.Config.ConfigHolder import ATTR, COLNAMES, FEATURE, STD, PROBA
+from Common.Config.ConfigHolder import ATTR, COLNAMES, FEATURE, STD, PROBA, TRUEVAL, PREDVAL
 
 class LimeExplainer(ExplainerModel):
 
@@ -38,7 +38,7 @@ class LimeExplainer(ExplainerModel):
         prefix = Path(self.cfg.get_prefix()).stem
         self.html = LIMEHTMLBuilder()
         df_local = []
-        colnames = [FEATURE, ATTR, 'range', 'class', PROBA]
+        colnames = [FEATURE, ATTR, 'range', 'class', PROBA] if not is_regression_by_config(self.cfg) else [FEATURE, ATTR, 'range', TRUEVAL, PREDVAL]
 
         for i in tqdm(range(len(self.xts))):
             x = self.xts[i]
@@ -53,9 +53,13 @@ class LimeExplainer(ExplainerModel):
 
             self.html.append(exp.as_html(), sample_id=self.idx_xts[i])
 
-            data = [[self.get_feature_name(e[0]), e[1], e[0], ypr, exp.local_pred[0]] for e in explanation]
+            if not is_regression_by_config(self.cfg):
+                data = [[self.get_feature_name(e[0]), e[1], e[0], ypr, exp.local_pred[0]] for e in explanation]
+                df = pd.DataFrame(data=data, columns=colnames)
+            else:
+                data = [[self.get_feature_name(e[0]), e[1], e[0], self.yts[i], ypr] for e in explanation]
+                df = pd.DataFrame(data=data, columns=colnames)
 
-            df = pd.DataFrame(data=data, columns=colnames)
             df_local.append(df)
 
             out_file = self.io_data.get_lime_folder() + "{}_Lime_explain_{}.csv".format(prefix, self.idx_xts[i])

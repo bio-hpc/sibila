@@ -50,9 +50,6 @@ class Interpretability:
         if len(self.TEST_METHODS) > 0:
             self.execute_methods(params, self.TEST_METHODS)
         else:
-            if is_multiclass(params['cfg']):
-                self.PARALLEL_METHODS = self.PARALLEL_METHODS[1:]
-
             self.execute_methods_parallel(params, self.PARALLEL_METHODS)
             self.execute_methods(params, self.COMMON_METHODS)
             name_model = params['cfg'].get_params()['model'].upper()

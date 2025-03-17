@@ -9,11 +9,13 @@ __status__ = "Production"
 import numpy as np
 import pandas as pd
 from Tools.Graphics import Graphics
+from Tools.ToolsModels import is_regression_by_config
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
-from Common.Config.ConfigHolder import FEATURE, ATTR, STD, PROBA
+from Common.Config.ConfigHolder import FEATURE, ATTR, STD, PROBA, PREDVAL, TRUEVAL
 from alibi.explainers import AnchorTabular
 from tqdm import tqdm
 from pathlib import Path
+
 
 class AnchorExplainer(ExplainerModel):
     def explain(self):
@@ -42,7 +44,10 @@ class AnchorExplainer(ExplainerModel):
             proba = self.proba_sample(self.xts[i])
 
             # local interpretability
-            df = pd.DataFrame({FEATURE: features, 'precision': precisions, 'coverage': coverages, 'rule': rules, PROBA: proba})
+            if is_regression_by_config(self.cfg):
+                df = pd.DataFrame({FEATURE: features, 'precision': precisions, 'coverage': coverages, 'rule': rules, PREDVAL: proba, TRUEVAL: self.yts[i]})
+            else:
+                df = pd.DataFrame({FEATURE: features, 'precision': precisions, 'coverage': coverages, 'rule': rules, PROBA: proba})
 
             prefix = Path(self.cfg.get_prefix()).stem
             out_file = self.io_data.get_anchor_folder() + '{}_Anchor_{}.csv'.format(prefix, self.idx_xts[i])

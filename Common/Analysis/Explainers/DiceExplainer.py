@@ -9,7 +9,7 @@ from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
 from Tools.ToolsModels import is_tf_model, is_ripper_model, is_rulefit_model, is_regression_by_config, is_multiclass
 from Tools.Estimators.RipperEstimator import RipperEstimator
 from pathlib import Path
-from Common.Config.ConfigHolder import FEATURE, ATTR, STD, COLNAMES, PROBA
+from Common.Config.ConfigHolder import FEATURE, ATTR, STD, COLNAMES, PROBA, TRUEVAL, PREDVAL
 from Tools.ToolsModels import is_regression_by_config
 
 class DiceExplainer(ExplainerModel):
@@ -62,7 +62,11 @@ class DiceExplainer(ExplainerModel):
                       )
                 self.df_local[i] = pd.DataFrame(imp.local_importance).mean(axis=0).to_frame().reset_index()
                 self.df_local[i].columns = [FEATURE, ATTR]
-                self.df_local[i][PROBA] = self.proba_sample(self.xts[i])
+                if is_regression_by_config(self.cfg):
+                    self.df_local[i][TRUEVAL] = self.yts[i]
+                    self.df_local[i][PREDVAL] = self.proba_sample(self.xts[i])
+                else:
+                    self.df_local[i][PROBA] = self.proba_sample(self.xts[i])
         except BaseException as e:
             print(str(e))
         finally:
@@ -97,6 +101,7 @@ class DiceExplainer(ExplainerModel):
 
             # Sort in ascending order for plotting correctly
             df2 = self.df_local[i]
+
             self.io_data.save_dataframe_cols(df2, df2.columns, path_csv)
 
             # Add the real value into the label

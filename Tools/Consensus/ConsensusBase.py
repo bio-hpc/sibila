@@ -9,6 +9,7 @@ __status__ = "Production"
 import abc
 import glob
 import json
+import numpy as np
 import os
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -20,9 +21,11 @@ class ConsensusBase(abc.ABC):
     FEATURE = 'feature'
     ATTR = 'attribution'
     PROBA = 'probability'
+    TRUEVAL = 'true_value'
+    PREDVAL = 'predicted_value'
     RANKING = 'ranking'
-    CLASS_METRIC = 'Auc'
-    REG_METRIC = 'Coefficient of Determination'
+    CLASS_METRICS = ['Auc']
+    REG_METRICS = ['Coefficient of Determination']
 
     def __init__(self, folder, out_folder):
         self.folder = folder
@@ -35,19 +38,32 @@ class ConsensusBase(abc.ABC):
 
     def run(self):
         # identify models in the folder
-        models, prefixes = self.__find_models()
+        models, prefixes = self.find_models()
 
         # process each model individually
         for i in range(len(models)):
             # get model's metrics
             metrics = self.__get_metrics(i, prefixes)
             if metrics is not None:
-                if self.CLASS_METRIC in metrics.keys():
-                    self.model_acc = metrics[self.CLASS_METRIC]
-                    self.is_regression = False
-                elif self.REG_METRIC in metrics.keys():
-                    self.model_acc = metrics[self.REG_METRIC]
-                    self.is_regression = True
+                #if self.CLASS_METRICS in metrics.keys():
+                #    self.model_acc = metrics[self.CLASS_METRIC]
+                #    self.is_regression = False
+                #elif self.REG_METRICS in metrics.keys():
+                #    self.model_acc = metrics[self.REG_METRIC]
+                #    self.is_regression = True
+
+                if self.CLASS_METRICS[0] in metrics.keys():
+                    self.model_acc = [0] * len(self.CLASS_METRICS)
+
+                    for j, metric in enumerate(self.CLASS_METRICS):
+                        self.model_acc[j] = metrics[metric]
+                        self.is_regression = False
+                elif self.REG_METRICS[0] in metrics.keys():
+                    self.model_acc = [0] * len(self.REG_METRICS)
+
+                    for j, metric in enumerate(self.REG_METRICS):
+                        self.model_acc[j] = metrics[metric]
+                        self.is_regression = True
 
             # the model wasn't evaluated and, consequently, is not valid
             if self.model_acc is None:
@@ -104,13 +120,13 @@ class ConsensusBase(abc.ABC):
     def __load_globals(self, idx, prefixes):
         for g in self.GLOBALS:
             foo = prefixes[idx] + '_' + g + '.csv'
-            if not self.__load_file(foo):
+            if not self.load_file(foo):
                 continue
-            df = self.__load_csv(foo)
+            df = self.load_csv(foo)
             df.sort_values(self.ATTR, ascending=False, inplace=True)
             df.insert(len(df.columns), self.RANKING, range(1, 1 + len(df)))
 
-            self.df_g = self.__append_df(self.df_g, df)
+            self.df_g = self.append_df(self.df_g, df)
 
     """ Loads the attributions of the local methods """
     def __load_locals(self, idx, prefixes, models):
@@ -120,24 +136,24 @@ class ConsensusBase(abc.ABC):
                 continue
 
             folder = os.path.split(prefixes[idx])[0] + '/' + l
-            foos = self.__find_files(folder)
+            foos = self.find_files(folder)
             for foo in foos:
-                df = self.__load_csv(foo)
+                df = self.load_csv(foo)
                 df.sort_values(self.ATTR, ascending=False, inplace=True)
                 df.insert(len(df.columns), self.RANKING, range(1, 1 + len(df)))
 
-                self.df_l = self.__append_df(self.df_l, df)
+                self.df_l = self.append_df(self.df_l, df)
 
     """ Load a file """
-    def __load_file(self, path):
+    def load_file(self, path):
         return os.path.isfile(path)
 
     """ Finds those files in a folder with a given extension """
-    def __find_files(self, folder, ext='csv'):
+    def find_files(self, folder, ext='csv'):
         return glob.glob(folder + '/*.' + ext)
 
     """ Concatenates two dataframes """
-    def __append_df(self, df_src, df_tar):
+    def append_df(self, df_src, df_tar):
         if df_tar is None:
             return df_src
         if df_src is None:
@@ -145,7 +161,7 @@ class ConsensusBase(abc.ABC):
         return pd.concat([df_src, df_tar], ignore_index=True)
 
     """ Finds the models in the given folder """
-    def __find_models(self):
+    def find_models(self):
         files = glob.glob(self.folder + '/*_data.json')
         paths = []
         models = []
@@ -157,7 +173,7 @@ class ConsensusBase(abc.ABC):
         return models, paths
 
     """ Loads a CSV file """
-    def __load_csv(self, path):
+    def load_csv(self, path):
         return pd.read_csv(path)
 
     """ Normalize the 'attribution' column in range [0,1] """
