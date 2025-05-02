@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-__author__ = "Antonio Jesús Banegas Luna"
-__version__ = "1.0"
-__maintainer__ = "Antonio"
-__email__ = "ajbanegas@ucam.edu"
-__status__ = "Production"
+_author_ = "Antonio Jesús Banegas Luna"
+_version_ = "1.0"
+_maintainer_ = "Antonio"
+_email_ = "ajbanegas@ucam.edu"
+_status_ = "Production"
 
 import abc
 import glob
@@ -43,37 +43,31 @@ class ConsensusBase(abc.ABC):
         # process each model individually
         for i in range(len(models)):
             # get model's metrics
-            metrics = self.__get_metrics(i, prefixes)
+            metrics = self._get_metrics(i, prefixes)
             if metrics is not None:
-                #if self.CLASS_METRICS in metrics.keys():
-                #    self.model_acc = metrics[self.CLASS_METRIC]
-                #    self.is_regression = False
-                #elif self.REG_METRICS in metrics.keys():
-                #    self.model_acc = metrics[self.REG_METRIC]
-                #    self.is_regression = True
-
                 if self.CLASS_METRICS[0] in metrics.keys():
                     self.model_acc = [0] * len(self.CLASS_METRICS)
+                    self.is_regression = False
 
                     for j, metric in enumerate(self.CLASS_METRICS):
                         self.model_acc[j] = metrics[metric]
-                        self.is_regression = False
+
                 elif self.REG_METRICS[0] in metrics.keys():
                     self.model_acc = [0] * len(self.REG_METRICS)
+                    self.is_regression = True
 
                     for j, metric in enumerate(self.REG_METRICS):
                         self.model_acc[j] = metrics[metric]
-                        self.is_regression = True
 
             # the model wasn't evaluated and, consequently, is not valid
             if self.model_acc is None:
                 continue
 
             # load global explanations
-            self.__load_globals(i, prefixes)
+            self._load_globals(i, prefixes)
 
             # load local explanations
-            self.__load_locals(i, prefixes, models)
+            self._load_locals(i, prefixes, models)
 
             # call consensus
             df = self.consensus()
@@ -93,7 +87,7 @@ class ConsensusBase(abc.ABC):
         """
 
     """ Obtains the model's metrics """
-    def __get_metrics(self, idx, prefixes):
+    def _get_metrics(self, idx, prefixes):
         foo = prefixes[idx] + '_data.json'
         with open(foo, 'r') as f:
             data = json.load(f)
@@ -117,7 +111,7 @@ class ConsensusBase(abc.ABC):
         plt.close()
 
     """ Loads the attributions of the global methods """
-    def __load_globals(self, idx, prefixes):
+    def _load_globals(self, idx, prefixes):
         for g in self.GLOBALS:
             foo = prefixes[idx] + '_' + g + '.csv'
             if not self.load_file(foo):
@@ -129,7 +123,7 @@ class ConsensusBase(abc.ABC):
             self.df_g = self.append_df(self.df_g, df)
 
     """ Loads the attributions of the local methods """
-    def __load_locals(self, idx, prefixes, models):
+    def _load_locals(self, idx, prefixes, models):
         for l in self.LOCALS:
             # Neural networks don't work with counterfactuals
             if models[idx] == 'ANN' and l == 'Dice':
@@ -177,9 +171,9 @@ class ConsensusBase(abc.ABC):
         return pd.read_csv(path)
 
     """ Normalize the 'attribution' column in range [0,1] """
-    def __scaler(self, df, column='attribution'):
-        #df[column] = (df[column] - df[column].min()) / (df[column].max() - df[column].min())
-        df[column] = df[column]/abs(df[column]).max()*1
+    #def _scaler(self, df, column='attribution'):
+    #    #df[column] = (df[column] - df[column].min()) / (df[column].max() - df[column].min())
+    #    df[column] = df[column]/abs(df[column]).max()*1
 
     """ Sort features by descending attribution """
     def sort(self, df):

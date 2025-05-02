@@ -21,13 +21,13 @@ class ConsensusAverageRank(ConsensusBase):
         df = pd.concat([self.df_g, self.df_l], ignore_index=True)
         df = df[[self.FEATURE, self.ATTR, self.RANKING]]
 
-        # average mean of the positions
+        # average the positions
         df_mean = df.groupby([self.FEATURE])[self.RANKING].mean().to_frame().reset_index()
-        df_mean.columns = [self.FEATURE, self.ATTR]    
-        df_mean = df_mean.sort_values(self.ATTR)
+        df_mean.columns = [self.FEATURE, self.ATTR]
+
+        # reverse the order to turn smaller positions into the most attributed ones 
+        df_mean[self.ATTR] = 1 / df_mean[self.ATTR]
+        df_mean = df_mean.sort_values(self.ATTR, ascending=False)
 
         # output
-        #features = df_mean[self.FEATURE].to_numpy()
-        #attrs = df_mean[self.ATTR].to_numpy()
-        #return features, attrs
         return df_mean
