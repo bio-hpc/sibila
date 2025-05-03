@@ -1,6 +1,8 @@
 ## SIBILA
 SIBILA Server takes advantage of HPC and ML/DL to provide users with a powerful predictive tool. Several ML models are available and a large set of configuration parameters facilitate the configuration of the tasks. In addition, the server applies the concept of explainable artificial intelligence (XAI) to present the results in a way that users will be able to understand. A collection of interpretability approaches are implemented to identify the most relevant features that were taken into consideration by the model in order to make the prediction. 
 
+If you use SIBILA, please cite it as: Banegas-Luna, A. J., & Pérez-Sánchez, H. (2024). SIBILA: Automated Machine-Learning-Based Development of Interpretable Machine-Learning Models on High-Performance Computing Platforms. AI, 5(4), 2353-2374. https://doi.org/10.3390/ai5040116
+
 ### Installation (choose one)
 1. git clone https://github.com/bio-hpc/sibila.git
 2. git clone git@github.com:bio-hpc/sibila.git
@@ -26,7 +28,7 @@ chmod u+x sibila.sif
 7. **RLF (RuLEFit)**
 8. **RP (RIPPERk)**
 9. **LR (Linear/Logistic Regression)**
-10.**BAG (Bagging)**
+10. **BAG (Bagging)**
 
 ### Available Interpretability Methods
 1. **Permutation Feature Importance**
