@@ -49,6 +49,9 @@ For instance:
 
 singularity exec Tools/Singularity/sibila.sif python3 Scripts/ResultAnalyzer.py -d folder_containing_results -o myfile.xlsx
 
+### Documentation
+A full user guide is available at: https://docs.google.com/document/d/e/2PACX-1vTw-Hc36302c2d2fb8t35wwEpaZHVqX0Q_ZuOXsj_rwpgrUfI7fN1Ov9deI9KvXHuTbPmaMp1RpQYmc/pub
+
 ### CHANGELOG
 **v1.2.2 (in progress)**
 - Implemented BayesianOptimizer as method for hyperparameter searaching.
