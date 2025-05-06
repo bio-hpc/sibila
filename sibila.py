@@ -13,7 +13,7 @@ from Common.Input.InputParams import InputParams
 import datetime
 from datetime import datetime
 from Tools.DataNormalization import DataNormalization
-from Tools.ToolsModels import is_regression_by_config, is_tf_model
+from Tools.ToolsModels import is_regression_by_config, is_tf_model, is_ripper_model, is_multiclass
 import os
 from os.path import join, basename, splitext, dirname, exists
 from Tools.Serialize import Serialize
@@ -93,6 +93,10 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     is_regression = is_regression_by_config(cfg)
 
     model = globals()[type_model](io_data, cfg, id_list)
+
+    if is_ripper_model(model) and is_multiclass(cfg):
+        io_data.print_e('RP doest no support multiclass classification yet')
+
     print("\n")
     cfg.set_prefix(model.get_prefix())
 

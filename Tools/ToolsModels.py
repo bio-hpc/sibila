@@ -21,7 +21,7 @@ def is_tf_model(model):
     return 'tensorflow' in str(model)
 
 def is_ripper_model(model):
-    return 'RIPPER' in str(model)
+    return 'RIPPER' in str(model) or 'RP' in str(model) 
 
 def is_xgboost_model(model):
     return 'XGB' in str(model)
