@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""MergeResults.py:
+"""JoinGraphs.py:
     Gather all the information from the json files obtained in the tests and create a table in a csv file
 """
 import json
@@ -13,7 +13,8 @@ from docx.oxml.ns import nsdecls
 from docx.oxml import parse_xml
 from Tools.Word2Pdf import convert_to
 
-GRAPHS = ['model', 'loss_acc', 'roc_proba', 'confusion_matrix', 'correlation', 'PermutationImportance_hist', 'RFPermutationImportance_hist', 'Lime', 'IntegratedGradients', 'Shapley', 'Dice', 'Anchors', 'times']
+GRAPHS = ['model', 'loss_acc', 'roc_proba', 'confusion_matrix', 'correlation', '_tree_', 
+'PermutationImportance_hist', 'RFPermutationImportance_hist', 'Lime', 'IntegratedGradients', 'Shapley', 'Dice', 'Anchors', 'times']
 LST_PREFIX = ["ALE", "PDP"]
 
 

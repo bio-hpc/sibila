@@ -5,6 +5,8 @@ from Tools.TypeML import TypeML
 import numpy as np
 from rulefit import RuleFit
 from sklearn.ensemble import GradientBoostingRegressor
+from Tools.Graphics import Graphics
+
 
 PREFIX_OUT_DT = '{}_{}'  # Model, Dataset
 
@@ -34,7 +36,12 @@ class RLF(BaseModel):
         return ypr
 
     def get_rules(self):
+        rules_file = self.cfg.get_prefix() + "_rules.csv"
         rules = self.model.get_rules()
         rules = rules[rules.coef != 0].sort_values("support", ascending=False)
-        rules.to_csv(self.cfg.get_prefix() + "_rules.csv")
+        rules.to_csv(rules_file)
+        self.graph_rules(rules_file, self.cfg.get_prefix())
 
+    def graph_rules(self, input_file, prefix):
+        g = Graphics()
+        g.visualize_rules(input_file, prefix)
