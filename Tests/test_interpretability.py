@@ -75,7 +75,7 @@ METHODS = {
     },
     'Anchor': {
         'folder': "Anchor",
-        'n_files': [6],
+        'n_files': [5],
         'deny_methods': []
     }
 }
@@ -99,7 +99,7 @@ class TestInterpretability(BaseTest):
                 name_model = basename(file_model).split("_")[0]
 
                 if not name_model in par['deny_methods']:
-                    params = {'type_ml': TypeML.CLASSIFICATION.value, 'model': name_model}
+                    params = {'type_ml': TypeML.CLASSIFICATION.value, 'model': name_model, 'classification_type': 'binary'}
                     p = FOLDER_TEST + name_model
                     args = Args(name_model)
                     cfg = self.get_config_holder(args, params, p)

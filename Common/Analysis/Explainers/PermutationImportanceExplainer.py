@@ -23,6 +23,9 @@ class PermutationImportanceExplainer(ExplainerModel):
             https://medium.com/analytics-vidhya/interpretability-in-machine-learning-f79e1da4f797
         """
 
+        print(f"---------------> cfg: {self.cfg}")
+        print(f"---------------> cfg.params: {self.cfg.get_params()}")        
+
         if len(self.id_list) == 1:
             results = Bunch(importances_mean=1.0, importances_std=0.0)
         else:
