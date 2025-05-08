@@ -6,7 +6,7 @@ import numpy as np
 from rulefit import RuleFit
 from sklearn.ensemble import GradientBoostingRegressor
 from Tools.Graphics import Graphics
-
+import re
 
 PREFIX_OUT_DT = '{}_{}'  # Model, Dataset
 
@@ -36,8 +36,12 @@ class RLF(BaseModel):
         return ypr
 
     def get_rules(self):
+        def replace_feature_names(text):
+            return re.sub(r'feature_(\d+)', lambda m: self.id_list[int(m.group(1))], text)
+    
         rules_file = self.cfg.get_prefix() + "_rules.csv"
         rules = self.model.get_rules()
+        rules["rule"] = rules["rule"].apply(replace_feature_names)
         rules = rules[rules.coef != 0].sort_values("support", ascending=False)
         rules.to_csv(rules_file)
         self.graph_rules(rules_file, self.cfg.get_prefix())
@@ -45,3 +49,4 @@ class RLF(BaseModel):
     def graph_rules(self, input_file, prefix):
         g = Graphics()
         g.visualize_rules(input_file, prefix)
+        
