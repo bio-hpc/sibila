@@ -113,6 +113,21 @@ class BaseModel(abc.ABC):
             self.io_data.print_m("ERROR {} does not have the method, not all parameters can be displayed".format(
                 self.cfg.get_params()['model']))
         return ypr
+    
+    def predict_proba(self, X):
+        """
+        Predice probabilidades incluso para modelos que no tienen soporte nativo para predict_proba.
+        """
+        if hasattr(self.model, "predict_proba"):
+            # Si el modelo ya tiene predict_proba, úsalo directamente
+            return self.model.predict_proba(X)
+        else:
+            # Estimar probabilidades manualmente
+            pred = self.model.predict(X)
+            # Convertir predicciones binarias a formato probabilístico
+            proba = np.vstack([1 - pred, pred]).T
+            return proba
+
 
     def get_model(self):
         return self.model

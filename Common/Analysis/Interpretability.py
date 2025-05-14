@@ -33,7 +33,8 @@ class Interpretability:
         "RP": [],
         "RLF": [],
         "LR": [],
-        "BAG": []
+        "BAG": [],
+        "VOT": []
     }
 
     def __init__(self, serialize_params, block_nr=None):

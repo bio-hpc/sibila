@@ -12,7 +12,7 @@ from Tools.DatasetBalanced import DatasetBalanced
 
 class InputParams:
     ALLOW_EXTENSIONS_DATASET = ['csv', 'pkl']
-    REGRESSION_MODELS = ['ANN', 'KNN', 'RF', 'DT', 'SVM', 'XGBOOST', 'LR', 'BAG']
+    REGRESSION_MODELS = ['ANN', 'KNN', 'RF', 'DT', 'SVM', 'XGBOOST', 'LR', 'BAG', 'VOT']
 
 
     def __init__(self):
@@ -51,6 +51,10 @@ class InputParams:
         """
         print("")
         options = self.iodata.read_all_options()
+        
+        # Mover 'VOT' al final de la lista
+        options = sorted(options, key=lambda x: (x == "VOT", x))
+
         options_reg = [value for value in options if value in self.REGRESSION_MODELS and value != 'ANN']
         parser = argparse.ArgumentParser(description='SIBILA', add_help=True)
         parser.add_argument('-d',
@@ -61,7 +65,7 @@ class InputParams:
         parser.add_argument('-o',
                             '--option',
                             nargs='+',
-                            choices=options + ["ALL"],
+                            choices=options + ["ALL", "VOT"],
                             help='Type of model',
                             type=str.upper)
         parser.add_argument(
@@ -109,7 +113,15 @@ class InputParams:
             args.option = None
             args.trainsize = None
         elif not args.explanation:
-            if not args.regression:
+            
+            if "VOT" in args.option:
+                # Dynamically include all base models for VOT and ensure VOT is executed last
+                base_models = [model for model in options if model != "VOT"]
+                print(f"VOT activated: using base models {base_models}")
+                #args.option = base_models + ["VOT"]  # Re-add VOT to execute it after base models
+                args.option = ["VOT"]
+
+            elif not args.regression:
                 args.option = options if (args.option[0] == "ALL") else args.option
             else:
                 args.option = options_reg if (args.option[0] == "ALL") else args.option
