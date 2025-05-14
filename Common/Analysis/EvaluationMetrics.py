@@ -31,6 +31,7 @@ import tensorflow as tf
 from sklearn.metrics import f1_score, precision_score, recall_score, mean_absolute_error, \
     mean_squared_error, confusion_matrix, accuracy_score, roc_curve, roc_auc_score, \
     r2_score, matthews_corrcoef, multilabel_confusion_matrix, auc, mean_absolute_percentage_error
+from sklearn.preprocessing import label_binarize
 from Tools.Graphics import Graphics
 from Tools.ToolsModels import is_regression_by_config, is_multiclass
 from Tools.TypeML import TypeML
@@ -135,11 +136,10 @@ class EvaluationMetrics:
             cm = multilabel_confusion_matrix(self.yts, np.rint(self.ypr)) # res = 3 matrices 2x2
             N = cm.shape[0]
             for i in range(N):
-                tp = cm[i][0][0]
+                tn = cm[i][0][0]
                 fp = cm[i][0][1]
-                fn = cm[i][1][0]
-                tn = cm[i][1][1]
-                spec = spec + (tn / (tn + tp))
+                specificity_i = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+                spec += specificity_i
             return spec / N
         else:
             tn, fp, fn, tp = confusion_matrix(self.yts, self.ypr).ravel()
@@ -159,9 +159,12 @@ class EvaluationMetrics:
     def auc_value(self):
         if is_multiclass(self.cfg):
             auc_score = [0] * self.n_classes
+            ypr_ = self.model.predict_proba(self.xts)
+            classes = np.unique(self.yts)
+            y_true_bin = label_binarize(self.yts, classes=classes)
+
             for i in range(self.n_classes):
-                fpr, tpr, thresholds = roc_curve(self.yts, self.ypr, pos_label=i)
-                auc_score[i] = auc(fpr, tpr)
+                auc_score[i] = roc_auc_score(y_true_bin, ypr_, multi_class='ovr')
 
             auc_score = np.nan_to_num(auc_score)
             return np.mean(auc_score)
