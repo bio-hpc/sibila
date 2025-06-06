@@ -28,7 +28,7 @@ class ConsensusVoting(ConsensusBase):
         dfl = self.df_l[self.df_l[self.RANKING] <= self.N]
         dfl_cnt = dfl[self.FEATURE].value_counts().to_frame().reset_index()
         dfl_cnt.columns = [self.FEATURE, self.ATTR]
-        dfl_cnt[self.ATTR] = dfl_cnt[self.ATTR] / self.df_l.shape[0] # total count rated by the number of samples
+        #dfl_cnt[self.ATTR] = dfl_cnt[self.ATTR] / self.df_l.shape[0] # total count rated by the number of samples
 
         # add the counters of local and global methods
         df = pd.concat([dfg_cnt, dfl_cnt], ignore_index=True)
