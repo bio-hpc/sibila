@@ -29,6 +29,7 @@ chmod u+x sibila.sif
 8. **RP (RIPPERk)**
 9. **LR (Linear/Logistic Regression)**
 10. **BAG (Bagging)**
+11. **VOT (Voting)**
 
 ### Available Interpretability Methods
 1. **Permutation Feature Importance**
@@ -54,6 +55,7 @@ A full user guide is available at: https://docs.google.com/document/d/e/2PACX-1v
 
 ### CHANGELOG
 **v1.2.2 (in progress)**
+- Implemented voting model.
 - Correction of multiclass evaluation metrics.
 - Implemented BayesianOptimizer as method for hyperparameter searaching.
 - Implemented downsampling option.

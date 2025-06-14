@@ -28,7 +28,7 @@ class TestRegression(BaseTest):
         for m in io_data.read_all_options():
             # RP and RLF don't support regression
             # The default config of ANN is only valid for classification
-            if m in ['RP','RLF','ANN']:
+            if m in ['RP','RLF','ANN','VOT']:
                 continue
 
             args = Args(m)

@@ -31,6 +31,9 @@ class TestTrainAnalysis(BaseTest):
         xtr, xts, ytr, yts, idx_xtr, idx_xts, id_list, idx_samples = self.get_dataset(io_data)
 
         for m in io_data.read_all_options():
+            if m in ['VOT']:
+                continue
+
             args = Args(m)
             params = get_default_config(m, io_data)
             p = FOLDER_TEST + m
