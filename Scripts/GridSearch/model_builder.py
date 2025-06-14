@@ -21,7 +21,22 @@ from ModelBuilderRNN import ModelBuilderRNN
 from ModelBuilderRP import ModelBuilderRP
 from ModelBuilderSVM import ModelBuilderSVM
 from ModelBuilderXGBOOST import ModelBuilderXGBOOST
+from ModelBuilderVOT import ModelBuilderVOT
 
+def get_VOT():
+    return {
+        'params.voting_type': ['majority', 'weighted'],
+        'params.base_models': [
+            [
+                {"model_name": "KNN", "model_class": "ModelBuilderKNN"},
+                {"model_name": "DT", "model_class": "ModelBuilderDT"}
+            ]
+        ],
+        'params.weights': [
+            {"KNN": 1.0, "DT": 1.0},
+            {"KNN": 0.5, "DT": 1.5}
+        ]
+    }
 
 def get_ANN():
   return {

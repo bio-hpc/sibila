@@ -1,0 +1,24 @@
+{
+    "model": "VOT",
+    "type_ml": "classification", 
+    "base_models": ["BAG", "DT", "KNN", "LR", "RF", "RP", "SVM", "XGBOOST"], 
+    "remove_outliers": false,  
+    "params": {
+      "rfmode": "classify",
+      "n_jobs": "8"
+    }, 
+    "params_grid": {},  
+    "classification_type": "binary",
+    "metric_weights": {
+            "Precision": 0.2,
+            "F1": 0.2,
+            "Recall": 0.1,
+            "Specificity": 0.1,
+            "MCC": 0.1,
+
+            "Coefficient of Determination": 0.5,
+            "Mean Absolute Error": -0.1,  
+            "Mean Squared Error": -0.1,   
+            "Root Mean Squared Error": -0.1  
+    }   
+  }

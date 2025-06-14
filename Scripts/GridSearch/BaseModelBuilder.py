@@ -25,7 +25,7 @@ class BaseModelBuilder():
 
     @staticmethod
     def get_model_list():
-        return ['ANN', 'DT', 'KNN', 'RF', 'RLF', 'RNN', 'RP', 'SVM', 'XGBOOST']
+        return ['ANN', 'DT', 'KNN', 'RF', 'RLF', 'RNN', 'RP', 'SVM', 'XGBOOST', 'VOT']
 
     @abc.abstractmethod
     def get_default_model(self):
