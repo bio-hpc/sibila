@@ -54,7 +54,7 @@ singularity exec Tools/Singularity/sibila.sif python3 Scripts/ResultAnalyzer.py 
 A full user guide is available at: https://docs.google.com/document/d/e/2PACX-1vTw-Hc36302c2d2fb8t35wwEpaZHVqX0Q_ZuOXsj_rwpgrUfI7fN1Ov9deI9KvXHuTbPmaMp1RpQYmc/pub
 
 ### CHANGELOG
-**v1.2.2 (in progress)**
+**v1.2.2** (18/06/2025)
 - Implemented voting model.
 - Correction of multiclass evaluation metrics.
 - RuleFit and RIPPER rules can be visualized as trees.
