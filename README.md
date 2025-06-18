@@ -57,6 +57,7 @@ A full user guide is available at: https://docs.google.com/document/d/e/2PACX-1v
 **v1.2.2 (in progress)**
 - Implemented voting model.
 - Correction of multiclass evaluation metrics.
+- RuleFit and RIPPER rules can be visualized as trees.
 - Implemented BayesianOptimizer as method for hyperparameter searaching.
 - Implemented downsampling option.
 - KNN creates a new plot to help interpretability.

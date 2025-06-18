@@ -4,6 +4,7 @@ from os.path import join
 import wittgenstein as lw
 from Tools.TypeML import TypeML
 import numpy as np
+from Tools.Graphics import Graphics
 
 PREFIX_OUT_DT = '{}_{}'
 
@@ -30,7 +31,8 @@ class RP(BaseModel):
         return np.array(ypr).astype(int)
 
     def get_rules(self):
-        f = open(self.cfg.get_prefix() + "_rules.txt", 'w')
+        rules_file = self.cfg.get_prefix() + "_rules.txt"
+        f = open(rules_file, 'w')
         f.write('\n{}\n\n'.format(self.id_list))
         f.write('{}\n\n'.format(self.model.ruleset_.__str__()))
         for i in self.model.ruleset_:
@@ -45,3 +47,8 @@ class RP(BaseModel):
             f.write('{}\n'.format(str_features))
         f.write('\n')
         f.close()
+        self.graph_rules(rules_file, self.cfg.get_prefix())
+
+    def graph_rules(self, input_file, prefix):
+        g = Graphics()
+        g.visualize_rules(input_file, prefix)
