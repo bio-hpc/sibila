@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+# Aplicar configuración robusta al inicio (ANTES de otras importaciones)
+try:
+    from Tools.RobustNumericConfig import apply_robust_configuration
+    apply_robust_configuration()
+except ImportError:
+    print("Configuración robusta no disponible, continuando...")
+
 from Common.Analysis.Interpretability import Interpretability
 from Tools.datasets import get_dataset, split_samples, FIELD_TARGET
 from Tools.IOData import IOData, get_serialized_params

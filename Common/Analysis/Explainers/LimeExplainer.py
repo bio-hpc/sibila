@@ -18,6 +18,13 @@ from pathlib import Path
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
 from Tools.ToolsModels import is_rulefit_model
 from Common.Config.ConfigHolder import ATTR, COLNAMES, FEATURE, STD, PROBA
+import warnings
+import sys
+
+# Filter specific warnings for ill-conditioned matrices
+warnings.filterwarnings('ignore', message='Ill-conditioned matrix.*', category=RuntimeWarning)
+warnings.filterwarnings('ignore', message='.*rcond.*', category=RuntimeWarning)
+warnings.filterwarnings('ignore', category=np.RankWarning)
 
 class LimeExplainer(ExplainerModel):
 
@@ -39,10 +46,21 @@ class LimeExplainer(ExplainerModel):
         self.html = LIMEHTMLBuilder()
         df_local = []
         colnames = [FEATURE, ATTR, 'range', 'class', PROBA]
+        
+        successful_explanations = 0
+        failed_explanations = 0
 
         for i in tqdm(range(len(self.xts))):
             x = self.xts[i]
-            exp = explainer.explain_instance(x, predict_fn, num_features=len(self.id_list), top_labels=1, num_samples=n_samples)
+            
+            # Try to explain instance with robust error handling
+            exp = self._explain_instance_robust(explainer, x, predict_fn, n_samples, i)
+            
+            if exp is None:
+                failed_explanations += 1
+                continue
+                
+            successful_explanations += 1
 
             if is_regression_by_config(self.cfg):
                 ypr = exp.predicted_value
@@ -63,6 +81,13 @@ class LimeExplainer(ExplainerModel):
             del df
 
         self.html.close()
+        
+        print(f"LIME Explainer completed: {successful_explanations} success, {failed_explanations} failures")
+
+        # Only proceed if we have at least some successful explanations
+        if len(df_local) == 0:
+            print("WARNING: Could not generate LIME explanations. Returning empty DataFrame.")
+            return pd.DataFrame(columns=[FEATURE, ATTR, STD])
 
         # averaged attributions
         self.df_global = pd.concat(df_local)
@@ -81,26 +106,133 @@ class LimeExplainer(ExplainerModel):
         Graphics().plot_attributions(aux_df, 'LIME', self.cfg.get_prefix() + '_Lime.png', errors=self.get_errors(aux_df))
 
     def lime_classification(self):
-        explainer = lime_tabular.LimeTabularExplainer(self.xtr,
-                                                      feature_names=self.id_list,
-                                                      class_names=np.unique(self.yts, axis=0).astype(str),
-                                                      discretize_continuous=True,
-                                                      discretizer='entropy',
-                                                      training_labels=self.ytr,
-                                                      random_state=self.random_state,
-                                                      feature_selection='forward_selection')
-        return explainer, self.model.predict_proba, 5000
+        try:
+            # Standard configuration
+            explainer = lime_tabular.LimeTabularExplainer(self.xtr,
+                                                          feature_names=self.id_list,
+                                                          class_names=np.unique(self.yts, axis=0).astype(str),
+                                                          discretize_continuous=True,
+                                                          discretizer='entropy',
+                                                          training_labels=self.ytr,
+                                                          random_state=self.random_state,
+                                                          feature_selection='forward_selection')
+            return explainer, self.model.predict_proba, 5000
+        except Exception as e:
+            print(f"Failed standard LIME classification configuration: {e}")
+            # More robust fallback configuration
+            explainer = lime_tabular.LimeTabularExplainer(self.xtr,
+                                                          feature_names=self.id_list,
+                                                          class_names=np.unique(self.yts, axis=0).astype(str),
+                                                          discretize_continuous=False,  # Less error-prone
+                                                          training_labels=self.ytr,
+                                                          random_state=self.random_state,
+                                                          feature_selection='auto')  # Automatic selection
+            return explainer, self.model.predict_proba, 1000  # Fewer samples
 
     def lime_regression(self):
         def lime_predict(x):
-            pred = self.model.predict(x)
-            return pred.reshape(pred.shape[0])
+            try:
+                pred = self.model.predict(x)
+                return pred.reshape(pred.shape[0])
+            except Exception as e:
+                print(f"Error in LIME prediction: {e}")
+                # Return default predictions in case of error
+                return np.zeros(x.shape[0])
 
-        explainer = lime_tabular.LimeTabularExplainer(self.xtr,
-                                                      feature_names=self.id_list,
-                                                      discretize_continuous=True,
-                                                      mode='regression')
-        return explainer, lime_predict, 5000
+        try:
+            # Standard configuration
+            explainer = lime_tabular.LimeTabularExplainer(self.xtr,
+                                                          feature_names=self.id_list,
+                                                          discretize_continuous=True,
+                                                          mode='regression')
+            return explainer, lime_predict, 5000
+        except Exception as e:
+            print(f"Failed standard LIME regression configuration: {e}")
+            # More robust fallback configuration
+            explainer = lime_tabular.LimeTabularExplainer(self.xtr,
+                                                          feature_names=self.id_list,
+                                                          discretize_continuous=False,  # Less error-prone
+                                                          mode='regression',
+                                                          feature_selection='auto')
+            return explainer, lime_predict, 1000  # Fewer samples
+
+    def _explain_instance_robust(self, explainer, x, predict_fn, n_samples, instance_idx):
+        """
+        Attempts to explain an instance with fallback strategies to handle numerical errors
+        """
+        import warnings
+        from numpy.linalg import LinAlgError
+        
+        # Strategy 1: Try with normal configuration
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                return explainer.explain_instance(x, predict_fn, 
+                                                num_features=len(self.id_list), 
+                                                top_labels=1, 
+                                                num_samples=n_samples)
+        except (LinAlgError, ValueError, RuntimeError) as e:
+            print(f"Failed on instance {instance_idx}: {str(e)[:100]}...")
+        
+        # Strategy 2: Reduce number of samples
+        reduced_samples = [1000, 500, 100]
+        for samples in reduced_samples:
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    return explainer.explain_instance(x, predict_fn,
+                                                    num_features=len(self.id_list),
+                                                    top_labels=1,
+                                                    num_samples=samples)
+            except (LinAlgError, ValueError, RuntimeError):
+                continue
+        
+        # Strategy 3: Reduce number of features
+        max_features = min(10, len(self.id_list))
+        for num_feats in [max_features, 5, 3]:
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    return explainer.explain_instance(x, predict_fn,
+                                                    num_features=num_feats,
+                                                    top_labels=1,
+                                                    num_samples=100)
+            except (LinAlgError, ValueError, RuntimeError):
+                continue
+        
+        # Strategy 4: Create a new explainer with more robust configuration
+        try:
+            if not is_regression_by_config(self.cfg):
+                robust_explainer = lime_tabular.LimeTabularExplainer(
+                    self.xtr,
+                    feature_names=self.id_list,
+                    class_names=np.unique(self.yts, axis=0).astype(str),
+                    discretize_continuous=False,  # Set to False to avoid problems
+                    feature_selection='none',      # No feature selection
+                    training_labels=self.ytr,
+                    random_state=self.random_state
+                )
+            else:
+                robust_explainer = lime_tabular.LimeTabularExplainer(
+                    self.xtr,
+                    feature_names=self.id_list,
+                    discretize_continuous=False,
+                    mode='regression',
+                    feature_selection='none'
+                )
+            
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                return robust_explainer.explain_instance(x, predict_fn,
+                                                       num_features=min(5, len(self.id_list)),
+                                                       top_labels=1,
+                                                       num_samples=50)
+        except (LinAlgError, ValueError, RuntimeError):
+            pass
+        
+        # If all strategies fail, return None
+        print(f"Could not explain instance {instance_idx} with any strategy")
+        return None
 
     def get_feature_name(self, e):
         m = re.split('[<]+ | [>]+ | [<=]+ | [>=]+ | [=]+', e)
