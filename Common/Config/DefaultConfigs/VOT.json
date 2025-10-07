@@ -1,6 +1,5 @@
 {
     "model": "VOT",
-    "type_ml": "classification", 
     "base_models": ["BAG", "DT", "KNN", "LR", "RF", "RP", "SVM", "XGBOOST"], 
     "remove_outliers": false,  
     "params": {

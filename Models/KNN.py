@@ -3,7 +3,7 @@ from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from joblib import dump
 from .BaseModel import *
 from Tools.Graphics import Graphics
-from Tools.TypeML import TypeML
+from Tools.ToolsModels import is_regression_by_args
 from sklearn.inspection import permutation_importance
 
 PREFIX_OUT_KNN = '{}_{}_{}_{}'
@@ -13,9 +13,9 @@ class KNN(BaseModel):
     def __init__(self, io_data, cfg, id_list):
         super(KNN, self).__init__(io_data, cfg, id_list)
 
-        if self.cfg.get_params()['type_ml'].lower() == TypeML.CLASSIFICATION.value:
+        if not is_regression_by_args(self.cfg.get_args()):
             self.model = KNeighborsClassifier(**self.cfg.get_params()['params'])
-        elif self.cfg.get_params()['type_ml'].lower() == TypeML.REGRESSION.value:
+        elif is_regression_by_args(self.cfg.get_args()):
             self.model = KNeighborsRegressor(**self.cfg.get_params()['params'])
         else:
             print("Error: type_model not found ")

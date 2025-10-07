@@ -20,7 +20,7 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 from alibi.explainers import IntegratedGradients
-from Tools.ToolsModels import is_regression_by_config, make_model
+from Tools.ToolsModels import is_regression_by_args, make_model
 import keras_tuner as kt
 from Models.Utils.LearningHistoryCallback import LearningHistoryCallback
 from Tools.DatasetBalanced import DatasetBalanced
@@ -87,7 +87,7 @@ class ANN(BaseModel):
             if hp.Boolean("dropout", params['dropout']):
                 model.add(tf.keras.layers.Dropout(rate=params['dropout_rate']))
 
-            if not is_regression_by_config(self.cfg):
+            if not is_regression_by_args(self.cfg.get_args()):
                 model.add(tf.keras.layers.Dense(params['output_units'], activation="softmax", kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
             else:
                 model.add(tf.keras.layers.Dense(params['output_units'], kernel_initializer=tf.keras.initializers.GlorotUniform(seed=seed)))
@@ -140,7 +140,7 @@ class ANN(BaseModel):
 
         # handling unbalanced data if requested
         class_weights = DatasetBalanced.get_class_weights(self.model, ytr, self.cfg)
-        if is_regression_by_config(self.cfg):
+        if is_regression_by_args(self.cfg):
             class_weights = None
 
         tuner.search(xtr, ytr, 
@@ -193,7 +193,7 @@ class ANN(BaseModel):
         if self.cfg.get_params()['params']['draw_model']:
             self.graphics.draw_model(self.model, self.cfg.get_prefix())
 
-        if is_regression_by_config(self.cfg):
+        if is_regression_by_args(self.cfg.get_args()):
             return np.squeeze(ypr)
 
         return ypr.argmax(axis=1)

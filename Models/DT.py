@@ -2,8 +2,8 @@ from .BaseModel import BaseModel
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from os.path import join
 from Tools.Graphics import Graphics
+from Tools.ToolsModels import is_regression_by_args
 from joblib import dump
-from Tools.TypeML import TypeML
 
 PREFIX_OUT_DT = '{}_{}_{}'  # Model, Dataset, numero de arboles, numero de profundidad, RANDOM_STATE
 
@@ -12,10 +12,10 @@ class DT(BaseModel):
     def __init__(self, io_data, cfg, id_list):
         super(DT, self).__init__(io_data, cfg, id_list)
 
-        if self.cfg.get_params()['type_ml'].lower() == TypeML.CLASSIFICATION.value:
+        if not is_regression_by_args(self.cfg.get_args()):
             self.model = DecisionTreeClassifier(**self.cfg.get_params()['params'])
 
-        elif self.cfg.get_params()['type_ml'].lower() == TypeML.REGRESSION.value:
+        elif is_regression_by_args(self.cfg.get_args()):
             if 'criterion' in self.cfg.get_params()['params']:
                 del self.cfg.get_params()['params']['criterion']
             if 'criterion' in self.cfg.get_params()['params_grid']:

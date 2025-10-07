@@ -2,7 +2,7 @@ from .BaseModel import BaseModel
 from joblib import dump
 from os.path import join
 import wittgenstein as lw
-from Tools.TypeML import TypeML
+from Tools.ToolsModels import is_regression_by_args
 import numpy as np
 from Tools.Graphics import Graphics
 
@@ -12,7 +12,7 @@ PREFIX_OUT_DT = '{}_{}'
 class RP(BaseModel):
     def __init__(self, io_data, cfg, id_list):
         super(RP, self).__init__(io_data, cfg, id_list)
-        if self.cfg.get_params()['type_ml'].lower() == TypeML.CLASSIFICATION.value:
+        if not is_regression_by_args(self.cfg.get_args()):
             self.model = lw.RIPPER(**self.cfg.get_params()['params'])
         else:
             print("Error: This model is only valid for classification")

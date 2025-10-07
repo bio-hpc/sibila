@@ -7,7 +7,7 @@ __email__ = "ajbanegas@ucam.edu"
 __status__ = "Production"
 
 import pandas as pd
-from Tools.ToolsModels import is_regression_by_config
+from Tools.ToolsModels import is_regression_by_args
 from Tools.Graphics import Graphics
 from sklearn.inspection import permutation_importance
 from sklearn.utils import Bunch
@@ -25,7 +25,7 @@ class PermutationImportanceExplainer(ExplainerModel):
         if len(self.id_list) == 1:
             results = Bunch(importances_mean=1.0, importances_std=0.0)
         else:
-            if is_regression_by_config(self.cfg):
+            if is_regression_by_args(self.cfg.get_args()):
                 scorer = 'r2'
             elif is_multiclass(self.cfg):
                 scorer = 'neg_log_loss'

@@ -33,7 +33,7 @@ from sklearn.metrics import f1_score, precision_score, recall_score, mean_absolu
     r2_score, matthews_corrcoef, multilabel_confusion_matrix, auc, mean_absolute_percentage_error
 from sklearn.preprocessing import label_binarize
 from Tools.Graphics import Graphics
-from Tools.ToolsModels import is_regression_by_config, is_multiclass
+from Tools.ToolsModels import is_regression_by_args, is_multiclass
 from Tools.TypeML import TypeML
 from Tools.Timer import Timer
 
@@ -248,7 +248,7 @@ class EvaluationMetrics:
         t = Timer('Analysis')
         self.data = {}
 
-        if not is_regression_by_config(self.cfg):
+        if not is_regression_by_args(self.cfg.get_args()):
             self.data['Analysis'] = {
                 'Confusion matrix': self.confusion_matrix().tolist(),
                 'Accuracy': round(self.classification_accuracy() * 100, self.DECIMALS_ROUND),

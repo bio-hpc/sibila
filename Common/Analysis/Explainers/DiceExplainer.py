@@ -6,11 +6,10 @@ from dice_ml.utils import helpers
 from tqdm import tqdm
 from Tools.Graphics import Graphics
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
-from Tools.ToolsModels import is_tf_model, is_ripper_model, is_rulefit_model, is_regression_by_config, is_multiclass
+from Tools.ToolsModels import is_tf_model, is_ripper_model, is_rulefit_model, is_regression_by_args, is_multiclass
 from Tools.Estimators.RipperEstimator import RipperEstimator
 from pathlib import Path
 from Common.Config.ConfigHolder import FEATURE, ATTR, STD, COLNAMES, PROBA
-from Tools.ToolsModels import is_regression_by_config
 
 class DiceExplainer(ExplainerModel):
 
@@ -30,7 +29,7 @@ class DiceExplainer(ExplainerModel):
 
         model_type = 'classifier'
         desired_range = None
-        if is_regression_by_config(self.cfg):
+        if is_regression_by_args(self.cfg.get_args()):
             model_type = 'regressor'
             desired_range = (min(self.ytr), max(self.ytr))
 

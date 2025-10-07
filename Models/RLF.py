@@ -1,7 +1,7 @@
 from .BaseModel import BaseModel
 from os.path import join
 from joblib import dump
-from Tools.TypeML import TypeML
+from Tools.ToolsModels import is_regression_by_args
 import numpy as np
 from rulefit import RuleFit
 from sklearn.ensemble import GradientBoostingRegressor
@@ -14,7 +14,7 @@ PREFIX_OUT_DT = '{}_{}'  # Model, Dataset
 class RLF(BaseModel):
     def __init__(self, io_data, cfg, id_list):
         super(RLF, self).__init__(io_data, cfg, id_list)
-        if self.cfg.get_params()['type_ml'].lower() == TypeML.CLASSIFICATION.value:
+        if not is_regression_by_args(self.cfg.get_args()):
             self.model = RuleFit(**self.cfg.get_params()['params'])
         else:
             print("Error: This model is only valid for classification")

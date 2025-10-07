@@ -7,7 +7,7 @@ __email__ = "ajbanegas@ucam.edu"
 __status__ = "Production"
 
 import pandas as pd
-from Tools.ToolsModels import is_regression_by_config
+from Tools.ToolsModels import is_regression_by_args
 from Tools.Graphics import Graphics
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
 from Common.Config.ConfigHolder import FEATURE, ATTR, STD
@@ -20,7 +20,7 @@ class RFPermutationImportanceExplainer(ExplainerModel):
             https://scikit-learn.org/stable/modules/generated/sklearn.inspection.permutation_importance.html
             https://medium.com/analytics-vidhya/interpretability-in-machine-learning-f79e1da4f797
         """
-        if not is_regression_by_config(self.cfg):
+        if not is_regression_by_args(self.cfg.get_args()):
             forest = RandomForestClassifier()
         else:
             forest = RandomForestRegressor()
