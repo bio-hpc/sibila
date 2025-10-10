@@ -22,7 +22,7 @@ chmod u+x sibila.sif
 1. **DT (Decision Tree)**
 2. **RF (Random Forest)**
 3. **SVM (Support Vector Machines)**
-4. **XGBOOST (eXtreme Gradient BOOSTing)**
+4. **XGB (eXtreme Gradient BOOSTing)**
 5. **ANN (Artificial Neural Networks)**
 6. **KNN (K-Nearest Neighbours)**
 7. **RLF (RuLEFit)**

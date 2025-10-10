@@ -17,7 +17,7 @@ DEBUG = True
 DELIMITER = '##'
 MAX_FEATURES = 10
 FOLDER_OUT = "Consensus/"
-MODELS = ['ANN', 'DT', 'KNN', 'RF', 'RLF', 'RP', 'SVM', 'XGBOOST']
+MODELS = ['ANN', 'DT', 'KNN', 'RF', 'RLF', 'RP', 'SVM', 'XGB']
 INTERPRETABILITY = {
     'LIME': '/LIME/',
     'Shapley': '/Shapley/csv/',

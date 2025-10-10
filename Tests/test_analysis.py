@@ -18,7 +18,7 @@ MODEL_ASSERTS = {
     'KNN':[
         { '*points.png': 'E0114' }
     ],
-    'XGBOOST':[
+    'XGB':[
         { '*feature_map.txt': 'E0112' },
         { '*tree.png': 'E0113' }
     ]

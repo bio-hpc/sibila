@@ -5,14 +5,14 @@ from joblib import dump
 from Tools.ToolsModels import is_regression_by_args
 import matplotlib.pyplot as plt
 
-PREFIX_OUT_XGBOOST = '{}_{}'  # Model, Dataset, numero de arboles, numero de profundidad, RANDOM_STATE
+PREFIX_OUT_XGB = '{}_{}'  # Model, Dataset, numero de arboles, numero de profundidad, RANDOM_STATE
 
 REMOVE_PARAMS_REGRESSOR = []
 
 
-class XGBOOST(BaseModel):
+class XGB(BaseModel):
     def __init__(self, io_data, cfg, id_list):
-        super(XGBOOST, self).__init__(io_data, cfg, id_list)
+        super(XGB, self).__init__(io_data, cfg, id_list)
 
         if not is_regression_by_args(self.cfg.get_args()):
             self.model = xgb.XGBClassifier()
@@ -26,7 +26,7 @@ class XGBOOST(BaseModel):
 
     def get_prefix(self):
         return join(self.cfg.get_folder(),
-                    PREFIX_OUT_XGBOOST.format(
+                    PREFIX_OUT_XGB.format(
                         self.cfg.get_params()['model'],
                         self.cfg.get_name_dataset(),
                     ))

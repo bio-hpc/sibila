@@ -1,6 +1,6 @@
 {
     "model": "VOT",
-    "base_models": ["BAG", "DT", "KNN", "LR", "RF", "RP", "SVM", "XGBOOST"], 
+    "base_models": ["BAG", "DT", "KNN", "LR", "RF", "RP", "SVM", "XGB"], 
     "remove_outliers": false,  
     "params": {
       "rfmode": "classify",

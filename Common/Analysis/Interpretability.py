@@ -27,7 +27,7 @@ class Interpretability:
         "DT": [],
         "RF": [],
         "SVM": [],
-        "XGBOOST": [],
+        "XGB": [],
         "ANN": [],
         "KNN": [],
         "RP": [],

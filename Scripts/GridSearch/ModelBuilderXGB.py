@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""ModelBuilderXGBOOST.py:
+"""ModelBuilderXGB.py:
 
 """
 __author__ = "Antonio Jesús Banegas-Luna"
@@ -12,7 +12,7 @@ __status__ = "Development"
 
 from BaseModelBuilder import BaseModelBuilder
 
-class ModelBuilderXGBOOST(BaseModelBuilder):
+class ModelBuilderXGB(BaseModelBuilder):
 
     def get_default_model(self):
         p = {}

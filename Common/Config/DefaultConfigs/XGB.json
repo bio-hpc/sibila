@@ -1,5 +1,5 @@
 {
-    "model": "XGBOOST",
+    "model": "XGB",
     "train_grid": "train_random",
     "classification_type": "binary",
     "params": {

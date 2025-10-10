@@ -20,7 +20,7 @@ from ModelBuilderRLF import ModelBuilderRLF
 from ModelBuilderRNN import ModelBuilderRNN
 from ModelBuilderRP import ModelBuilderRP
 from ModelBuilderSVM import ModelBuilderSVM
-from ModelBuilderXGBOOST import ModelBuilderXGBOOST
+from ModelBuilderXGB import ModelBuilderXGB
 from ModelBuilderVOT import ModelBuilderVOT
 
 def get_VOT():
@@ -499,7 +499,7 @@ def get_DT():
       'params.ccp_alpha': [0, .1, .2, .3, .4, .5]
   }
 
-def get_XGBOOST():
+def get_XGB():
   return {
       'params.xgbclassifier__gamma': [.5, 1],
       'params.xgbclassifier__max_depth': [3, 4]
