@@ -33,7 +33,7 @@ chmod u+x sibila.sif
 
 ### Available Interpretability Methods
 1. **Permutation Feature Importance**
-2. **RF-based Permutation Feature Importance**
+2. **Mean Decrease in Impurity (MDI)**
 3. **Local Interpretable Model-agnostic Explanations (LIME)**
 4. **Integrated Gradients** 
 5. **Shapley values**
@@ -54,6 +54,11 @@ singularity exec Tools/Singularity/sibila.sif python3 Scripts/ResultAnalyzer.py 
 A full user guide is available at: https://docs.google.com/document/d/e/2PACX-1vTw-Hc36302c2d2fb8t35wwEpaZHVqX0Q_ZuOXsj_rwpgrUfI7fN1Ov9deI9KvXHuTbPmaMp1RpQYmc/pub
 
 ### CHANGELOG
+**v2.0.0** (xx/xx/xxxx)
+- Renamed XGBOOST model to XGB.
+- Renamed RF and DICE explainers to generic names.
+- Removed type\_ml parameter from the JSON configuration files.
+
 **v1.2.2** (18/06/2025)
 - Implemented voting model.
 - Correction of multiclass evaluation metrics.
