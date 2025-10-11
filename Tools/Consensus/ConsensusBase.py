@@ -15,8 +15,8 @@ from matplotlib import pyplot as plt
 
 class ConsensusBase(abc.ABC):
 
-    GLOBALS = ['PermutationImportance', 'RFPermutationImportance']
-    LOCALS = ['LIME', 'Shapley/csv', 'IntegratedGradients/csv', 'Dice']
+    GLOBALS = ['PermutationImportance', 'MDI']
+    LOCALS = ['LIME', 'Shapley/csv', 'IntegratedGradients/csv', 'Counterfactuals']
     FEATURE = 'feature'
     ATTR = 'attribution'
     PROBA = 'probability'
@@ -116,7 +116,7 @@ class ConsensusBase(abc.ABC):
     def __load_locals(self, idx, prefixes, models):
         for l in self.LOCALS:
             # Neural networks don't work with counterfactuals
-            if models[idx] == 'ANN' and l == 'Dice':
+            if models[idx] == 'ANN' and l == 'Counterfactuals':
                 continue
 
             folder = os.path.split(prefixes[idx])[0] + '/' + l

@@ -11,7 +11,7 @@ from Tools.Estimators.RipperEstimator import RipperEstimator
 from pathlib import Path
 from Common.Config.ConfigHolder import FEATURE, ATTR, STD, COLNAMES, PROBA
 
-class DiceExplainer(ExplainerModel):
+class CounterfactualsExplainer(ExplainerModel):
 
     DICE_METHOD = "random"  # random | genetic | kdtree
 
@@ -83,16 +83,16 @@ class DiceExplainer(ExplainerModel):
         return None
 
     def plot(self, df, method=None):
-        title = 'DiCE'
+        title = 'Counterfactuals'
 
         # global interpretability
-        Graphics().plot_attributions(df, title, self.cfg.get_prefix() + '_Dice.png', errors=self.get_errors(df))
+        Graphics().plot_attributions(df, title, self.cfg.get_prefix() + '_Counterfactuals.png', errors=self.get_errors(df))
 
         # local interpretability
         for i in tqdm(range(len(self.df_local))):
-            filename = "{}_Dice_{}".format(Path(self.cfg.get_prefix()).stem, self.idx_xts[i])
-            path_csv = "{}csv/{}.csv".format(self.io_data.get_dice_folder(), filename)
-            path_png = "{}png/{}.png".format(self.io_data.get_dice_folder(), filename)
+            filename = "{}_Counterfactuals_{}".format(Path(self.cfg.get_prefix()).stem, self.idx_xts[i])
+            path_csv = "{}csv/{}.csv".format(self.io_data.get_counterfactuals_folder(), filename)
+            path_png = "{}png/{}.png".format(self.io_data.get_counterfactuals_folder(), filename)
 
             # Sort in ascending order for plotting correctly
             df2 = self.df_local[i]

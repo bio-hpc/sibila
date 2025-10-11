@@ -5,6 +5,6 @@ from Common.Analysis.Explainers.PDPExplainer import PDPExplainer
 from Common.Analysis.Explainers.PermutationImportanceExplainer import PermutationImportanceExplainer
 from Common.Analysis.Explainers.ShapleyExplainer import ShapleyExplainer
 from Common.Analysis.Explainers.ALEExplainer import ALEExplainer
-from Common.Analysis.Explainers.DiceExplainer import DiceExplainer
-from Common.Analysis.Explainers.RFPermutationImportanceExplainer import RFPermutationImportanceExplainer
+from Common.Analysis.Explainers.CounterfactualsExplainer import CounterfactualsExplainer
+from Common.Analysis.Explainers.MDIExplainer import MDIExplainer
 from Common.Analysis.Explainers.AnchorExplainer import AnchorExplainer

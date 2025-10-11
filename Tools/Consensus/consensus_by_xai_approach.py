@@ -21,9 +21,9 @@ INTERPRETABILITY = {
     'LIME': '/LIME/*.csv',
     'Shapley': '/Shapley/csv/*.csv',
     'Integrated Gradients': '/Integrated_Gradients/csv/*.csv',
-    'DiCE': '/DICE/csv/*.csv',
+    'Counterfactuals': '/Counterfactuals/csv/*.csv',
     'Permutation Importance': '/*PermutationImportance.csv',
-    'RF Permutation Importance': '/*RFPermutationImportance.csv',
+    'RF Permutation Importance': '/*MDI.csv',
     'Anchor': '/*Anchor.csv'
 }
 METRICS = {

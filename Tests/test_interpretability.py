@@ -58,17 +58,17 @@ METHODS = {
         'n_files': [DATASET_LEN_IDLIST],
         'deny_methods': []
     },
-    'Dice': {
-        'folder': "DICE/png/",
+    'Counterfactuals': {
+        'folder': "Counterfactuals/png/",
         'n_files': [5],
         'deny_methods': ['ANN', 'RP', 'RLF']
     },
-    'Dice': {
+    'Counterfactuals': {
         'folder': "",
         'n_files': [3],
         'deny_methods': ['ANN', 'RP', 'RLF']
     },
-    'RFPermutationImportance': {
+    'MDI': {
         'folder': "",
         'n_files': [4],
         'deny_methods': []

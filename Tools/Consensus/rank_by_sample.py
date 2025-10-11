@@ -22,7 +22,7 @@ INTERPRETABILITY = {
     'LIME': '/LIME/',
     'Shapley': '/Shapley/csv/',
     'Integrated Gradients': '/Integrated_Gradients/csv/',
-    'DiCE': '/DICE/csv/'
+    'Counterfactuals': '/Counterfactuals/csv/'
 }
 
 def create_dir(dir):

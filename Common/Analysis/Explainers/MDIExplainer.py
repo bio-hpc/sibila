@@ -14,7 +14,7 @@ from Common.Config.ConfigHolder import FEATURE, ATTR, STD
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 
 
-class RFPermutationImportanceExplainer(ExplainerModel):
+class MDIExplainer(ExplainerModel):
     def explain(self):
         """
             https://scikit-learn.org/stable/modules/generated/sklearn.inspection.permutation_importance.html
@@ -29,6 +29,6 @@ class RFPermutationImportanceExplainer(ExplainerModel):
         return pd.DataFrame({FEATURE: self.id_list, ATTR: forest.feature_importances_})
 
     def plot(self, df, method=None):
-        Graphics().graphic_pie(df, self.prefix + '_RFPermutationImportance_pie.png', 'RF Permutation Feature Importance')
-        Graphics().graph_hist(df, self.prefix + '_RFPermutationImportance_hist.png', 'RF Permutation Feature Importance')
+        Graphics().graphic_pie(df, self.prefix + '_MDI_pie.png', 'Mean Decrease in Impurity')
+        Graphics().graph_hist(df, self.prefix + '_MDI_hist.png', 'Mean Decrease in Impurity')
 

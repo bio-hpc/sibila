@@ -14,7 +14,7 @@ from docx.oxml import parse_xml
 from Tools.Word2Pdf import convert_to
 
 GRAPHS = ['model', 'loss_acc', 'roc_proba', 'confusion_matrix', 'correlation', '_tree_', 
-'PermutationImportance_hist', 'RFPermutationImportance_hist', 'Lime', 'IntegratedGradients', 'Shapley', 'Dice', 'Anchors', 'times']
+'PermutationImportance_hist', 'MDI_hist', 'Lime', 'IntegratedGradients', 'Shapley', 'Counterfactuals', 'Anchors', 'times']
 LST_PREFIX = ["ALE", "PDP"]
 
 
