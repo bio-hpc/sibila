@@ -74,15 +74,16 @@ class JoinGraphs:
             pass
 
     def create_global(self):
-        self.create_document()
+        results = self.collect_metrics()
         expr = self.dir_name + "[^A-Z]*_*_*.png"
+
+        self.create_document()
+        self.create_table_metrics(results)
+        self.doc.add_page_break()
+
         for m in self.get_methods(expr):
             self.create_doc(m, False)
 
-        self.doc.add_page_break()
-        results = self.collect_metrics()
-        self.create_table_metrics(results)
-        
         self.save()
 
     def __find_metrics(self, content):

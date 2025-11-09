@@ -105,4 +105,3 @@ class LimeExplainer(ExplainerModel):
     def get_feature_name(self, e):
         m = re.split('[<]+ | [>]+ | [<=]+ | [>=]+ | [=]+', e)
         return m[1] if len(m) > 2 else m[0]
-
