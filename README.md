@@ -55,6 +55,7 @@ A full user guide is available at: https://docs.google.com/document/d/e/2PACX-1v
 
 ### CHANGELOG
 **v2.0.0** (xx/xx/xxxx)
+- Cleaned code of VOT model.
 - Renamed XGBOOST model to XGB.
 - Renamed RF and DICE explainers to generic names.
 - Removed type\_ml parameter from the JSON configuration files.
