@@ -61,6 +61,7 @@ A full user guide is available at: https://docs.google.com/document/d/e/2PACX-1v
 - Removed type\_ml parameter from the JSON configuration files.
 - The table of metrics is presented in the first page of the PDF summary report.
 - Integrated gradients are wrapped in a differentiable function to make it usable with sklearn models.
+- Detected if GPUs are available and, if not, dynamically make them invisible.
 
 **v1.2.2** (18/06/2025)
 - Implemented voting model.
