@@ -57,10 +57,11 @@ class SklearnNetwork(tf.keras.Model):
             self.n_classes = self.infer_n_classes(X)
 
         # get targets
-        y = self.original_model.predict(X) 
+        y = self.original_model.predict(X)
+        y_numeric = np.array(y).astype(int)
 
         self.surrogate = self.build_surrogate()
-        self.surrogate.fit(X, y,
+        self.surrogate.fit(X, y_numeric,
                            epochs=epochs,
                            batch_size=batch_size,
                            verbose=verbose)

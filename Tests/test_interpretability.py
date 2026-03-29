@@ -103,6 +103,7 @@ class TestInterpretability(BaseTest):
                     p = FOLDER_TEST + name_model
                     args = Args(name_model)
                     cfg = self.get_config_holder(args, params, p)
+                    cfg.set_n_classes(2)
 
                     BaseModel.save_model(cfg, model)
                     s = Serialize(model, xtr, ytr, xts, yts, id_list, cfg, io_data, idx_xts)

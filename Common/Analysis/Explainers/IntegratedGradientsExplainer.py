@@ -34,16 +34,22 @@ class IntegratedGradientsExplainer(ExplainerModel):
             task = "classification"
             n_classes = self.cfg.get_n_classes()
 
-        self.xts_ = self.xts
+        self.xts_ = np.array(self.xts).astype(np.float32)
+        if len(self.xts_.shape) == 1:
+            self.xts_ = self.xts_.reshape(1, -1)
+
+        baseline_ = self.get_baseline(self.xts_)
+        if baseline_.shape != self.xts_.shape:
+            baseline_ = np.zeros_like(self.xts_)
+
         model_ = SklearnNetwork(self.model, input_dim=self.xtr.shape[1], task=task, n_classes=n_classes)
         model_.prepare(self.xtr)
 
         inputs_tf = tf.convert_to_tensor(self.xts, dtype=tf.float32)
         preds = model_(inputs_tf).numpy()
 
-
-        y_true = model_.original_model.predict(self.xts)
-        y_surr = model_.surrogate.predict(self.xts)
+        #y_true = model_.original_model.predict(self.xts)
+        #y_surr = model_.surrogate.predict(self.xts)
         #print("Ejemplo real vs surrogate:")
         #print(np.c_[y_true[:10], y_surr[:10]])
 
@@ -55,8 +61,6 @@ class IntegratedGradientsExplainer(ExplainerModel):
         else:
             target_ = None
 
-        baseline_ = self.get_baseline(self.xts_)
-
         ig = IntegratedGradients(model_, method='riemann_trapezoid', n_steps=50)
         explanation = ig.explain(self.xts_, baselines=baseline_, target=target_)
         self.attrs = np.squeeze(explanation.attributions)
@@ -65,9 +69,7 @@ class IntegratedGradientsExplainer(ExplainerModel):
         return pd.DataFrame({FEATURE: self.id_list, ATTR: np.mean(self.attrs, axis=0), STD: np.std(self.attrs, axis=0)})
 
     def get_baseline(self, X):
-        #return shap.sample(X, X.shape[0])*1.005
         return np.mean(self.xtr, axis=0, keepdims=True)
-        #return np.zeros_like(self.xts_)
 
     def plot(self, df, method=None):
         title = 'Integrated Gradients'
@@ -100,4 +102,3 @@ class IntegratedGradientsExplainer(ExplainerModel):
     def get_value(self, feature, row_id):
         index = self.id_list.index(feature)
         return self.xts_[row_id, index]
-
