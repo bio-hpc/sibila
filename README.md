@@ -37,7 +37,7 @@ chmod u+x sibila.sif
 3. **Local Interpretable Model-agnostic Explanations (LIME)**
 4. **Integrated Gradients** 
 5. **Shapley values**
-6. **Diverse Counterfactual Explanations (DICE)**
+6. **Counterfactual Explanations**
 7. **Partial Dependence Plots (PDP)**
 8. **Accumulated Local Effects (ALE)**
 9. **Anchors**
@@ -60,6 +60,7 @@ A full user guide is available at: https://docs.google.com/document/d/e/2PACX-1v
 - Renamed RF and DICE explainers to generic names.
 - Removed type\_ml parameter from the JSON configuration files.
 - The table of metrics is presented in the first page of the PDF summary report.
+- Integrated gradients are wrapped in a differentiable function to make it usable with sklearn models.
 
 **v1.2.2** (18/06/2025)
 - Implemented voting model.
