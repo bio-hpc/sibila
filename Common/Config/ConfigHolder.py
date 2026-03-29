@@ -59,6 +59,7 @@ class ConfigHolder:
             'Time_s': '',
             'Git_version': sha,
             'Model_params': params,
+            'N_classes': None
         }
         self.ini_params = params.copy()
 
@@ -97,6 +98,12 @@ class ConfigHolder:
 
     def get_folder(self):
         return self.config['Folder']
+
+    def get_n_classes(self):
+        return self.config['N_classes']
+
+    def set_n_classes(self, n_classes):
+        self.config['N_classes'] = n_classes
 
     def get_config(self):
         """

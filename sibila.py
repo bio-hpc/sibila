@@ -92,6 +92,10 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     cfg = get_cfg(folder_experiment, file_dataset, type_model, args)
     is_regression = is_regression_by_args(args)
 
+    # if "regression" then n_classes = default (None)
+    if not is_regression:
+        cfg.set_n_classes(n_classes)
+
     model = globals()[type_model](io_data, cfg, id_list)
 
     if is_ripper_model(model) and is_multiclass(cfg):

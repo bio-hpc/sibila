@@ -73,7 +73,7 @@ class InputParams:
             '--normalize',
             nargs='+',
             choices=list(DataNormalization.METHODS.keys()),
-            help='Normalize datasaet (mm = minmax, ma = MaxAbsScaler)',
+            help='Normalize dataset (mm = minmax, ma = MaxAbsScaler)',
             type=str.upper,
         )
         parser.add_argument('-q', '--queue', help="launches the interpretability methods as job", action='store_true')
@@ -85,7 +85,7 @@ class InputParams:
                             type=int,
                             choices=range(50, 91),
                             metavar="[50-90]",
-                            help='Part of the dataset for training',
+                            help='Part of the dataset booked for training',
                             default=80)
         parser.add_argument('-s', "--seed", help="Random state", type=int, default=2020)
         parser.add_argument('-f', "--folder", help="Folder out", type=str)

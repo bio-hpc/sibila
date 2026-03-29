@@ -9,7 +9,8 @@ __status__ = "Production"
 import pandas as pd
 import numpy as np
 import shap
-from Tools.ToolsModels import is_tf_model, is_ripper_model
+import tensorflow as tf
+from Tools.ToolsModels import is_regression_by_args, is_multiclass
 from Tools.Graphics import Graphics
 from alibi.explainers import IntegratedGradients
 from Tools.Estimators.SklearnNetwork import SklearnNetwork
@@ -18,24 +19,41 @@ from pathlib import Path
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
 from Common.Config.ConfigHolder import FEATURE, ATTR, STD, PROBA
 
+
 class IntegratedGradientsExplainer(ExplainerModel):
 
     def explain(self):
         # Get numerical feature importances with the integrated gradients technique
         # https://docs.seldon.io/projects/alibi/en/latest/methods/IntegratedGradients.html#Examples
         # https://distill.pub/2020/attribution-baselines/
-        if is_tf_model(self.model):
-            self.xts_ = self.xts
-            model_ = self.model
-            target_ = self.model(self.xts).numpy().argmax(axis=1).reshape(-1, 1)
-        elif is_ripper_model(self.model):
-            self.xts_ = self.xts
-            model_ = SklearnNetwork(self.model, self.xts_.shape)
-            target_ = np.array(self.model.predict(self.xts)).astype(int)
+
+        if is_regression_by_args(self.cfg.get_args()):
+            task = "regression"
+            n_classes = None
         else:
-            self.xts_ = self.xts
-            model_ = SklearnNetwork(self.model, self.xts.shape)
-            target_ = self.model.predict(self.xts)
+            task = "classification"
+            n_classes = self.cfg.get_n_classes()
+
+        self.xts_ = self.xts
+        model_ = SklearnNetwork(self.model, input_dim=self.xtr.shape[1], task=task, n_classes=n_classes)
+        model_.prepare(self.xtr)
+
+        inputs_tf = tf.convert_to_tensor(self.xts, dtype=tf.float32)
+        preds = model_(inputs_tf).numpy()
+
+
+        y_true = model_.original_model.predict(self.xts)
+        y_surr = model_.surrogate.predict(self.xts)
+        #print("Ejemplo real vs surrogate:")
+        #print(np.c_[y_true[:10], y_surr[:10]])
+
+        if task == "classification":
+            if preds.shape[1] == 1:
+                target_ = (preds > 0.5).astype(int).reshape(-1)
+            else:
+                target_ = np.argmax(preds, axis=1)
+        else:
+            target_ = None
 
         baseline_ = self.get_baseline(self.xts_)
 
@@ -47,7 +65,9 @@ class IntegratedGradientsExplainer(ExplainerModel):
         return pd.DataFrame({FEATURE: self.id_list, ATTR: np.mean(self.attrs, axis=0), STD: np.std(self.attrs, axis=0)})
 
     def get_baseline(self, X):
-        return shap.sample(X, X.shape[0])*1.005
+        #return shap.sample(X, X.shape[0])*1.005
+        return np.mean(self.xtr, axis=0, keepdims=True)
+        #return np.zeros_like(self.xts_)
 
     def plot(self, df, method=None):
         title = 'Integrated Gradients'
