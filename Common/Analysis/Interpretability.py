@@ -21,19 +21,20 @@ from Tools.ToolsModels import is_multiclass
 class Interpretability:
     # FeatureImportance only works with DT, RF, SVM and KNN
     TEST_METHODS = []
-    PARALLEL_METHODS = ['PermutationImportance', 'RFPermutationImportance', 'Lime', 'Shapley', 'IntegratedGradients', 'Dice', 'Anchor', 'PDP', 'ALE']
+    PARALLEL_METHODS = ['PermutationImportance', 'MDI', 'Lime', 'Shapley', 'IntegratedGradients', 'Counterfactuals', 'Anchor', 'PDP', 'ALE']
     COMMON_METHODS = []
     METHODS = {
         "DT": [],
         "RF": [],
         "SVM": [],
-        "XGBOOST": [],
+        "XGB": [],
         "ANN": [],
         "KNN": [],
         "RP": [],
         "RLF": [],
         "LR": [],
-        "BAG": []
+        "BAG": [],
+        "VOT": []
     }
 
     def __init__(self, serialize_params, block_nr=None):

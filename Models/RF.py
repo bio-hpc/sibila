@@ -3,7 +3,7 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from joblib import dump
 from .BaseModel import *
 from Tools.Graphics import Graphics
-from Tools.TypeML import TypeML
+from Tools.ToolsModels import is_regression_by_args
 
 PREFIX_OUT_RF = '{}_{}_{}_{}'
 REMOVE_PARAMS_REGRESSOR = ['criterion']
@@ -12,9 +12,9 @@ REMOVE_PARAMS_REGRESSOR = ['criterion']
 class RF(BaseModel):
     def __init__(self, io_data, cfg, id_list):
         super(RF, self).__init__(io_data, cfg, id_list)
-        if self.cfg.get_params()['type_ml'].lower() == TypeML.CLASSIFICATION.value:
+        if not is_regression_by_args(self.cfg.get_args()):
             self.model = RandomForestClassifier(**self.cfg.get_params()['params'])
-        elif self.cfg.get_params()['type_ml'].lower() == TypeML.REGRESSION.value:
+        elif is_regression_by_args(self.cfg.get_args()):
             for i in REMOVE_PARAMS_REGRESSOR:
                 if i in self.cfg.get_params()['params']:
                     del self.cfg.get_params()['params'][i]

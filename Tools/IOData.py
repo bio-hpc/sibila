@@ -50,11 +50,11 @@ class IOData:
     def set_integrated_gradients_folder(self, integrated_gradients_folder):
         self.integrated_gradients_folder = integrated_gradients_folder
 
-    def set_dice_folder(self, dice_folder):
-        self.dice_folder = dice_folder
+    def set_counterfactuals_folder(self, counterfactuals_folder):
+        self.counterfactuals_folder = counterfactuals_folder
 
-    def get_dice_folder(self):
-        return self.dice_folder
+    def get_counterfactuals_folder(self):
+        return self.counterfactuals_folder
 
     def get_shapley_folder(self):
         return self.shapley_folder
@@ -102,10 +102,10 @@ class IOData:
         self.create_dir(self.get_integrated_gradients_folder() + "csv/")
         self.create_dir(self.get_integrated_gradients_folder() + "png/")
 
-        self.set_dice_folder(folder + "DICE/")
-        self.create_dir(self.get_dice_folder())
-        self.create_dir(self.get_dice_folder() + "csv/")
-        self.create_dir(self.get_dice_folder() + "png/")
+        self.set_counterfactuals_folder(folder + "Counterfactuals/")
+        self.create_dir(self.get_counterfactuals_folder())
+        self.create_dir(self.get_counterfactuals_folder() + "csv/")
+        self.create_dir(self.get_counterfactuals_folder() + "png/")
 
         self.set_shapley_folder(folder + "Shapley/")
         self.create_dir(self.get_shapley_folder())
@@ -140,10 +140,10 @@ class IOData:
         self.create_dir_no_remove(self.get_integrated_gradients_folder() + "csv/")
         self.create_dir_no_remove(self.get_integrated_gradients_folder() + "png/")
 
-        self.set_dice_folder(folder + "DICE/")
-        self.create_dir(self.get_dice_folder())
-        self.create_dir(self.get_dice_folder() + "csv/")
-        self.create_dir(self.get_dice_folder() + "png/")
+        self.set_counterfactuals_folder(folder + "Counterfactuals/")
+        self.create_dir(self.get_counterfactuals_folder())
+        self.create_dir(self.get_counterfactuals_folder() + "csv/")
+        self.create_dir(self.get_counterfactuals_folder() + "png/")
 
         self.set_shapley_folder(folder + "Shapley/")
         self.create_dir_no_remove(self.get_shapley_folder())

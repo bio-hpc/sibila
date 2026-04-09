@@ -4,7 +4,7 @@ import numpy as np
 from Tools.IOData import IOData
 from imblearn.over_sampling import ADASYN, RandomOverSampler, SMOTE
 from imblearn.under_sampling import RandomUnderSampler
-from Tools.ToolsModels import is_penalty_weighted, is_regression_by_config
+from Tools.ToolsModels import is_penalty_weighted, is_regression_by_args
 
 
 def print_size(x, y):
@@ -137,7 +137,7 @@ class DatasetBalanced:
         @param y: numpy.ndarray:
         @param cfg: Common.Config.ConfigHolder:
         """
-        if is_regression_by_config(cfg):
+        if is_regression_by_args(cfg.get_args()):
             return None
 
         ytr_weights = [1.0] * len(np.unique(y))

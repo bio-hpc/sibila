@@ -7,7 +7,7 @@ __email__ = "ajbanegas@ucam.edu"
 __status__ = "Production"
 
 import pandas as pd
-from Tools.ToolsModels import is_regression_by_config
+from Tools.ToolsModels import is_regression_by_args
 from Tools.Graphics import Graphics
 from sklearn.inspection import permutation_importance
 from sklearn.utils import Bunch
@@ -22,12 +22,11 @@ class PermutationImportanceExplainer(ExplainerModel):
             https://scikit-learn.org/stable/modules/generated/sklearn.inspection.permutation_importance.html
             https://medium.com/analytics-vidhya/interpretability-in-machine-learning-f79e1da4f797
         """
-
         if len(self.id_list) == 1:
             results = Bunch(importances_mean=1.0, importances_std=0.0)
         else:
             scorer = None
-            if is_regression_by_config(self.cfg):
+            if is_regression_by_args(self.cfg.get_args()):
                 scorer = 'r2'
             elif is_multiclass(self.cfg):
                 scorer = 'neg_log_loss'
@@ -54,4 +53,3 @@ class PermutationImportanceExplainer(ExplainerModel):
     def plot(self, df, method=None):
         Graphics().graphic_pie(df, self.prefix + '_PermutationImportance_pie.png', 'Permutation Feature Importance')
         Graphics().graph_hist(df, self.prefix + '_PermutationImportance_hist.png', 'Permutation Feature Importance')
-

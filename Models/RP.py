@@ -2,8 +2,9 @@ from .BaseModel import BaseModel
 from joblib import dump
 from os.path import join
 import wittgenstein as lw
-from Tools.TypeML import TypeML
+from Tools.ToolsModels import is_regression_by_args
 import numpy as np
+from Tools.Graphics import Graphics
 
 PREFIX_OUT_DT = '{}_{}'
 
@@ -11,7 +12,7 @@ PREFIX_OUT_DT = '{}_{}'
 class RP(BaseModel):
     def __init__(self, io_data, cfg, id_list):
         super(RP, self).__init__(io_data, cfg, id_list)
-        if self.cfg.get_params()['type_ml'].lower() == TypeML.CLASSIFICATION.value:
+        if not is_regression_by_args(self.cfg.get_args()):
             self.model = lw.RIPPER(**self.cfg.get_params()['params'])
         else:
             print("Error: This model is only valid for classification")
@@ -30,7 +31,8 @@ class RP(BaseModel):
         return np.array(ypr).astype(int)
 
     def get_rules(self):
-        f = open(self.cfg.get_prefix() + "_rules.txt", 'w')
+        rules_file = self.cfg.get_prefix() + "_rules.txt"
+        f = open(rules_file, 'w')
         f.write('\n{}\n\n'.format(self.id_list))
         f.write('{}\n\n'.format(self.model.ruleset_.__str__()))
         for i in self.model.ruleset_:
@@ -45,3 +47,8 @@ class RP(BaseModel):
             f.write('{}\n'.format(str_features))
         f.write('\n')
         f.close()
+        self.graph_rules(rules_file, self.cfg.get_prefix())
+
+    def graph_rules(self, input_file, prefix):
+        g = Graphics()
+        g.visualize_rules(input_file, prefix)

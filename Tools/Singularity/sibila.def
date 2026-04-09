@@ -15,9 +15,10 @@ MirrorURL: http://us.archive.ubuntu.com/ubuntu/
 
     # tensorflow is installed for python3.6
     apt-get update
-    apt-get -y install git vim graphviz libreoffice python3.8 python3-pip python3-dev
+    apt-get -y install git vim graphviz libreoffice python3.8 python3-pip python3-dev python3.8-dev build-essential
     apt-get clean
     /usr/bin/python3.8 -m pip install --upgrade pip==21.2.4
+    pip3.8 install setuptools wheel cython
     pip3.8 install -r /opt/requirements.txt
 
     # set python3.8 as default for python3

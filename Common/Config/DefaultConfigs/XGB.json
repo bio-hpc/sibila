@@ -1,7 +1,6 @@
 {
-    "model": "XGBOOST",
+    "model": "XGB",
     "train_grid": "train_random",
-    "type_ml": "classification",
     "classification_type": "binary",
     "params": {
         "objective": "binary:logistic",

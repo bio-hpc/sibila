@@ -18,7 +18,7 @@ import shap
 from sklearn.inspection import plot_partial_dependence
 from alibi.explainers import plot_ale
 from glob import glob
-
+from Tools import RuleVisualizer
 
 class Graphics:
     """ Draws the ANN model. Only valid for TensorFlow models """
@@ -469,3 +469,5 @@ class Graphics:
         lines.append(current_line)
         return "\n".join(lines)
 
+    def visualize_rules(self, input_file, prefix):
+        RuleVisualizer.main(['--input', input_file, '--output', prefix])

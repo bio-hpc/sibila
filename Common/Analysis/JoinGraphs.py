@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""MergeResults.py:
+"""JoinGraphs.py:
     Gather all the information from the json files obtained in the tests and create a table in a csv file
 """
 import json
@@ -13,7 +13,9 @@ from docx.oxml.ns import nsdecls
 from docx.oxml import parse_xml
 from Tools.Word2Pdf import convert_to
 
-GRAPHS = ['model', 'loss_acc', 'roc_proba', 'confusion_matrix', 'correlation', 'PermutationImportance_hist', 'RFPermutationImportance_hist', 'Lime', 'IntegratedGradients', 'Shapley', 'Dice', 'Anchors', 'times']
+GRAPHS = ['model', 'loss_acc', 'roc_proba', 'confusion_matrix', 'correlation', '_tree_', 
+'PermutationImportance_hist', 'MDI_hist', 'Lime', 'IntegratedGradients', 'Shapley', 'Counterfactuals', 'Anchors', 'times',
+'gpu_usage']
 LST_PREFIX = ["ALE", "PDP"]
 
 
@@ -73,15 +75,16 @@ class JoinGraphs:
             pass
 
     def create_global(self):
-        self.create_document()
+        results = self.collect_metrics()
         expr = self.dir_name + "[^A-Z]*_*_*.png"
+
+        self.create_document()
+        self.create_table_metrics(results)
+        self.doc.add_page_break()
+
         for m in self.get_methods(expr):
             self.create_doc(m, False)
 
-        self.doc.add_page_break()
-        results = self.collect_metrics()
-        self.create_table_metrics(results)
-        
         self.save()
 
     def __find_metrics(self, content):

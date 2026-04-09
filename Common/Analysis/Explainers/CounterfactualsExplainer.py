@@ -6,13 +6,13 @@ from dice_ml.utils import helpers
 from tqdm import tqdm
 from Tools.Graphics import Graphics
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
-from Tools.ToolsModels import is_tf_model, is_ripper_model, is_rulefit_model, is_regression_by_config, is_multiclass
+from Tools.ToolsModels import is_tf_model, is_ripper_model, is_rulefit_model, is_regression_by_args, is_multiclass
 from Tools.Estimators.RipperEstimator import RipperEstimator
 from pathlib import Path
 from Common.Config.ConfigHolder import FEATURE, ATTR, STD, COLNAMES, PROBA, TRUEVAL, PREDVAL
 from Tools.ToolsModels import is_regression_by_config
 
-class DiceExplainer(ExplainerModel):
+class CounterfactualsExplainer(ExplainerModel):
 
     DICE_METHOD = "random"  # random | genetic | kdtree
 
@@ -30,7 +30,7 @@ class DiceExplainer(ExplainerModel):
 
         model_type = 'classifier'
         desired_range = None
-        if is_regression_by_config(self.cfg):
+        if is_regression_by_args(self.cfg.get_args()):
             model_type = 'regressor'
             desired_range = (min(self.ytr), max(self.ytr))
 
@@ -88,16 +88,16 @@ class DiceExplainer(ExplainerModel):
         return None
 
     def plot(self, df, method=None):
-        title = 'DiCE'
+        title = 'Counterfactuals'
 
         # global interpretability
-        Graphics().plot_attributions(df, title, self.cfg.get_prefix() + '_Dice.png', errors=self.get_errors(df))
+        Graphics().plot_attributions(df, title, self.cfg.get_prefix() + '_Counterfactuals.png', errors=self.get_errors(df))
 
         # local interpretability
         for i in tqdm(range(len(self.df_local))):
-            filename = "{}_Dice_{}".format(Path(self.cfg.get_prefix()).stem, self.idx_xts[i])
-            path_csv = "{}csv/{}.csv".format(self.io_data.get_dice_folder(), filename)
-            path_png = "{}png/{}.png".format(self.io_data.get_dice_folder(), filename)
+            filename = "{}_Counterfactuals_{}".format(Path(self.cfg.get_prefix()).stem, self.idx_xts[i])
+            path_csv = "{}csv/{}.csv".format(self.io_data.get_counterfactuals_folder(), filename)
+            path_png = "{}png/{}.png".format(self.io_data.get_counterfactuals_folder(), filename)
 
             # Sort in ascending order for plotting correctly
             df2 = self.df_local[i]
@@ -116,4 +116,3 @@ class DiceExplainer(ExplainerModel):
     def get_value(self, feature, row_id):
         index = self.id_list.index(feature)
         return self.xts[row_id, index]
-

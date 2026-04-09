@@ -3,7 +3,7 @@ from Models.Utils.LearningHistoryCallback import LearningHistoryCallback
 from Models.Utils.CrossValidation import CrossValidation
 import abc
 from Tools.DatasetBalanced import DatasetBalanced
-from Tools.ToolsModels import is_tf_model, is_regression_by_config, is_xgboost_model, is_ripper_model, is_rulefit_model
+from Tools.ToolsModels import is_tf_model, is_regression_by_args, is_xgboost_model, is_ripper_model, is_rulefit_model
 import tensorflow as tf
 import os
 from joblib import dump
@@ -54,7 +54,7 @@ class BaseModel(abc.ABC):
         self.targets = np.unique(ytr).astype(str)
 
         class_weights = DatasetBalanced.get_class_weights(self.model, ytr, self.cfg)
-        if is_tf_model(self.model) and is_regression_by_config(self.cfg):
+        if is_tf_model(self.model) and is_regression_by_args(self.cfg.get_args()):
             class_weights = None
 
         if 'train_grid' in self.cfg.get_params().keys() and self.cfg.get_params()['train_grid'].upper() != "NONE":
@@ -113,6 +113,21 @@ class BaseModel(abc.ABC):
             self.io_data.print_m("ERROR {} does not have the method, not all parameters can be displayed".format(
                 self.cfg.get_params()['model']))
         return ypr
+    
+    def predict_proba(self, X):
+        """
+        Predice probabilidades incluso para modelos que no tienen soporte nativo para predict_proba.
+        """
+        if hasattr(self.model, "predict_proba"):
+            # Si el modelo ya tiene predict_proba, úsalo directamente
+            return self.model.predict_proba(X)
+        else:
+            # Estimar probabilidades manualmente
+            pred = self.model.predict(X)
+            # Convertir predicciones binarias a formato probabilístico
+            proba = np.vstack([1 - pred, pred]).T
+            return proba
+
 
     def get_model(self):
         return self.model

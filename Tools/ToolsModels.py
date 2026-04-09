@@ -1,4 +1,5 @@
 import tensorflow as tf
+from Common.Config.ConfigHolder import ConfigHolder
 from Tools.TypeML import TypeML
 from Tools.ClassFactory import ClassFactory
 from Tools.Estimators.RipperEstimator import RipperEstimator
@@ -8,10 +9,11 @@ from Tools.Estimators.XGBOOSTRegressor import XGBOOSTRegressor
 def is_regression(model):
     return "Regressor" in str(model) or 'SVR' in str(model)
 
-def is_regression_by_config(cfg):
-    return cfg.get_params()['type_ml'].lower() == TypeML.REGRESSION.value
-
 def is_regression_by_args(args):
+    if isinstance(args, dict):
+        return args['regression']
+    elif isinstance(args, ConfigHolder):
+        return args.get_args()
     return args.regression
 
 def is_penalty_weighted(args):
@@ -21,7 +23,7 @@ def is_tf_model(model):
     return 'tensorflow' in str(model)
 
 def is_ripper_model(model):
-    return 'RIPPER' in str(model)
+    return 'RIPPER' in str(model) or 'RP' in str(model) 
 
 def is_xgboost_model(model):
     return 'XGB' in str(model)
@@ -30,12 +32,12 @@ def is_rulefit_model(model):
     return 'RuleFit' in str(model)
 
 def is_multiclass(cfg):
-    if not is_regression_by_config(cfg) and cfg.get_params()['classification_type'] == 'multiclass':
+    if not is_regression_by_args(cfg.get_args()) and cfg.get_params()['classification_type'] == 'multiclass':
         return True
     return False
 
 def is_binary(cfg):
-    if not is_regression_by_config(cfg) and cfg.get_params()['classification_type'] == 'binary':
+    if not is_regression_by_args(cfg.get_args()) and cfg.get_params()['classification_type'] == 'binary':
         return True
     return False
 

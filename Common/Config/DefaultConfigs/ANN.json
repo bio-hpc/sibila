@@ -1,6 +1,5 @@
 {
     "model": "ANN",
-    "type_ml": "classification",
     "classification_type": "binary",
     "n_job": 1,
     "params": {

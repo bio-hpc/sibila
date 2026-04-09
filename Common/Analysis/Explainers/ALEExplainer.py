@@ -9,7 +9,7 @@ __status__ = "Production"
 import pandas as pd
 import numpy as np
 from Tools.Graphics import Graphics
-from Tools.ToolsModels import is_tf_model, is_rulefit_model, is_regression_by_config
+from Tools.ToolsModels import is_tf_model, is_rulefit_model, is_regression_by_args
 from alibi.explainers import ALE
 from tqdm import tqdm
 from pathlib import Path
@@ -21,7 +21,7 @@ class ALEExplainer(ExplainerModel):
         # https://docs.seldon.io/projects/alibi/en/latest/api/alibi.explainers.ale.html
         targets = np.unique(self.yts).astype(str)
 
-        if is_regression_by_config(self.cfg):
+        if is_regression_by_args(self.cfg.get_args()):
             ale = ALE(self.model.predict, feature_names=self.id_list)
         elif is_tf_model(self.model):
             ale = ALE(self.model.predict, feature_names=self.id_list, target_names=targets)

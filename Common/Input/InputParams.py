@@ -12,7 +12,7 @@ from Tools.DatasetBalanced import DatasetBalanced
 
 class InputParams:
     ALLOW_EXTENSIONS_DATASET = ['csv', 'pkl']
-    REGRESSION_MODELS = ['ANN', 'KNN', 'RF', 'DT', 'SVM', 'XGBOOST', 'LR', 'BAG']
+    REGRESSION_MODELS = ['ANN', 'KNN', 'RF', 'DT', 'SVM', 'XGB', 'LR', 'BAG', 'VOT']
 
 
     def __init__(self):
@@ -51,6 +51,10 @@ class InputParams:
         """
         print("")
         options = self.iodata.read_all_options()
+        
+        # Mover 'VOT' al final de la lista
+        options = sorted(options, key=lambda x: (x == "VOT", x))
+
         options_reg = [value for value in options if value in self.REGRESSION_MODELS and value != 'ANN']
         parser = argparse.ArgumentParser(description='SIBILA', add_help=True)
         parser.add_argument('-d',
@@ -61,7 +65,7 @@ class InputParams:
         parser.add_argument('-o',
                             '--option',
                             nargs='+',
-                            choices=options + ["ALL"],
+                            choices=options + ["ALL", "VOT"],
                             help='Type of model',
                             type=str.upper)
         parser.add_argument(
@@ -69,7 +73,7 @@ class InputParams:
             '--normalize',
             nargs='+',
             choices=list(DataNormalization.METHODS.keys()),
-            help='Normalize datasaet (mm = minmax, ma = MaxAbsScaler)',
+            help='Normalize dataset (mm = minmax, ma = MaxAbsScaler)',
             type=str.upper,
         )
         parser.add_argument('-q', '--queue', help="launches the interpretability methods as job", action='store_true')
@@ -81,7 +85,7 @@ class InputParams:
                             type=int,
                             choices=range(50, 91),
                             metavar="[50-90]",
-                            help='Part of the dataset for training',
+                            help='Part of the dataset booked for training',
                             default=80)
         parser.add_argument('-s', "--seed", help="Random state", type=int, default=2020)
         parser.add_argument('-f', "--folder", help="Folder out", type=str)
@@ -109,7 +113,15 @@ class InputParams:
             args.option = None
             args.trainsize = None
         elif not args.explanation:
-            if not args.regression:
+            
+            if "VOT" in args.option:
+                # Dynamically include all base models for VOT and ensure VOT is executed last
+                base_models = [model for model in options if model != "VOT"]
+                print(f"VOT activated: using base models {base_models}")
+                #args.option = base_models + ["VOT"]  # Re-add VOT to execute it after base models
+                args.option = ["VOT"]
+
+            elif not args.regression:
                 args.option = options if (args.option[0] == "ALL") else args.option
             else:
                 args.option = options_reg if (args.option[0] == "ALL") else args.option

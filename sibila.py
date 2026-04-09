@@ -13,7 +13,7 @@ from Common.Input.InputParams import InputParams
 import datetime
 from datetime import datetime
 from Tools.DataNormalization import DataNormalization
-from Tools.ToolsModels import is_regression_by_config, is_tf_model
+from Tools.ToolsModels import is_regression_by_args, is_tf_model, is_ripper_model, is_multiclass
 import os
 from os.path import join, basename, splitext, dirname, exists
 from Tools.Serialize import Serialize
@@ -70,13 +70,13 @@ def main():
     t.save('{}/load_time.txt'.format(args.folder), io_data)
 
     if args.model:
-        if is_regression_by_config(get_basic_cfg("", file_dataset, args)):
+        if is_regression_by_args(args):
             y = DataNormalization().choice_method_normalize(y.reshape(-1, 1), args).ravel()
         #x, y, idx_samples = DatasetBalanced().choice_method_balanced(x, y, args, idx_samples)
         [execute_pred(x, y, id_list, idx_samples, io_data, args.folder, file_dataset, type_model, args) for type_model in args.model]
     else:
         # you look at the first option to know if it is regression. If it is regression, then y is also normalized
-        if is_regression_by_config(get_cfg("", file_dataset, options[0], args)):
+        if is_regression_by_args(args):
             y = DataNormalization().choice_method_normalize(y.reshape(-1, 1), args).ravel()
         #x, y, idx_samples = DatasetBalanced().choice_method_balanced(x, y, args, idx_samples)
         [
@@ -90,9 +90,17 @@ def main():
 
 def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset, type_model, args, n_classes):
     cfg = get_cfg(folder_experiment, file_dataset, type_model, args)
-    is_regression = is_regression_by_config(cfg)
+    is_regression = is_regression_by_args(args)
+
+    # if "regression" then n_classes = default (None)
+    if not is_regression:
+        cfg.set_n_classes(n_classes)
 
     model = globals()[type_model](io_data, cfg, id_list)
+
+    if is_ripper_model(model) and is_multiclass(cfg):
+        io_data.print_e('RP doest no support multiclass classification yet')
+
     print("\n")
     cfg.set_prefix(model.get_prefix())
 

@@ -2,10 +2,11 @@ from Models.DT import DT
 from Models.SVM import SVM
 from Models.RF import RF
 from Models.ANN import ANN
-from Models.XGBOOST import XGBOOST
+from Models.XGB import XGB
 from Models.KNN import KNN
 from Models.RP import RP
 from Models.RLF import RLF
 from Models.LR import LR
 from Models.BAG import BAG
+from Models.VOT import VOT
 from Models.BaseModel import BaseModel

@@ -1,6 +1,8 @@
 ## SIBILA
 SIBILA Server takes advantage of HPC and ML/DL to provide users with a powerful predictive tool. Several ML models are available and a large set of configuration parameters facilitate the configuration of the tasks. In addition, the server applies the concept of explainable artificial intelligence (XAI) to present the results in a way that users will be able to understand. A collection of interpretability approaches are implemented to identify the most relevant features that were taken into consideration by the model in order to make the prediction. 
 
+If you use SIBILA, please cite it as: Banegas-Luna, A. J., & Pérez-Sánchez, H. (2024). SIBILA: Automated Machine-Learning-Based Development of Interpretable Machine-Learning Models on High-Performance Computing Platforms. AI, 5(4), 2353-2374. https://doi.org/10.3390/ai5040116
+
 ### Installation (choose one)
 1. git clone https://github.com/bio-hpc/sibila.git
 2. git clone git@github.com:bio-hpc/sibila.git
@@ -20,21 +22,22 @@ chmod u+x sibila.sif
 1. **DT (Decision Tree)**
 2. **RF (Random Forest)**
 3. **SVM (Support Vector Machines)**
-4. **XGBOOST (eXtreme Gradient BOOSTing)**
+4. **XGB (eXtreme Gradient BOOSTing)**
 5. **ANN (Artificial Neural Networks)**
 6. **KNN (K-Nearest Neighbours)**
 7. **RLF (RuLEFit)**
 8. **RP (RIPPERk)**
 9. **LR (Linear/Logistic Regression)**
-10.**BAG (Bagging)**
+10. **BAG (Bagging)**
+11. **VOT (Voting)**
 
 ### Available Interpretability Methods
 1. **Permutation Feature Importance**
-2. **RF-based Permutation Feature Importance**
+2. **Mean Decrease in Impurity (MDI)**
 3. **Local Interpretable Model-agnostic Explanations (LIME)**
 4. **Integrated Gradients** 
 5. **Shapley values**
-6. **Diverse Counterfactual Explanations (DICE)**
+6. **Counterfactual Explanations**
 7. **Partial Dependence Plots (PDP)**
 8. **Accumulated Local Effects (ALE)**
 9. **Anchors**
@@ -47,8 +50,24 @@ For instance:
 
 singularity exec Tools/Singularity/sibila.sif python3 Scripts/ResultAnalyzer.py -d folder_containing_results -o myfile.xlsx
 
+### Documentation
+A full user guide is available at: https://docs.google.com/document/d/e/2PACX-1vTw-Hc36302c2d2fb8t35wwEpaZHVqX0Q_ZuOXsj_rwpgrUfI7fN1Ov9deI9KvXHuTbPmaMp1RpQYmc/pub
+
 ### CHANGELOG
-**v1.2.2 (in progress)**
+**v2.0.0** (xx/xx/xxxx)
+- Cleaned code of VOT model.
+- Renamed XGBOOST model to XGB.
+- Renamed RF and DICE explainers to generic names.
+- Removed type\_ml parameter from the JSON configuration files.
+- The table of metrics is presented in the first page of the PDF summary report.
+- Integrated gradients are wrapped in a differentiable function to make it usable with sklearn models.
+- Detected if GPUs are available and, if not, dynamically make them invisible.
+- GPU's usage plot delivered in the PDF summary report.
+
+**v1.2.2** (18/06/2025)
+- Implemented voting model.
+- Correction of multiclass evaluation metrics.
+- RuleFit and RIPPER rules can be visualized as trees.
 - Implemented BayesianOptimizer as method for hyperparameter searaching.
 - Implemented downsampling option.
 - KNN creates a new plot to help interpretability.

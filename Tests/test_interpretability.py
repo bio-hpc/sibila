@@ -58,24 +58,24 @@ METHODS = {
         'n_files': [DATASET_LEN_IDLIST],
         'deny_methods': []
     },
-    'Dice': {
-        'folder': "DICE/png/",
+    'Counterfactuals': {
+        'folder': "Counterfactuals/png/",
         'n_files': [5],
         'deny_methods': ['ANN', 'RP', 'RLF']
     },
-    'Dice': {
+    'Counterfactuals': {
         'folder': "",
         'n_files': [3],
         'deny_methods': ['ANN', 'RP', 'RLF']
     },
-    'RFPermutationImportance': {
+    'MDI': {
         'folder': "",
         'n_files': [4],
         'deny_methods': []
     },
     'Anchor': {
         'folder': "Anchor",
-        'n_files': [6],
+        'n_files': [5],
         'deny_methods': []
     }
 }
@@ -99,10 +99,11 @@ class TestInterpretability(BaseTest):
                 name_model = basename(file_model).split("_")[0]
 
                 if not name_model in par['deny_methods']:
-                    params = {'type_ml': TypeML.CLASSIFICATION.value, 'model': name_model}
+                    params = {'type_ml': TypeML.CLASSIFICATION.value, 'model': name_model, 'classification_type': 'binary'}
                     p = FOLDER_TEST + name_model
                     args = Args(name_model)
                     cfg = self.get_config_holder(args, params, p)
+                    cfg.set_n_classes(2)
 
                     BaseModel.save_model(cfg, model)
                     s = Serialize(model, xtr, ytr, xts, yts, id_list, cfg, io_data, idx_xts)

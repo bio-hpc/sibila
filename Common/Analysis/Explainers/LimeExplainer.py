@@ -7,7 +7,7 @@ __email__ = "ajbanegas@ucam.edu"
 __status__ = "Production"
 
 import pandas as pd
-from Tools.ToolsModels import is_regression_by_config
+from Tools.ToolsModels import is_regression_by_args
 from Tools.Graphics import Graphics
 import numpy as np
 import re
@@ -29,7 +29,7 @@ class LimeExplainer(ExplainerModel):
         return self.execute()
 
     def execute(self):
-        if not is_regression_by_config(self.cfg):
+        if not is_regression_by_args(self.cfg.get_args()):
             explainer, predict_fn, n_samples = self.lime_classification()
         else:
             explainer, predict_fn, n_samples = self.lime_regression()
@@ -44,7 +44,7 @@ class LimeExplainer(ExplainerModel):
             x = self.xts[i]
             exp = explainer.explain_instance(x, predict_fn, num_features=len(self.id_list), top_labels=1, num_samples=n_samples)
 
-            if is_regression_by_config(self.cfg):
+            if is_regression_by_args(self.cfg.get_args()):
                 ypr = exp.predicted_value
                 explanation = exp.as_list(0)
             else:
@@ -109,4 +109,3 @@ class LimeExplainer(ExplainerModel):
     def get_feature_name(self, e):
         m = re.split('[<]+ | [>]+ | [<=]+ | [>=]+ | [=]+', e)
         return m[1] if len(m) > 2 else m[0]
-

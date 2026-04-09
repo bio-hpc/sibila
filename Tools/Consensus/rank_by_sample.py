@@ -17,12 +17,12 @@ DEBUG = True
 DELIMITER = '##'
 MAX_FEATURES = 10
 FOLDER_OUT = "Consensus/"
-MODELS = ['ANN', 'DT', 'KNN', 'RF', 'RLF', 'RP', 'SVM', 'XGBOOST']
+MODELS = ['ANN', 'DT', 'KNN', 'RF', 'RLF', 'RP', 'SVM', 'XGB']
 INTERPRETABILITY = {
     'LIME': '/LIME/',
     'Shapley': '/Shapley/csv/',
     'Integrated Gradients': '/Integrated_Gradients/csv/',
-    'DiCE': '/DICE/csv/'
+    'Counterfactuals': '/Counterfactuals/csv/'
 }
 
 def create_dir(dir):

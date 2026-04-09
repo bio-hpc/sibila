@@ -8,7 +8,7 @@ __status__ = "Production"
 
 import numpy as np
 from sklearn.base import BaseEstimator
-from Tools.ToolsModels import is_regression_by_config
+from Tools.ToolsModels import is_regression_by_args
 
 class TensorFlowEstimator(BaseEstimator):
 
@@ -16,7 +16,7 @@ class TensorFlowEstimator(BaseEstimator):
         super().__init__()
         self.inner_model_ = inner_model
         self.fitted_ = False
-        self._estimator_type = 'regressor' if is_regression_by_config(cfg) else 'classifier'
+        self._estimator_type = 'regressor' if is_regression_by_args(cfg.get_args()) else 'classifier'
         self.cfg_ = cfg
         self.classes_ = None
         if self._estimator_type == 'classifier' and not Y is None:

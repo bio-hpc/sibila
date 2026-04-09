@@ -1,6 +1,5 @@
 {
     "model": "RLF",
-    "type_ml": "classification",
     "classification_type": "binary",
     "train_grid": "train_random",
     "params": {
