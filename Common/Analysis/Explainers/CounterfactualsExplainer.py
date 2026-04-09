@@ -10,7 +10,6 @@ from Tools.ToolsModels import is_tf_model, is_ripper_model, is_rulefit_model, is
 from Tools.Estimators.RipperEstimator import RipperEstimator
 from pathlib import Path
 from Common.Config.ConfigHolder import FEATURE, ATTR, STD, COLNAMES, PROBA, TRUEVAL, PREDVAL
-from Tools.ToolsModels import is_regression_by_config
 
 class CounterfactualsExplainer(ExplainerModel):
 
@@ -62,7 +61,7 @@ class CounterfactualsExplainer(ExplainerModel):
                       )
                 self.df_local[i] = pd.DataFrame(imp.local_importance).mean(axis=0).to_frame().reset_index()
                 self.df_local[i].columns = [FEATURE, ATTR]
-                if is_regression_by_config(self.cfg):
+                if is_regression_by_args(self.cfg.get_args()):
                     self.df_local[i][TRUEVAL] = self.yts[i]
                     self.df_local[i][PREDVAL] = self.proba_sample(self.xts[i])
                 else:

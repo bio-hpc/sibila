@@ -85,7 +85,7 @@ class IntegratedGradientsExplainer(ExplainerModel):
             proba = self.proba_sample(self.xts[i])
             
             # Sort in ascending order for plotting correctly
-            if is_regression_by_config(self.cfg):
+            if is_regression_by_args(self.cfg.get_args()):
                 df2 = pd.DataFrame({FEATURE: self.id_list, ATTR: self.attrs[i], TRUEVAL: self.yts[i], PREDVAL: proba})
             else:
                 df2 = pd.DataFrame({FEATURE: self.id_list, ATTR: self.attrs[i], PROBA: proba})

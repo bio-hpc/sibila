@@ -7,7 +7,7 @@ __email__ = "ajbanegas@ucam.edu"
 __status__ = "Production"
 
 import pandas as pd
-from Tools.ToolsModels import is_regression_by_args
+from Tools.ToolsModels import is_rulefit_model, is_regression_by_args
 from Tools.Graphics import Graphics
 import numpy as np
 import re
@@ -16,7 +16,6 @@ from lime import lime_tabular
 from tqdm import tqdm
 from pathlib import Path
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
-from Tools.ToolsModels import is_rulefit_model
 from Common.Config.ConfigHolder import ATTR, COLNAMES, FEATURE, STD, PROBA, TRUEVAL, PREDVAL
 
 class LimeExplainer(ExplainerModel):
@@ -38,7 +37,7 @@ class LimeExplainer(ExplainerModel):
         prefix = Path(self.cfg.get_prefix()).stem
         self.html = LIMEHTMLBuilder()
         df_local = []
-        colnames = [FEATURE, ATTR, 'range', 'class', PROBA] if not is_regression_by_config(self.cfg) else [FEATURE, ATTR, 'range', TRUEVAL, PREDVAL]
+        colnames = [FEATURE, ATTR, 'range', 'class', PROBA] if not is_regression_by_args(self.cfg.get_args()) else [FEATURE, ATTR, 'range', TRUEVAL, PREDVAL]
 
         for i in tqdm(range(len(self.xts))):
             x = self.xts[i]
@@ -53,7 +52,7 @@ class LimeExplainer(ExplainerModel):
 
             self.html.append(exp.as_html(), sample_id=self.idx_xts[i])
 
-            if not is_regression_by_config(self.cfg):
+            if not is_regression_by_args(self.cfg.get_args()):
                 data = [[self.get_feature_name(e[0]), e[1], e[0], ypr, exp.local_pred[0]] for e in explanation]
                 df = pd.DataFrame(data=data, columns=colnames)
             else:

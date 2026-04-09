@@ -9,7 +9,7 @@ __status__ = "Production"
 import numpy as np
 import pandas as pd
 from Tools.Graphics import Graphics
-from Tools.ToolsModels import is_regression_by_config
+from Tools.ToolsModels import is_regression_by_args
 from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
 from Common.Config.ConfigHolder import FEATURE, ATTR, STD, PROBA, PREDVAL, TRUEVAL
 from alibi.explainers import AnchorTabular
@@ -44,7 +44,7 @@ class AnchorExplainer(ExplainerModel):
             proba = self.proba_sample(self.xts[i])
 
             # local interpretability
-            if is_regression_by_config(self.cfg):
+            if is_regression_by_args(self.cfg.get_args()):
                 df = pd.DataFrame({FEATURE: features, 'precision': precisions, 'coverage': coverages, 'rule': rules, PREDVAL: proba, TRUEVAL: self.yts[i]})
             else:
                 df = pd.DataFrame({FEATURE: features, 'precision': precisions, 'coverage': coverages, 'rule': rules, PROBA: proba})

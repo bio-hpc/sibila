@@ -7,7 +7,7 @@ __email__ = "ajbanegas@ucam.edu"
 __status__ = "Production"
 
 import pandas as pd
-from Tools.ToolsModels import is_tf_model, is_ripper_model, is_regression_by_config
+from Tools.ToolsModels import is_tf_model, is_ripper_model, is_regression_by_args
 import shap
 from Tools.Graphics import Graphics
 import numpy as np
@@ -56,7 +56,7 @@ class ShapleyExplainer(ExplainerModel):
         for i in tqdm(range(len(self.xts))):
             proba = self.proba_sample(self.xts[i])
 
-            if is_regression_by_config(self.cfg):
+            if is_regression_by_args(self.cfg.get_args()):
                 df_aux = pd.DataFrame({FEATURE: self.id_list, ATTR: self.shap_values[i].values, 'value': self.xts[i], TRUEVAL: self.yts[i], PREDVAL: proba})
             else:
                 df_aux = pd.DataFrame({FEATURE: self.id_list, ATTR: self.shap_values[i].values, 'value': self.xts[i], PROBA: proba})
