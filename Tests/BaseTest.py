@@ -4,22 +4,28 @@ import unittest
 from Common.Config.ConfigHolder import ConfigHolder
 from glob import glob
 from Tests.errors import get_error, get_error_txt
-from Tools.datasets import get_dataset, split_samples
+from Tests.synthetic_data import make_classification_dataset, make_regression_dataset
+from Tools.datasets import split_samples
 from Tools.IOData import IOData
-from os.path import isdir, join, isfile
+from os.path import isdir, join
 
 #
 #   Ignore warning TF
 #
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-FILE_DATASET = 'Datasets/Tests/clasificacion-sintetico_v1.csv'
+DATASET_CLASSIFICATION = 'synthetic://classification'
+DATASET_REGRESSION = 'synthetic://regression'
+DATASET_IMBALANCED = 'synthetic://classification-imbalanced'
 FOLDER_MODELS_TEST = 'Tests/Models/'
 FOLDER_TEST = 'Tests/WorkingDir/'
 FOLDER_TEST_NUMBER = 9
 NUMBER_MODELS = 10
 SEED = 2021
 SPLIT_DATASET = 0.95
+CLASSIFICATION_SAMPLES = 100
+REGRESSION_SAMPLES = 71
+CLASSIFICATION_FEATURES = 4
 
 ERROR_FILE = 'E0001'
 ERROR_N_MODELS = 'E0003'
@@ -44,18 +50,18 @@ ERROR_CORRELATION = 'E0114'
 
 
 class Args:
-    def __init__(self, model):
+    def __init__(self, model, dataset=DATASET_CLASSIFICATION, regression=False):
         self.queue = True
         self.seed = SEED
-        self.dataset = FILE_DATASET
+        self.dataset = dataset
         self.folder = FOLDER_TEST
         self.model = model
-        self.regression = False
+        self.regression = regression
         self.balanced = None
         self.crossvalidation = None
         self.parameters = None
         self.normalize = None
-        self.balanced = None
+
 
 class BaseTest(unittest.TestCase):
 
@@ -68,45 +74,62 @@ class BaseTest(unittest.TestCase):
     def tearDown(self):
         if isdir(FOLDER_TEST):
             shutil.rmtree(FOLDER_TEST)
-            
+
     def count_files_by_pattern(self, pattern):
-        files = [ foo for foo in glob(join(FOLDER_TEST, pattern)) ]
+        files = [foo for foo in glob(join(FOLDER_TEST, pattern))]
         return len(files)
 
     def get_iodata(self):
         io_data = IOData()
         io_data.create_dirs(FOLDER_TEST)
         aux = glob(FOLDER_TEST + "*")
-        aux = [ x for x in aux if "out" not in x ] # exclude "out" folder
+        aux = [x for x in aux if "out" not in x]  # exclude "out" folder
         self.assertTrue(len(aux) == FOLDER_TEST_NUMBER, get_error_txt(ERROR_N_CREATE_FOLDER, aux))
         return io_data
 
-    def get_dataset(self, io_data):
-        self.assertTrue(isfile(FILE_DATASET), get_error_txt(ERROR_FILE, FILE_DATASET))
-        x, y, id_list, idx_samples, target_classes = get_dataset(FILE_DATASET, io_data)
+    def build_synthetic_dataset(self, dataset_kind='classification'):
+        if dataset_kind == 'regression':
+            return make_regression_dataset(n_samples=REGRESSION_SAMPLES, seed=SEED)
+        if dataset_kind == 'imbalanced':
+            return make_classification_dataset(
+                n_samples=CLASSIFICATION_SAMPLES,
+                n_features=CLASSIFICATION_FEATURES,
+                seed=SEED,
+                imbalanced=True,
+            )
+        return make_classification_dataset(
+            n_samples=CLASSIFICATION_SAMPLES,
+            n_features=CLASSIFICATION_FEATURES,
+            seed=SEED,
+        )
 
-        DATASET_LEN = x.shape[0]
-        DATASET_LEN_IDLIST = x.shape[1]
+    def get_dataset(self, io_data, dataset_kind='classification'):
+        x, y, id_list, idx_samples, target_classes = self.build_synthetic_dataset(dataset_kind)
 
-        self.assertTrue(len(x) == DATASET_LEN, get_error_txt(ERROR_READ_DATASET, "X"))
-        self.assertTrue(len(y) == DATASET_LEN, get_error_txt(ERROR_READ_DATASET, "Y"))
-        self.assertTrue(len(id_list) == DATASET_LEN_IDLIST, get_error_txt(ERROR_READ_DATASET, "id_list"))
-        self.assertTrue(len(idx_samples) == DATASET_LEN, get_error_txt(ERROR_READ_DATASET, "idx_samples"))
+        dataset_len = x.shape[0]
+        dataset_len_idlist = x.shape[1]
 
-        xtr, xts, ytr, yts, idx_xtr, idx_xts = split_samples(x, y, SPLIT_DATASET, io_data, SEED, idx_samples)
+        self.assertTrue(len(x) == dataset_len, get_error_txt(ERROR_READ_DATASET, "X"))
+        self.assertTrue(len(y) == dataset_len, get_error_txt(ERROR_READ_DATASET, "Y"))
+        self.assertTrue(len(id_list) == dataset_len_idlist, get_error_txt(ERROR_READ_DATASET, "id_list"))
+        self.assertTrue(len(idx_samples) == dataset_len, get_error_txt(ERROR_READ_DATASET, "idx_samples"))
 
-        self.assertTrue(len(xtr) == DATASET_LEN * SPLIT_DATASET, get_error_txt(ERROR_READ_DATASET, "xtr"))
-        self.assertTrue(len(ytr) == DATASET_LEN * SPLIT_DATASET, get_error_txt(ERROR_READ_DATASET, "ytr"))
-        self.assertTrue(len(idx_xtr) == DATASET_LEN * SPLIT_DATASET, get_error_txt(ERROR_READ_DATASET, "idx_xtr"))
+        xtr, xts, ytr, yts, idx_xtr, idx_xts = split_samples(
+            x, y, SPLIT_DATASET, io_data, SEED, idx_samples
+        )
 
-        cutoff = round((1 - SPLIT_DATASET), 2)
-        self.assertTrue(len(xts) == DATASET_LEN * cutoff, get_error_txt(ERROR_READ_DATASET, "xts"))
-        self.assertTrue(len(yts) == DATASET_LEN * cutoff, get_error_txt(ERROR_READ_DATASET, "yts"))
-        self.assertTrue(len(idx_xts) == DATASET_LEN * cutoff, get_error_txt(ERROR_READ_DATASET, "idx_xts"))
+        n_train = int(dataset_len * SPLIT_DATASET)
+        n_test = dataset_len - n_train
+        self.assertEqual(len(xtr), n_train, get_error_txt(ERROR_READ_DATASET, "xtr"))
+        self.assertEqual(len(ytr), n_train, get_error_txt(ERROR_READ_DATASET, "ytr"))
+        self.assertEqual(len(idx_xtr), n_train, get_error_txt(ERROR_READ_DATASET, "idx_xtr"))
+        self.assertEqual(len(xts), n_test, get_error_txt(ERROR_READ_DATASET, "xts"))
+        self.assertEqual(len(yts), n_test, get_error_txt(ERROR_READ_DATASET, "yts"))
+        self.assertEqual(len(idx_xts), n_test, get_error_txt(ERROR_READ_DATASET, "idx_xts"))
         return xtr, xts, ytr, yts, idx_xtr, idx_xts, id_list, idx_samples
 
     def get_config_holder(self, args, params, prefix):
-        cfg = ConfigHolder(FILE_DATASET, FOLDER_TEST, args, params)
+        cfg = ConfigHolder(args.dataset, FOLDER_TEST, args, params)
         cfg.set_prefix(prefix)
         cfg.set_cores(1)
         return cfg

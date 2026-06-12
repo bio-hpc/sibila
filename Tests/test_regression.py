@@ -7,8 +7,6 @@ from Tests.BaseTest import *
 from Tests.errors import get_error, get_error_txt
 
 
-FILE_DATASET = 'Datasets/Tests/regresion-lineal_v1.csv'
-
 MODEL_ASSERTS = {
     'ANN':[
         { '*loss_acc.png': 'E0111' }
@@ -23,7 +21,7 @@ class TestRegression(BaseTest):
 
     def test_regression(self):
         io_data = self.get_iodata()
-        xtr, xts, ytr, yts, idx_xtr, idx_xts, id_list, idx_samples = self.get_dataset(io_data)
+        xtr, xts, ytr, yts, idx_xtr, idx_xts, id_list, idx_samples = self.get_dataset(io_data, dataset_kind='regression')
 
         for m in io_data.read_all_options():
             # RP and RLF don't support regression
@@ -31,8 +29,7 @@ class TestRegression(BaseTest):
             if m in ['RP','RLF','ANN','VOT']:
                 continue
 
-            args = Args(m)
-            args.regression = True
+            args = Args(m, dataset=DATASET_REGRESSION, regression=True)
             params = get_default_config(m, io_data)
             params['type_ml'] = TypeML.REGRESSION.value
             p = FOLDER_TEST + m

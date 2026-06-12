@@ -3,14 +3,13 @@ from Tests.BaseTest import *
 from Tests.errors import get_error, get_error_txt
 from Tools.DatasetBalanced import DatasetBalanced
 
-FILE_DATASET = 'Datasets/Tests/clasificacion-sintetico-desbalanceado_v1.csv'
 BALANCE_METHODS = list(DatasetBalanced.METHODS.keys())
 
 class TestNormalization(BaseTest):
 
     def test_normalization(self):
         io_data = self.get_iodata()
-        xtr, xts, ytr, yts, idx_xtr, idx_xts, id_list, idx_samples = self.get_dataset(io_data)
+        xtr, xts, ytr, yts, idx_xtr, idx_xts, id_list, idx_samples = self.get_dataset(io_data, dataset_kind='imbalanced')
         args = Args('DT')
         x_init_shape = xts.shape
         y_init_shape = yts.shape
