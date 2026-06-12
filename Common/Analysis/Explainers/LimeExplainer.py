@@ -19,6 +19,7 @@ from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
 from Common.Config.ConfigHolder import ATTR, COLNAMES, FEATURE, STD, PROBA, TRUEVAL, PREDVAL
 
 class LimeExplainer(ExplainerModel):
+    EXPLAINER_NAME = 'Lime'
 
     def explain(self):
         """
@@ -29,10 +30,11 @@ class LimeExplainer(ExplainerModel):
 
     def execute(self):
         if not is_regression_by_args(self.cfg.get_args()):
-            explainer, predict_fn, n_samples = self.lime_classification()
+            explainer, predict_fn, _ = self.lime_classification()
         else:
-            explainer, predict_fn, n_samples = self.lime_regression()
+            explainer, predict_fn, _ = self.lime_regression()
 
+        cfg = self.get_explainer_cfg()
         # local interpretation
         prefix = Path(self.cfg.get_prefix()).stem
         self.html = LIMEHTMLBuilder()
@@ -41,7 +43,13 @@ class LimeExplainer(ExplainerModel):
 
         for i in tqdm(range(len(self.xts))):
             x = self.xts[i]
-            exp = explainer.explain_instance(x, predict_fn, num_features=len(self.id_list), top_labels=1, num_samples=n_samples)
+            exp = explainer.explain_instance(
+                x,
+                predict_fn,
+                num_features=len(self.id_list),
+                top_labels=cfg['top_labels'],
+                num_samples=cfg['num_samples']
+            )
 
             if is_regression_by_args(self.cfg.get_args()):
                 ypr = exp.predicted_value
@@ -84,26 +92,33 @@ class LimeExplainer(ExplainerModel):
         Graphics().plot_attributions(aux_df, 'LIME', self.cfg.get_prefix() + '_Lime.png', errors=self.get_errors(aux_df))
 
     def lime_classification(self):
-        explainer = lime_tabular.LimeTabularExplainer(self.xtr,
-                                                      feature_names=self.id_list,
-                                                      class_names=np.unique(self.yts, axis=0).astype(str),
-                                                      discretize_continuous=True,
-                                                      discretizer='entropy',
-                                                      training_labels=self.ytr,
-                                                      random_state=self.random_state,
-                                                      feature_selection='forward_selection')
-        return explainer, self.model.predict_proba, 5000
+        cfg = self.get_explainer_cfg()
+        explainer = lime_tabular.LimeTabularExplainer(
+            self.xtr,
+            feature_names=self.id_list,
+            class_names=np.unique(self.yts, axis=0).astype(str),
+            discretize_continuous=cfg['discretize_continuous'],
+            discretizer=cfg['discretizer'],
+            training_labels=self.ytr,
+            random_state=self.random_state,
+            feature_selection=cfg['feature_selection']
+        )
+        return explainer, self.model.predict_proba, cfg['num_samples']
 
     def lime_regression(self):
+        cfg = self.get_explainer_cfg()
+
         def lime_predict(x):
             pred = self.model.predict(x)
             return pred.reshape(pred.shape[0])
 
-        explainer = lime_tabular.LimeTabularExplainer(self.xtr,
-                                                      feature_names=self.id_list,
-                                                      discretize_continuous=True,
-                                                      mode='regression')
-        return explainer, lime_predict, 5000
+        explainer = lime_tabular.LimeTabularExplainer(
+            self.xtr,
+            feature_names=self.id_list,
+            discretize_continuous=cfg['discretize_continuous'],
+            mode='regression'
+        )
+        return explainer, lime_predict, cfg['num_samples']
 
     def get_feature_name(self, e):
         m = re.split('[<]+ | [>]+ | [<=]+ | [>=]+ | [=]+', e)

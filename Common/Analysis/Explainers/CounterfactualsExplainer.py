@@ -12,14 +12,14 @@ from pathlib import Path
 from Common.Config.ConfigHolder import FEATURE, ATTR, STD, COLNAMES, PROBA, TRUEVAL, PREDVAL
 
 class CounterfactualsExplainer(ExplainerModel):
-
-    DICE_METHOD = "random"  # random | genetic | kdtree
+    EXPLAINER_NAME = 'Counterfactuals'
 
     def explain(self):
         if not is_tf_model(self.model) and not is_ripper_model(self.model) and not is_rulefit_model(self.model):
             return self.execute_dice()
 
     def execute_dice(self):
+        cf_cfg = self.get_explainer_cfg()
         df = pd.DataFrame(self.xts, columns=self.id_list)
 
         df['class'] = self.yts
@@ -34,7 +34,7 @@ class CounterfactualsExplainer(ExplainerModel):
             desired_range = (min(self.ytr), max(self.ytr))
 
         m = dice_ml.Model(model=self.model, backend=backend, model_type=model_type)
-        exp = dice_ml.Dice(d, m, method=self.DICE_METHOD)
+        exp = dice_ml.Dice(d, m, method=cf_cfg['method'])
             
         self.df_local = [None] * len(self.xts)
         desired_class = 0 if is_multiclass(self.cfg) else "opposite"
@@ -43,12 +43,12 @@ class CounterfactualsExplainer(ExplainerModel):
             query = pd.DataFrame(self.xts, columns=self.id_list)
             e1 = exp.generate_counterfactuals(
                     query,
-                    total_CFs = 10,
-                    desired_class = desired_class,
-                    features_to_vary = lst_features,
-                    posthoc_sparsity_algorithm = "binary",
-                    random_seed = self.cfg.get_args()['seed'],
-                    desired_range = desired_range
+                    total_CFs=cf_cfg['total_CFs'],
+                    desired_class=desired_class,
+                    features_to_vary=lst_features,
+                    posthoc_sparsity_algorithm=cf_cfg['posthoc_sparsity_algorithm'],
+                    random_seed=self.cfg.get_args()['seed'],
+                    desired_range=desired_range
             )
 
             lst = [e1] if is_tf_model(self.model) else e1.cf_examples_list

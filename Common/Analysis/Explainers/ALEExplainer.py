@@ -17,6 +17,8 @@ from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
 from Common.Config.ConfigHolder import FEATURE, ATTR
 
 class ALEExplainer(ExplainerModel):
+    EXPLAINER_NAME = 'ALE'
+
     def explain(self):
         # https://docs.seldon.io/projects/alibi/en/latest/api/alibi.explainers.ale.html
         targets = np.unique(self.yts).astype(str)

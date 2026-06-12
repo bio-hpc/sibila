@@ -24,7 +24,8 @@ class SklearnNetwork(tf.keras.Model):
             y = self.original_model.predict(X[:100])
             return len(np.unique(y))
 
-    def build_surrogate(self, hidden_units=[64, 32]):
+    def build_surrogate(self, hidden_units=None, learning_rate=0.001):
+        hidden_units = hidden_units or [64, 32]
         model = tf.keras.Sequential()
         model.add(tf.keras.layers.Input(shape=(self.input_dim,)))
 
@@ -47,11 +48,11 @@ class SklearnNetwork(tf.keras.Model):
             model.add(tf.keras.layers.Dense(1))
             loss = "mse"
 
-        optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+        optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
         model.compile(optimizer=optimizer, loss=loss)
         return model
 
-    def fit_surrogate(self, X, epochs=100, batch_size=32, verbose=0):
+    def fit_surrogate(self, X, epochs=100, batch_size=32, verbose=0, hidden_units=None, learning_rate=0.001):
         # auto-detection of classes in case they're not supplied
         if self.task == "classification" and self.n_classes is None:
             self.n_classes = self.infer_n_classes(X)
@@ -60,7 +61,7 @@ class SklearnNetwork(tf.keras.Model):
         y = self.original_model.predict(X)
         y_numeric = np.array(y).astype(int)
 
-        self.surrogate = self.build_surrogate()
+        self.surrogate = self.build_surrogate(hidden_units=hidden_units, learning_rate=learning_rate)
         self.surrogate.fit(X, y_numeric,
                            epochs=epochs,
                            batch_size=batch_size,
@@ -72,7 +73,15 @@ class SklearnNetwork(tf.keras.Model):
         else:
             return self.surrogate(inputs)
 
-    def prepare(self, X_train):
+    def prepare(self, X_train, surrogate_cfg=None):
         if not self.is_differentiable():
-            self.fit_surrogate(X_train)
+            cfg = surrogate_cfg or {}
+            self.fit_surrogate(
+                X_train,
+                epochs=cfg.get('epochs', 100),
+                batch_size=cfg.get('batch_size', 32),
+                verbose=cfg.get('verbose', 0),
+                hidden_units=cfg.get('hidden_units', [64, 32]),
+                learning_rate=cfg.get('learning_rate', 0.001),
+            )
         return self

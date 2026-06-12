@@ -18,6 +18,8 @@ from pathlib import Path
 
 
 class AnchorExplainer(ExplainerModel):
+    EXPLAINER_NAME = 'Anchor'
+
     def explain(self):
         """
             https://scikit-learn.org/stable/modules/generated/sklearn.inspection.permutation_importance.html
@@ -30,12 +32,13 @@ class AnchorExplainer(ExplainerModel):
             predict_fn = self.model.predict
 
         #explainer = AnchorTabular(self.model.predict_proba, self.id_list, seed=self.cfg.get_args()['seed'])
+        anchor_cfg = self.get_explainer_cfg()
         explainer = AnchorTabular(predict_fn, self.id_list, seed=self.cfg.get_args()['seed'])
-        explainer.fit(self.xtr, disc_perc=(25, 50, 75))
+        explainer.fit(self.xtr, disc_perc=tuple(anchor_cfg['disc_perc']))
 
         df_local = []
         for i in tqdm(range(len(self.xts))):
-            explanation = explainer.explain(self.xts[i], threshold=0.95)
+            explanation = explainer.explain(self.xts[i], threshold=anchor_cfg['threshold'])
 
             features = np.unique([self.id_list[f] for f in explanation.raw['feature']])
             precisions = [ explanation.precision ]*len(features)

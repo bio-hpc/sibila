@@ -7,8 +7,10 @@ import pandas as pd
 from Tools.Estimators.TensorFlowEstimator import TensorFlowEstimator
 from Tools.ToolsModels import is_tf_model
 from Common.Config.ConfigHolder import ATTR, FEATURE, MAX_IMPORTANCES, STD
+from Common.Config.config import get_interpretability_config
 
 class ExplainerModel(abc.ABC):
+    EXPLAINER_NAME = None
 
     def __init__(self, model, xtr, ytr, xts, yts, id_list, cfg, io_data, idx_xts):
         self.io_data = io_data
@@ -24,6 +26,10 @@ class ExplainerModel(abc.ABC):
         self.random_state = cfg.get_args()['seed']
         self.class_target = np.unique(ytr).astype(str)
         self.estimator = TensorFlowEstimator(inner_model=model, cfg=cfg, Y=ytr)
+
+    def get_explainer_cfg(self, explainer_name=None):
+        name = explainer_name or self.EXPLAINER_NAME
+        return get_interpretability_config(self.cfg.get_params(), name)
 
     @abc.abstractmethod
     def explain(self):

@@ -21,6 +21,7 @@ from Common.Config.ConfigHolder import FEATURE, ATTR, STD, PROBA, TRUEVAL, PREDV
 
 
 class IntegratedGradientsExplainer(ExplainerModel):
+    EXPLAINER_NAME = 'IntegratedGradients'
 
     def explain(self):
         # Get numerical feature importances with the integrated gradients technique
@@ -42,8 +43,10 @@ class IntegratedGradientsExplainer(ExplainerModel):
         if baseline_.shape != self.xts_.shape:
             baseline_ = np.zeros_like(self.xts_)
 
+        ig_cfg = self.get_explainer_cfg()
+        surrogate_cfg = ig_cfg.get('surrogate', {})
         model_ = SklearnNetwork(self.model, input_dim=self.xtr.shape[1], task=task, n_classes=n_classes)
-        model_.prepare(self.xtr)
+        model_.prepare(self.xtr, surrogate_cfg=surrogate_cfg)
 
         inputs_tf = tf.convert_to_tensor(self.xts, dtype=tf.float32)
         preds = model_(inputs_tf).numpy()
@@ -61,7 +64,7 @@ class IntegratedGradientsExplainer(ExplainerModel):
         else:
             target_ = None
 
-        ig = IntegratedGradients(model_, method='riemann_trapezoid', n_steps=50)
+        ig = IntegratedGradients(model_, method=ig_cfg['method'], n_steps=ig_cfg['n_steps'])
         explanation = ig.explain(self.xts_, baselines=baseline_, target=target_)
         self.attrs = np.squeeze(explanation.attributions)
 
@@ -69,6 +72,9 @@ class IntegratedGradientsExplainer(ExplainerModel):
         return pd.DataFrame({FEATURE: self.id_list, ATTR: np.mean(self.attrs, axis=0), STD: np.std(self.attrs, axis=0)})
 
     def get_baseline(self, X):
+        cfg = self.get_explainer_cfg()
+        if cfg.get('baseline', 'mean') == 'zero':
+            return np.zeros((1, X.shape[1]), dtype=float)
         return np.mean(self.xtr, axis=0, keepdims=True)
 
     def plot(self, df, method=None):

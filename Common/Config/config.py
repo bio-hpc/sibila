@@ -36,6 +36,11 @@ def get_feature_reduction_config(type_model, args):
     return cfg.get('feature_reduction', {})
 
 
+def get_interpretability_config(model_params, explainer_name):
+    from Common.Config.interpretability_defaults import get_explainer_config
+    return get_explainer_config(model_params, explainer_name)
+
+
 def check_params(default_cfg, params, level=0):
     for k, v in params.items():
         if isinstance(v, dict):

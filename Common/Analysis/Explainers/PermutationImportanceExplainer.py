@@ -17,6 +17,8 @@ from Common.Config.ConfigHolder import FEATURE, ATTR, STD
 
 
 class PermutationImportanceExplainer(ExplainerModel):
+    EXPLAINER_NAME = 'PermutationImportance'
+
     def explain(self):
         """
             https://scikit-learn.org/stable/modules/generated/sklearn.inspection.permutation_importance.html
@@ -38,13 +40,15 @@ class PermutationImportanceExplainer(ExplainerModel):
             else:
                 my_model = self.model
 
+            pi_cfg = self.get_explainer_cfg()
             results = permutation_importance(
                 my_model,
                 self.xtr,
                 self.ytr,
                 scoring=scorer,
                 random_state=self.random_state,
-                n_jobs=1,  #to parallelise it uses the pickle library and some models are not compatible, it is left without parallelisation. 
+                n_repeats=pi_cfg['n_repeats'],
+                n_jobs=pi_cfg['n_jobs'],
             )
 
         # build the same structure as the other algorithms

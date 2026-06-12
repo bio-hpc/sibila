@@ -17,6 +17,7 @@ from Common.Analysis.Explainers.ExplainerModel import ExplainerModel
 from Common.Config.ConfigHolder import FEATURE, ATTR, PROBA, TRUEVAL, PREDVAL
 
 class ShapleyExplainer(ExplainerModel):
+    EXPLAINER_NAME = 'Shapley'
 
     def explain(self):
         """

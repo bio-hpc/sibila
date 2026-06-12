@@ -66,6 +66,8 @@ A full user guide is available at: https://docs.google.com/document/d/e/2PACX-1v
 - Implemented the novel WISCA function for consensus.
 - Added -fr/--feature_selection for feature selection prior to training.
 - Perform testing with in-memory generated sythentic data.
+- Interpretability algorithms are externally configured from JSON.
+- Surrogate model for the IG explainer is externally configured from JSON.
 
 **v1.2.2** (18/06/2025)
 - Implemented voting model.

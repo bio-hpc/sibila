@@ -73,5 +73,53 @@
         "outliers": "turkey",
         "selection": "backward",
         "max_features": 5
+    },
+    "interpretability": {
+        "Lime": {
+            "num_samples": 5000,
+            "discretize_continuous": true,
+            "discretizer": "entropy",
+            "feature_selection": "forward_selection",
+            "top_labels": 1
+        },
+        "Shapley": {},
+        "IntegratedGradients": {
+            "method": "riemann_trapezoid",
+            "n_steps": 50,
+            "baseline": "mean",
+            "surrogate": {
+                "hidden_units": [
+                    64,
+                    32
+                ],
+                "epochs": 100,
+                "batch_size": 32,
+                "learning_rate": 0.001,
+                "verbose": 0
+            }
+        },
+        "PermutationImportance": {
+            "n_repeats": 5,
+            "n_jobs": 1
+        },
+        "MDI": {
+            "n_estimators": 100,
+            "random_state": null
+        },
+        "Counterfactuals": {
+            "method": "random",
+            "total_CFs": 10,
+            "posthoc_sparsity_algorithm": "binary"
+        },
+        "Anchor": {
+            "threshold": 0.95,
+            "disc_perc": [
+                25,
+                50,
+                75
+            ]
+        },
+        "PDP": {},
+        "ALE": {}
     }
 }

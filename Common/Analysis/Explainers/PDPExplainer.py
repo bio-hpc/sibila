@@ -15,6 +15,8 @@ from Tools.ToolsModels import get_explainer_model
 
 
 class PDPExplainer(ExplainerModel):
+    EXPLAINER_NAME = 'PDP'
+
     def explain(self):
         # https://scikit-learn.org/stable/modules/partial_dependence.html#partial-dependence-plots
         return self.execute()
