@@ -64,6 +64,8 @@ A full user guide is available at: https://docs.google.com/document/d/e/2PACX-1v
 - Detected if GPUs are available and, if not, dynamically make them invisible.
 - GPU's usage plot delivered in the PDF summary report.
 - Implemented the novel WISCA function for consensus.
+- Added -fr/--feature_selection for feature selection prior to training.
+- Perform testing with in-memory generated sythentic data.
 
 **v1.2.2** (18/06/2025)
 - Implemented voting model.
