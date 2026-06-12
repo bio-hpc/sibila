@@ -4,7 +4,7 @@ from Common.Analysis.Interpretability import Interpretability
 from Tools.datasets import get_dataset, split_samples, FIELD_TARGET
 from Tools.IOData import IOData, get_serialized_params
 from Common.Config.ConfigHolder import ConfigHolder
-from Common.Config.config import get_config, get_basic_config
+from Common.Config.config import get_config, get_basic_config, get_feature_reduction_config
 from Common.Analysis.EvaluationMetrics import EvaluationMetrics, TypeML
 from Common.Analysis.EndProcess import EndProcess
 from Common.Analysis.MergeResults import MergeResults
@@ -13,6 +13,7 @@ from Common.Input.InputParams import InputParams
 import datetime
 from datetime import datetime
 from Tools.DataNormalization import DataNormalization
+from Tools.FeatureReduction import FeatureReduction
 from Tools.ToolsModels import is_regression_by_args, is_tf_model, is_ripper_model, is_multiclass
 import os
 from os.path import join, basename, splitext, dirname, exists
@@ -63,7 +64,12 @@ def main():
 
     t = Timer('Load data')
     x, y, id_list, idx_samples, n_classes = get_dataset(file_dataset, io_data, args.model)
-    x = DataNormalization().choice_method_normalize(x, args)
+
+    if args.feature_reduction and not args.model:
+        FeatureReduction().save_backup(x, y, id_list, idx_samples, args.folder, file_dataset, io_data)
+
+    if not args.feature_reduction:
+        x = DataNormalization().choice_method_normalize(x, args)
 
     if not args.model and not args.skip_dataset_analysis:
         Graphics().graph_dataset(x, y, id_list, FIELD_TARGET, join(args.folder, 'Dataset/'))
@@ -92,11 +98,25 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     cfg = get_cfg(folder_experiment, file_dataset, type_model, args)
     is_regression = is_regression_by_args(args)
 
+    x_work = np.array(x, copy=True)
+    y_work = np.array(y, copy=True)
+    id_list_work = list(id_list)
+    idx_samples_work = list(idx_samples)
+
     # if "regression" then n_classes = default (None)
     if not is_regression:
         cfg.set_n_classes(n_classes)
 
-    model = globals()[type_model](io_data, cfg, id_list)
+    if args.feature_reduction:
+        fr_cfg = get_feature_reduction_config(type_model, args)
+        if not fr_cfg:
+            io_data.print_e('Feature reduction enabled but {} config has no feature_reduction section'.format(type_model))
+        fr = FeatureReduction()
+        x_work, id_list_work, y_work, state = fr.apply(
+            x_work, y_work, id_list_work, fr_cfg, is_regression, io_data
+        )
+
+    model = globals()[type_model](io_data, cfg, id_list_work)
 
     if is_ripper_model(model) and is_multiclass(cfg):
         io_data.print_e('RP doest no support multiclass classification yet')
@@ -104,11 +124,18 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
     print("\n")
     cfg.set_prefix(model.get_prefix())
 
+    if args.feature_reduction:
+        fr.save_state(cfg.get_prefix(), state['kept_features'], state['removed_features'], io_data)
+
+    x_work = DataNormalization().choice_method_normalize(x_work, args)
+
     gt = GPUTracker(cfg.get_prefix())
     gt.start(type_model)
 
-    xtr, xts, ytr, yts, idx_xtr, idx_xts = split_samples(x, y, (args.trainsize / 100), io_data, args.seed, idx_samples, is_regression=is_regression)
-    xtr, ytr, idx_samples = DatasetBalanced().choice_method_balanced(xtr, ytr, args, idx_samples)
+    xtr, xts, ytr, yts, idx_xtr, idx_xts = split_samples(
+        x_work, y_work, (args.trainsize / 100), io_data, args.seed, idx_samples_work, is_regression=is_regression
+    )
+    xtr, ytr, idx_samples_work = DatasetBalanced().choice_method_balanced(xtr, ytr, args, idx_samples_work)
 
     t = Timer('Training')
     model.train(xtr, ytr)
@@ -116,9 +143,9 @@ def execute(x, y, id_list, idx_samples, io_data, folder_experiment, file_dataset
 
     ypr = model.predict(xts)
     BaseModel.save_model(cfg, model.get_model())
-    EvaluationMetrics(yts, ypr, xts, cfg, model.get_model(), id_list, io_data, n_classes).all_metrics()
+    EvaluationMetrics(yts, ypr, xts, cfg, model.get_model(), id_list_work, io_data, n_classes).all_metrics()
 
-    sp = Serialize(model.get_model(), xtr, ytr, xts, yts, id_list, cfg, io_data, idx_xts)
+    sp = Serialize(model.get_model(), xtr, ytr, xts, yts, id_list_work, cfg, io_data, idx_xts)
     pkl_file = save_params(sp)
     io_data.print_m("Model's state saved in {}".format(pkl_file))
 
@@ -135,11 +162,19 @@ def execute_pred(x, y, id_list, idx_samples, io_data, folder_experiment, file_da
     print("\n")
     cfg.set_prefix(join(args.folder, basename(type_model)))
 
+    x_work = np.array(x, copy=True)
+    id_list_work = list(id_list)
+
+    if args.feature_reduction:
+        x_work, id_list_work = FeatureReduction().apply_from_state(x_work, id_list_work, type_model, io_data)
+
+    x_work = DataNormalization().choice_method_normalize(x_work, args)
+
     gt = GPUTracker(cfg.get_prefix())
     gt.start(type_model)
 
     ypr_class, ypr_prob = [], []
-    for xts in x:
+    for xts in x_work:
         try:
             if 'predict_proba' in dir(model):
                 yhat = model.predict_proba(np.array([xts]))

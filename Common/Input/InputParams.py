@@ -104,6 +104,7 @@ class InputParams:
                             choices=list(DatasetBalanced.METHODS.keys()))
         parser.add_argument('--skip-dataset-analysis', help='Skip dataset analysis plots', action='store_true', default=False)
         parser.add_argument('--skip-interpretability', help='Do not compute interpretability on test data', action='store_true', default=False)
+        parser.add_argument('-fr', '--feature-reduction', help='Apply statistical feature reduction using model JSON config', action='store_true', default=False)
         parser.add_argument('-e', '--explanation', help='Explain a dataset given a .pkl file', type=str)
 
         args = parser.parse_args()

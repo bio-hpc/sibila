@@ -7,16 +7,69 @@
         "verbose": 1
     },
     "params_grid": {
-        "probability": [1],
-        "C": [0.5, 1, 1.5],
-        "kernel": ["linear", "poly", "rbf", "sigmoid"],
-        "degree": [1,2,3,4,5],
-        "gamma": ["scale", "auto"],
-        "coef0": [0,0.5,1],
-        "shrinking": [true, false],
-        "tol": [0.0001,0.0005, 0.001, 0.002],
-        "cache_size": [100,200,300],
-        "max_iter": [-1, 100, 150, 200,500],
-        "decision_function_shape": ["ovo", "ovr"]
+        "probability": [
+            1
+        ],
+        "C": [
+            0.5,
+            1,
+            1.5
+        ],
+        "kernel": [
+            "linear",
+            "poly",
+            "rbf",
+            "sigmoid"
+        ],
+        "degree": [
+            1,
+            2,
+            3,
+            4,
+            5
+        ],
+        "gamma": [
+            "scale",
+            "auto"
+        ],
+        "coef0": [
+            0,
+            0.5,
+            1
+        ],
+        "shrinking": [
+            true,
+            false
+        ],
+        "tol": [
+            0.0001,
+            0.0005,
+            0.001,
+            0.002
+        ],
+        "cache_size": [
+            100,
+            200,
+            300
+        ],
+        "max_iter": [
+            -1,
+            100,
+            150,
+            200,
+            500
+        ],
+        "decision_function_shape": [
+            "ovo",
+            "ovr"
+        ]
+    },
+    "feature_reduction": {
+        "fill_nan": "mean",
+        "remove_empty_cols": 0.95,
+        "drop_min_variance": 0.0,
+        "outliers": "turkey",
+        "selection": "backward",
+        "max_features": 5
     }
 }

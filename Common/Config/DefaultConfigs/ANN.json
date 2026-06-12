@@ -10,23 +10,48 @@
         "train_grid": "train_random"
     },
     "params_grid": {
-        "objective": ["accuracy"],
+        "objective": [
+            "accuracy"
+        ],
         "max_layers": 3,
         "min_units": 4,
         "max_units": 512,
         "step_units": 4,
         "output_units": 2,
-        "activation": ["relu","elu","tanh","sigmoid","softmax","linear","exponential"],
+        "activation": [
+            "relu",
+            "elu",
+            "tanh",
+            "sigmoid",
+            "softmax",
+            "linear",
+            "exponential"
+        ],
         "dropout": true,
         "dropout_rate": 0.15,
-        "optimizer": ["Adam", "RMSprop", "SGD", "Adagrad"],
-        "min_lr": 1e-4,
-        "max_lr": 1e-2,
+        "optimizer": [
+            "Adam",
+            "RMSprop",
+            "SGD",
+            "Adagrad"
+        ],
+        "min_lr": 0.0001,
+        "max_lr": 0.01,
         "sampling_lr": "log",
-        "metrics": ["accuracy"],
+        "metrics": [
+            "accuracy"
+        ],
         "loss_function": "sparse_categorical_crossentropy",
         "epochs": 80,
         "executions_per_trial": 5,
         "early_stopping_patience": 5
+    },
+    "feature_reduction": {
+        "fill_nan": "mean",
+        "remove_empty_cols": 0.95,
+        "drop_min_variance": 0.0,
+        "outliers": "turkey",
+        "selection": "backward",
+        "max_features": 5
     }
 }

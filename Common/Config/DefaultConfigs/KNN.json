@@ -1,17 +1,49 @@
 {
-  "model": "KNN",
-  "train_grid":"train_random",
-  "classification_type": "binary",
-  "params": {
-      "n_jobs": 8,
-      "weights": "distance"
-  },
-  "params_grid":
-  {
-      "n_neighbors": [3, 4, 5, 6, 7],
-      "algorithm" : ["auto", "ball_tree", "kd_tree", "brute"],
-      "leaf_size": [10, 20, 30, 50],
-      "metric": ["minkowski", "euclidean", "manhattan", "chebyshev"],
-      "p": [1, 2, 3]
-  }
+    "model": "KNN",
+    "train_grid": "train_random",
+    "classification_type": "binary",
+    "params": {
+        "n_jobs": 8,
+        "weights": "distance"
+    },
+    "params_grid": {
+        "n_neighbors": [
+            3,
+            4,
+            5,
+            6,
+            7
+        ],
+        "algorithm": [
+            "auto",
+            "ball_tree",
+            "kd_tree",
+            "brute"
+        ],
+        "leaf_size": [
+            10,
+            20,
+            30,
+            50
+        ],
+        "metric": [
+            "minkowski",
+            "euclidean",
+            "manhattan",
+            "chebyshev"
+        ],
+        "p": [
+            1,
+            2,
+            3
+        ]
+    },
+    "feature_reduction": {
+        "fill_nan": "mean",
+        "remove_empty_cols": 0.95,
+        "drop_min_variance": 0.0,
+        "outliers": "turkey",
+        "selection": "backward",
+        "max_features": 5
+    }
 }

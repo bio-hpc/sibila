@@ -1,21 +1,48 @@
 {
-  "model": "BAG",
-  "train_grid": "train_random",
-  "classification_type": "binary",
-  "params": {
-      "n_estimators": 10,
-      "bootstrap": false,
-      "max_features": 1.0,
-      "verbose": 0,
-      "n_jobs": 8
-  },
-  "params_grid":
-  {   
-	"n_jobs": [8],
-      	"n_estimators": [10, 20, 50],
-      	"max_features":[0.25, 0.5, 1.0],
-      	"oob_score": [true, false],
-      	"bootstrap":[true, false],
-	"max_samples": [0.25, 0.5, 1.0]
-  }
+    "model": "BAG",
+    "train_grid": "train_random",
+    "classification_type": "binary",
+    "params": {
+        "n_estimators": 10,
+        "bootstrap": false,
+        "max_features": 1.0,
+        "verbose": 0,
+        "n_jobs": 8
+    },
+    "params_grid": {
+        "n_jobs": [
+            8
+        ],
+        "n_estimators": [
+            10,
+            20,
+            50
+        ],
+        "max_features": [
+            0.25,
+            0.5,
+            1.0
+        ],
+        "oob_score": [
+            true,
+            false
+        ],
+        "bootstrap": [
+            true,
+            false
+        ],
+        "max_samples": [
+            0.25,
+            0.5,
+            1.0
+        ]
+    },
+    "feature_reduction": {
+        "fill_nan": "mean",
+        "remove_empty_cols": 0.95,
+        "drop_min_variance": 0.0,
+        "outliers": "turkey",
+        "selection": "backward",
+        "max_features": 5
+    }
 }

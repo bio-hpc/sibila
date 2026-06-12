@@ -2,3 +2,5 @@ Tests/Tests/
 *.tar.gz
 *.pyc
 .vscode/*
+Tools/Singularity/sibila.sif
+Tools/Singularity/sibila.sif/

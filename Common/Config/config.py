@@ -31,6 +31,11 @@ def get_basic_config(args):
     return cfg
 
 
+def get_feature_reduction_config(type_model, args):
+    cfg = get_config(type_model, args)
+    return cfg.get('feature_reduction', {})
+
+
 def check_params(default_cfg, params, level=0):
     for k, v in params.items():
         if isinstance(v, dict):
