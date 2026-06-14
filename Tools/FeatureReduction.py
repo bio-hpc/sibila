@@ -61,8 +61,13 @@ class FeatureReduction:
         y = np.array(y)
         id_list = list(id_list)
         original_features = list(id_list)
+        n_samples_initial = x.shape[0]
 
-        io_data.print_m('Feature reduction: {} features before processing'.format(len(id_list)))
+        io_data.print_m(
+            'Feature reduction: {} samples x {} features before processing'.format(
+                n_samples_initial, len(id_list)
+            )
+        )
 
         if fr_cfg.get('fill_nan') is not None:
             x = self._fill_nan(x, fr_cfg['fill_nan'], io_data)
@@ -74,17 +79,23 @@ class FeatureReduction:
             x, id_list = self._drop_min_variance(x, id_list, fr_cfg['drop_min_variance'], io_data)
 
         if fr_cfg.get('outliers') is not None:
-            x, y, id_list = self._remove_outliers(x, y, id_list, fr_cfg['outliers'], io_data)
+            x = self._cap_outliers(x, fr_cfg['outliers'], io_data)
 
-        max_features = fr_cfg.get('max_features', 5)
         if fr_cfg.get('selection') is not None:
             x, id_list = self._select_features(
-                x, y, id_list, fr_cfg['selection'], max_features, is_regression, io_data
+                x, y, id_list, fr_cfg, is_regression, io_data
             )
 
         kept_features = list(id_list)
         removed_features = [feature for feature in original_features if feature not in kept_features]
-        io_data.print_m('Feature reduction: {} features after processing'.format(len(kept_features)))
+        io_data.print_m(
+            'Feature reduction finished: final dataset {} samples x {} features '
+            '(removed {} features)'.format(
+                x.shape[0],
+                len(kept_features),
+                len(removed_features),
+            )
+        )
 
         state = {
             'kept_features': kept_features,
@@ -104,7 +115,11 @@ class FeatureReduction:
 
         indices = [id_list.index(feature) for feature in kept_features]
         x = np.array(x, dtype=float)[:, indices]
-        io_data.print_m('Feature reduction (prediction): using {} features'.format(len(kept_features)))
+        io_data.print_m(
+            'Feature reduction (prediction): final dataset {} samples x {} features'.format(
+                x.shape[0], len(kept_features)
+            )
+        )
         return x, kept_features
 
     @staticmethod
@@ -162,10 +177,11 @@ class FeatureReduction:
         return x_reduced, id_list
 
     @staticmethod
-    def _remove_outliers(x, y, id_list, method, io_data):
+    def _cap_outliers(x, method, io_data):
         io_data.print_m('\tApplying outliers: {}'.format(method))
         method = str(method).lower()
-        keep_mask = np.ones(x.shape[0], dtype=bool)
+        x = x.copy()
+        capped_values = 0
 
         if method == 'turkey':
             for idx in range(x.shape[1]):
@@ -176,28 +192,60 @@ class FeatureReduction:
                     continue
                 lower = q1 - 1.5 * iqr
                 upper = q3 + 1.5 * iqr
-                keep_mask &= (column >= lower) & (column <= upper)
+                below = column < lower
+                above = column > upper
+                capped_values += int(below.sum() + above.sum())
+                column = column.copy()
+                column[below] = lower
+                column[above] = upper
+                x[:, idx] = column
         elif method == 'remove':
             for idx in range(x.shape[1]):
                 column = x[:, idx]
                 std = np.std(column)
                 if std == 0:
                     continue
-                z_scores = np.abs((column - np.mean(column)) / std)
-                keep_mask &= z_scores <= 3
+                mean = np.mean(column)
+                lower = mean - 3 * std
+                upper = mean + 3 * std
+                below = column < lower
+                above = column > upper
+                capped_values += int(below.sum() + above.sum())
+                column = column.copy()
+                column[below] = lower
+                column[above] = upper
+                x[:, idx] = column
         else:
             io_data.print_e('Unsupported outliers method: {}'.format(method))
 
-        removed_rows = x.shape[0] - np.sum(keep_mask)
-        io_data.print_m('\tRemoved {} outlier rows'.format(removed_rows))
-        return x[keep_mask], y[keep_mask], id_list
+        io_data.print_m('\tCapped {} outlier values (all rows preserved)'.format(capped_values))
+        return x
 
     @staticmethod
-    def _f_classif(x, y):
+    def _f_distribution_pvalue(f_score, df_num, df_den):
+        if f_score <= 0 or df_num <= 0 or df_den <= 0:
+            return 1.0
+        try:
+            from scipy.stats import f as f_dist
+            return float(f_dist.sf(f_score, df_num, df_den))
+        except Exception:
+            # Chi-square normal approximation when scipy is unavailable.
+            x = df_num * f_score
+            mu = df_num
+            sigma = max(np.sqrt(2.0 * df_num), 1e-12)
+            z = (x - mu) / sigma
+            from math import erfc, sqrt
+            return float(0.5 * erfc(z / sqrt(2.0)))
+
+    @classmethod
+    def _f_classif(cls, x, y):
         classes = np.unique(y)
         n_classes = len(classes)
         n_samples = x.shape[0]
         scores = np.zeros(x.shape[1], dtype=float)
+        p_values = np.ones(x.shape[1], dtype=float)
+        df_between = n_classes - 1
+        df_within = n_samples - n_classes
 
         for idx in range(x.shape[1]):
             column = x[:, idx]
@@ -210,63 +258,169 @@ class FeatureReduction:
                 ss_between += len(group) * (group_mean - overall_mean) ** 2
                 ss_within += ((group - group_mean) ** 2).sum()
 
-            df_between = n_classes - 1
-            df_within = n_samples - n_classes
             if ss_within == 0 or df_between <= 0 or df_within <= 0:
                 scores[idx] = 0.0
+                p_values[idx] = 1.0
             else:
-                scores[idx] = (ss_between / df_between) / (ss_within / df_within)
-        return scores
+                f_score = (ss_between / df_between) / (ss_within / df_within)
+                scores[idx] = f_score
+                p_values[idx] = cls._f_distribution_pvalue(f_score, df_between, df_within)
+        return scores, p_values
 
-    @staticmethod
-    def _f_regression(x, y):
+    @classmethod
+    def _f_regression(cls, x, y):
         y = y.astype(float)
         y_centered = y - y.mean()
         y_ss = np.dot(y_centered, y_centered)
+        n_samples = x.shape[0]
         scores = np.zeros(x.shape[1], dtype=float)
+        p_values = np.ones(x.shape[1], dtype=float)
+        df_num = 1
+        df_den = n_samples - 2
 
         for idx in range(x.shape[1]):
             column = x[:, idx].astype(float)
             column_centered = column - column.mean()
             column_ss = np.dot(column_centered, column_centered)
-            if column_ss == 0 or y_ss == 0:
+            if column_ss == 0 or y_ss == 0 or df_den <= 0:
                 scores[idx] = 0.0
+                p_values[idx] = 1.0
             else:
                 corr = np.dot(column_centered, y_centered) / np.sqrt(column_ss * y_ss)
-                scores[idx] = corr ** 2
-        return scores
+                r2 = corr ** 2
+                f_score = (r2 / max(1.0 - r2, 1e-12)) * df_den
+                scores[idx] = f_score
+                p_values[idx] = cls._f_distribution_pvalue(f_score, df_num, df_den)
+        return scores, p_values
 
     @classmethod
     def _score_features(cls, x, y, is_regression):
         if is_regression:
-            scores = cls._f_regression(x, y)
+            scores, p_values = cls._f_regression(x, y)
         else:
-            scores = cls._f_classif(x, y)
-        return np.nan_to_num(scores, nan=0.0, posinf=0.0, neginf=0.0)
+            scores, p_values = cls._f_classif(x, y)
+        scores = np.nan_to_num(scores, nan=0.0, posinf=0.0, neginf=0.0)
+        p_values = np.nan_to_num(p_values, nan=1.0, posinf=1.0, neginf=1.0)
+        return scores, p_values
 
-    def _select_features(self, x, y, id_list, method, max_features, is_regression, io_data):
-        method = str(method).lower()
-        io_data.print_m('\tApplying selection: {} (max_features={})'.format(method, max_features))
-        max_features = int(max_features)
+    @staticmethod
+    def _parse_selection_config(fr_cfg):
+        max_features = fr_cfg.get('max_features')
+        if max_features is not None:
+            max_features = int(max_features)
+
+        min_features = fr_cfg.get('min_features', 1)
+        min_features = max(1, int(min_features))
+
+        p_value_threshold = fr_cfg.get('p_value_threshold')
+        if p_value_threshold is not None:
+            p_value_threshold = float(p_value_threshold)
+
+        score_threshold = fr_cfg.get('score_threshold')
+        if score_threshold is not None:
+            score_threshold = float(score_threshold)
+
+        return {
+            'method': str(fr_cfg['selection']).lower(),
+            'max_features': max_features,
+            'min_features': min_features,
+            'p_value_threshold': p_value_threshold,
+            'score_threshold': score_threshold,
+        }
+
+    @staticmethod
+    def _is_significant(p_value, score, selection_cfg):
+        if selection_cfg['p_value_threshold'] is not None:
+            return p_value <= selection_cfg['p_value_threshold']
+        if selection_cfg['score_threshold'] is not None:
+            return score >= selection_cfg['score_threshold']
+        return True
+
+    def _apply_selection_limits(self, selected, scores, p_values, selection_cfg, io_data):
+        selected = sorted(set(selected))
+        min_features = selection_cfg['min_features']
+        max_features = selection_cfg['max_features']
+
+        if selection_cfg['p_value_threshold'] is not None or selection_cfg['score_threshold'] is not None:
+            significant = [
+                idx for idx in selected
+                if self._is_significant(p_values[idx], scores[idx], selection_cfg)
+            ]
+            if len(significant) >= min_features:
+                selected = significant
+            else:
+                ranked = sorted(selected, key=lambda idx: (p_values[idx], -scores[idx]))
+                selected = ranked[:min_features]
+                io_data.print_m('\tSelection kept {} features to satisfy min_features'.format(len(selected)))
+
+        if max_features is not None and len(selected) > max_features:
+            ranked = sorted(selected, key=lambda idx: (-scores[idx], p_values[idx]))
+            selected = sorted(ranked[:max_features])
+            io_data.print_m('\tSelection capped at max_features={}'.format(max_features))
+
+        return selected
+
+    def _select_features(self, x, y, id_list, fr_cfg, is_regression, io_data):
+        selection_cfg = self._parse_selection_config(fr_cfg)
+        method = selection_cfg['method']
+        max_features = selection_cfg['max_features']
+        p_value_threshold = selection_cfg['p_value_threshold']
+        score_threshold = selection_cfg['score_threshold']
+
+        if max_features is None and p_value_threshold is None and score_threshold is None:
+            io_data.print_e(
+                'Feature selection requires at least one stopping criterion: '
+                'p_value_threshold, score_threshold or max_features'
+            )
+
+        stop_desc = []
+        if p_value_threshold is not None:
+            stop_desc.append('p_value_threshold={}'.format(p_value_threshold))
+        if score_threshold is not None:
+            stop_desc.append('score_threshold={}'.format(score_threshold))
+        if max_features is not None:
+            stop_desc.append('max_features={}'.format(max_features))
+        io_data.print_m('\tApplying selection: {} ({})'.format(method, ', '.join(stop_desc)))
+
         n_features = x.shape[1]
-
-        if n_features <= max_features:
-            io_data.print_m('\tSelection skipped: already at or below max_features')
-            return x, id_list
+        scores, p_values = self._score_features(x, y, is_regression)
 
         if method == 'forward':
-            scores = self._score_features(x, y, is_regression)
-            ranked = np.argsort(scores)[::-1]
-            selected = sorted(ranked[:max_features].tolist())
+            ranked = sorted(range(n_features), key=lambda idx: (-scores[idx], p_values[idx]))
+            selected = []
+            for idx in ranked:
+                if not self._is_significant(p_values[idx], scores[idx], selection_cfg):
+                    break
+                selected.append(idx)
+                if max_features is not None and len(selected) >= max_features:
+                    break
+            if len(selected) < selection_cfg['min_features']:
+                selected = ranked[:selection_cfg['min_features']]
         elif method == 'backward':
             selected = list(range(n_features))
-            while len(selected) > max_features:
-                scores = self._score_features(x[:, selected], y, is_regression)
-                worst_local = int(np.argmin(scores))
-                selected.pop(worst_local)
-            selected = sorted(selected)
+            while len(selected) > selection_cfg['min_features']:
+                if max_features is not None and len(selected) <= max_features:
+                    break
+
+                local_scores, local_p_values = self._score_features(x[:, selected], y, is_regression)
+                removable = [
+                    pos for pos, idx in enumerate(selected)
+                    if not self._is_significant(local_p_values[pos], local_scores[pos], selection_cfg)
+                ]
+                if not removable:
+                    if max_features is None or len(selected) <= max_features:
+                        break
+                    worst_local = int(np.argmin(local_scores))
+                    selected.pop(worst_local)
+                    continue
+
+                worst_removable = min(
+                    removable,
+                    key=lambda pos: (local_scores[pos], -local_p_values[pos])
+                )
+                selected.pop(worst_removable)
         else:
             io_data.print_e('Unsupported selection method: {}'.format(method))
 
-        selected = sorted(selected)
+        selected = self._apply_selection_limits(selected, scores, p_values, selection_cfg, io_data)
         return x[:, selected], [id_list[idx] for idx in selected]

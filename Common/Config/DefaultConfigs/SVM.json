@@ -70,7 +70,9 @@
         "drop_min_variance": 0.0,
         "outliers": "turkey",
         "selection": "backward",
-        "max_features": 5
+        "p_value_threshold": 0.05,
+        "max_features": null,
+        "min_features": 1
     },
     "interpretability": {
         "Lime": {

@@ -33,7 +33,7 @@ class MergeResults:
 
     def read_data(self):
 
-        for i in glob.glob(join(self.folder, '*.json')):
+        for i in glob.glob(join(self.folder, '*_data.json')):
             key_name = self.get_key_name(i)
             with open(i) as file_in:
                 self.results[key_name] = json.load(file_in)
